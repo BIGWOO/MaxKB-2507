@@ -609,7 +609,9 @@ onBeforeUnmount(() => {
 
 function setScrollBottom() {
   // 将滚动条滚动到最下面
-  scrollDiv.value.setScrollTop(getMaxHeight())
+  if (scrollDiv.value) {
+    scrollDiv.value.setScrollTop(getMaxHeight())
+  }
 }
 
 watch(
@@ -621,7 +623,8 @@ watch(
 )
 
 defineExpose({
-  setScrollBottom
+  setScrollBottom,
+  sendMessage
 })
 </script>
 <style lang="scss">

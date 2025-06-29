@@ -162,6 +162,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, nextTick, computed } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { marked } from 'marked'
 import { saveAs } from 'file-saver'
 import { isAppIcon } from '@/utils/application'
@@ -170,9 +171,11 @@ import useResize from '@/layout/hooks/useResize'
 import { hexToRgba } from '@/utils/theme'
 import EditTitleDialog from './EditTitleDialog.vue'
 import { t } from '@/locales'
+import { useChatUrlSync } from '@/composables/useChatUrlSync'
 useResize()
 
 const { user, log, common } = useStore()
+const { updateChatIdInUrl, removeFormIdFromUrl } = useChatUrlSync()
 
 const EditTitleDialogRef = ref()
 
@@ -200,6 +203,8 @@ const newObj = {
 const props = defineProps<{
   application_profile: any
   applicationAvailable: boolean
+  initial_chat_id?: string
+  initial_form_id?: string
 }>()
 const AiChatRef = ref()
 const loading = ref(false)
@@ -266,18 +271,24 @@ function handleScroll(event: any) {
 }
 
 function newChat() {
-  if (!chatLogData.value.some((v) => v.id === 'new')) {
-    paginationConfig.value.current_page = 1
-    paginationConfig.value.total = 0
-    currentRecordList.value = []
+  // 統一處理狀態重置，移除重複邏輯
+  paginationConfig.value.current_page = 1
+  paginationConfig.value.total = 0
+  currentRecordList.value = []
+  
+  // 確保新對話項目存在於歷史記錄中
+  const hasNewItem = chatLogData.value.some((v) => v.id === 'new')
+  if (!hasNewItem) {
     chatLogData.value.unshift(newObj)
-  } else {
-    paginationConfig.value.current_page = 1
-    paginationConfig.value.total = 0
-    currentRecordList.value = []
   }
+  
+  // 強制更新狀態
   currentChatId.value = 'new'
   currentChatName.value = t('chat.createChat')
+  
+  // 新對話時從 URL 移除 chat_id 參數
+  updateChatIdInUrl('new')
+  
   if (common.isMobile()) {
     isCollapse.value = false
   }
@@ -289,19 +300,15 @@ function getChatLog(id: string, refresh?: boolean) {
     page_size: 20
   }
 
-  log.asyncGetChatLogClient(id, page, left_loading).then((res: any) => {
+  return log.asyncGetChatLogClient(id, page, left_loading).then((res: any) => {
     chatLogData.value = res.data.records
+    
     if (refresh) {
       currentChatName.value = chatLogData.value?.[0]?.abstract
     } else {
       paginationConfig.value.current_page = 1
       paginationConfig.value.total = 0
       currentRecordList.value = []
-      currentChatId.value = chatLogData.value?.[0]?.id || 'new'
-      currentChatName.value = chatLogData.value?.[0]?.abstract || t('chat.createChat')
-      if (currentChatId.value !== 'new') {
-        getChatRecord()
-      }
     }
   })
 }
@@ -325,34 +332,39 @@ function getChatRecord() {
       currentRecordList.value = [...list, ...currentRecordList.value].sort((a, b) =>
         a.create_time.localeCompare(b.create_time)
       )
+      
       if (paginationConfig.value.current_page === 1) {
         nextTick(() => {
-          // 将滚动条滚动到最下面
-          AiChatRef.value.setScrollBottom()
+          AiChatRef.value?.setScrollBottom()
         })
       }
     })
 }
 
 const clickListHandle = (item: any) => {
-  if (item.id !== currentChatId.value) {
-    paginationConfig.value.current_page = 1
-    paginationConfig.value.total = 0
-    currentRecordList.value = []
-    currentChatId.value = item.id
-    currentChatName.value = item.abstract
-    if (currentChatId.value !== 'new') {
-      getChatRecord()
+  // 強制更新狀態，移除條件判斷避免點擊兩次的問題
+  paginationConfig.value.current_page = 1
+  paginationConfig.value.total = 0
+  currentRecordList.value = []
+  
+  currentChatId.value = item.id
+  currentChatName.value = item.abstract
+  
+  // 同步更新 URL 中的 chat_id 參數
+  updateChatIdInUrl(item.id)
+  
+  if (currentChatId.value !== 'new') {
+    getChatRecord()
 
-      // 切换对话后，取消暂停的浏览器播放
-      if (window.speechSynthesis.paused && window.speechSynthesis.speaking) {
-        window.speechSynthesis.resume()
-        nextTick(() => {
-          window.speechSynthesis.cancel()
-        })
-      }
+    // 切换对话后，取消暂停的浏览器播放
+    if (window.speechSynthesis.paused && window.speechSynthesis.speaking) {
+      window.speechSynthesis.resume()
+      nextTick(() => {
+        window.speechSynthesis.cancel()
+      })
     }
   }
+  
   if (common.isMobile()) {
     isCollapse.value = false
   }
@@ -361,6 +373,8 @@ const clickListHandle = (item: any) => {
 function refresh(id: string) {
   getChatLog(applicationDetail.value.id, true)
   currentChatId.value = id
+  // 更新 URL 中的 chat_id 參數
+  updateChatIdInUrl(id)
 }
 
 async function exportMarkdown(): Promise<void> {
@@ -385,6 +399,87 @@ async function exportHTML(): Promise<void> {
 }
 
 /**
+ * 處理初始 URL 參數
+ */
+const handleInitialParams = () => {
+  // 處理 chat_id 參數
+  if (props.initial_chat_id && props.initial_chat_id !== 'new') {
+    const targetChat = chatLogData.value.find((item: any) => item.id === props.initial_chat_id)
+    
+    if (targetChat) {
+      clickListHandle(targetChat)
+    } else {
+      // 直接設置 chat_id 並嘗試載入對話記錄
+      currentChatId.value = props.initial_chat_id
+      updateChatIdInUrl(props.initial_chat_id)
+      
+      // 嘗試獲取對話記錄
+      getChatRecord().catch(() => {
+        newChat()
+      })
+    }
+  } else {
+    // 如果當前還沒有設定 currentChatId 或者被自動設定為歷史記錄中的對話
+    if (currentChatId.value === 'new' || !currentChatId.value || chatLogData.value.some(item => item.id === currentChatId.value)) {
+      newChat()
+    }
+  }
+  
+  // 處理 form_id 參數
+  if (props.initial_form_id) {
+    // 檢查是否已經處理過這個 form_id
+    if (!window.processedFormIds) {
+      window.processedFormIds = new Set()
+    }
+    
+    if (!window.processedFormIds.has(props.initial_form_id)) {
+      window.processedFormIds.add(props.initial_form_id)
+      
+      nextTick(() => {
+        sendFormMessage(props.initial_form_id!)
+        // 延遲移除 form_id，避免重複初始化時找不到參數
+        setTimeout(() => {
+          removeFormIdFromUrl()
+        }, 500)
+      })
+    }
+  }
+}
+
+/**
+ * 發送表單訊息
+ */
+const sendFormMessage = (formId: string) => {
+  const message = `我已填寫表單 @${formId}`
+  
+  const trySendMessage = () => {
+    if (AiChatRef.value && AiChatRef.value.sendMessage) {
+      AiChatRef.value.sendMessage(message)
+      return true
+    } else {
+      return false
+    }
+  }
+  
+  // 嘗試立即發送
+  if (!trySendMessage()) {
+    let attempts = 0
+    const maxAttempts = 20
+    
+    const pollInterval = setInterval(() => {
+      attempts++
+      
+      if (trySendMessage()) {
+        clearInterval(pollInterval)
+      } else if (attempts >= maxAttempts) {
+        clearInterval(pollInterval)
+      }
+    }, 100)
+  }
+}
+
+
+/**
  *初始化历史对话记录
  */
 const init = () => {
@@ -392,9 +487,16 @@ const init = () => {
     (applicationDetail.value.show_history || !user.isEnterprise()) &&
     props.applicationAvailable
   ) {
-    getChatLog(applicationDetail.value.id)
+    getChatLog(applicationDetail.value.id).then(() => {
+      // 歷史記錄載入完成後處理初始參數
+      handleInitialParams()
+    })
+  } else {
+    // 即使不載入歷史記錄，也要處理 form_id 參數
+    handleInitialParams()
   }
 }
+
 onMounted(() => {
   init()
 })

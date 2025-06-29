@@ -278,7 +278,7 @@ function getChatRecord() {
       if (paginationConfig.current_page === 1) {
         nextTick(() => {
           // 将滚动条滚动到最下面
-          AiChatRef.value.setScrollBottom()
+          AiChatRef.value?.setScrollBottom()
         })
       }
     })

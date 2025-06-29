@@ -4,6 +4,8 @@
     :applicationAvailable="applicationAvailable"
     :is="currentTemplate"
     :application_profile="application_profile"
+    :initial_chat_id="chat_id"
+    :initial_form_id="form_id"
     :key="route.fullPath"
     v-loading="loading"
   />
@@ -19,7 +21,7 @@
   ></Auth>
 </template>
 <script setup lang="ts">
-import { ref, onBeforeMount, computed } from 'vue'
+import { ref, onBeforeMount, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import useStore from '@/stores'
 import Auth from '@/views/chat/auth/index.vue'
@@ -34,17 +36,22 @@ const components: any = import.meta.glob('@/views/chat/**/index.vue', {
   eager: true
 })
 
-const {
-  query: { mode },
-  params: { accessToken }
-} = route as any
+// 使用響應式的方式獲取路由參數，而不是靜態解構
+const mode = computed(() => route.query.mode)
+const chat_id = computed(() => route.query.chat_id)
+const form_id = computed(() => route.query.form_id)
+const accessToken = computed(() => route.params.accessToken)
+
+// Chat 主組件初始化
+
+// 監聽路由變化 (已移除 debug logs)
 const is_auth = ref<boolean>(false)
 const currentTemplate = computed(() => {
   let modeName = ''
-  if (!mode || mode === 'pc') {
+  if (!mode.value || mode.value === 'pc') {
     modeName = show_history.value || !user.isEnterprise() ? 'pc' : 'base'
   } else {
-    modeName = mode
+    modeName = mode.value
   }
   const name = `/src/views/chat/${modeName}/index.vue`
   return components[name].default
@@ -92,8 +99,8 @@ function getAccessToken(token: string) {
   })
 }
 onBeforeMount(() => {
-  user.changeUserType(2, accessToken)
-  Promise.all([user.asyncGetProfile(), getAccessToken(accessToken)])
+  user.changeUserType(2, accessToken.value)
+  Promise.all([user.asyncGetProfile(), getAccessToken(accessToken.value)])
     .catch(() => {
       applicationAvailable.value = false
     })

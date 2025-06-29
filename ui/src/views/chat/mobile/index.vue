@@ -144,6 +144,8 @@ const show = ref(false)
 const props = defineProps<{
   application_profile: any
   applicationAvailable: boolean
+  initial_chat_id?: string
+  initial_form_id?: string
 }>()
 const applicationDetail = computed({
   get: () => {
@@ -274,7 +276,7 @@ function getChatRecord() {
       if (paginationConfig.current_page === 1) {
         nextTick(() => {
           // 将滚动条滚动到最下面
-          AiChatRef.value.setScrollBottom()
+          AiChatRef.value?.setScrollBottom()
         })
       }
     })
