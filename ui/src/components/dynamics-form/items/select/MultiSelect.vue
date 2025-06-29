@@ -2,6 +2,9 @@
   <el-select
     class="m-2"
     multiple
+    collapse-tags
+    collapse-tags-tooltip
+    :max-collapse-tags="3"
     filterable
     clearable
     v-bind="$attrs"
