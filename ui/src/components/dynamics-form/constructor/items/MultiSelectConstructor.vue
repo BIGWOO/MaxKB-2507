@@ -68,6 +68,8 @@
       class="m-2"
       multiple
       collapse-tags
+      collapse-tags-tooltip
+      :max-collapse-tags="3"
       filterable
       clearable
       v-model="formValue.default_value"
