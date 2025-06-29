@@ -6,7 +6,7 @@
     :application_profile="application_profile"
     :initial_chat_id="chat_id"
     :initial_form_id="form_id"
-    :key="route.fullPath"
+    :key="`${accessToken}-${mode || 'pc'}`"
     v-loading="loading"
   />
   <Auth

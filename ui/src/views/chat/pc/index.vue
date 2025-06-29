@@ -402,6 +402,11 @@ async function exportHTML(): Promise<void> {
  * 處理初始 URL 參數
  */
 const handleInitialParams = () => {
+  console.log('🎯 handleInitialParams called with:', {
+    initial_chat_id: props.initial_chat_id,
+    initial_form_id: props.initial_form_id
+  })
+  
   // 處理 chat_id 參數
   if (props.initial_chat_id && props.initial_chat_id !== 'new') {
     const targetChat = chatLogData.value.find((item: any) => item.id === props.initial_chat_id)
@@ -427,21 +432,25 @@ const handleInitialParams = () => {
   
   // 處理 form_id 參數
   if (props.initial_form_id) {
+    console.log('📋 Processing form_id:', props.initial_form_id)
+    
     // 檢查是否已經處理過這個 form_id
     if (!window.processedFormIds) {
       window.processedFormIds = new Set()
     }
     
     if (!window.processedFormIds.has(props.initial_form_id)) {
+      console.log('✅ form_id not processed yet, adding to processed list')
       window.processedFormIds.add(props.initial_form_id)
       
       nextTick(() => {
+        console.log('🚀 Sending form message and removing form_id from URL')
         sendFormMessage(props.initial_form_id!)
-        // 延遲移除 form_id，避免重複初始化時找不到參數
-        setTimeout(() => {
-          removeFormIdFromUrl()
-        }, 500)
+        // 立即移除 form_id，避免 URL 閃爍
+        removeFormIdFromUrl()
       })
+    } else {
+      console.log('⏭️ form_id already processed, skipping')
     }
   }
 }

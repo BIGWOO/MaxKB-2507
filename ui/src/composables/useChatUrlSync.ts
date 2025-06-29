@@ -8,6 +8,7 @@ export function useChatUrlSync() {
    * 更新 URL 中的 chat_id 參數
    */
   const updateChatIdInUrl = (chatId: string) => {
+    console.log('🔄 updateChatIdInUrl called with chatId:', chatId)
     const query = { ...route.query }
     
     if (chatId === 'new') {
@@ -29,6 +30,7 @@ export function useChatUrlSync() {
       query
     }
     
+    console.log('🚀 Updating URL from', route.fullPath, 'to', newRoute)
     // 使用 router.replace 避免產生新的歷史記錄
     router.replace(newRoute)
   }
@@ -37,14 +39,18 @@ export function useChatUrlSync() {
    * 從 URL 移除 form_id 參數
    */
   const removeFormIdFromUrl = () => {
+    console.log('🗑️ removeFormIdFromUrl called, current URL:', route.fullPath)
     const query = { ...route.query }
     delete query.form_id
     
-    router.replace({
+    const newRoute = {
       name: route.name,
       params: route.params,
       query
-    })
+    }
+    
+    console.log('🚀 Removing form_id, updating URL to:', newRoute)
+    router.replace(newRoute)
   }
 
   return {
