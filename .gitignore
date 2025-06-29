@@ -185,3 +185,8 @@ data
 poetry.lock
 apps/setting/models_provider/impl/*/icon/
 tmp/
+
+# deploy tar
+*.tar
+*.zip
+
