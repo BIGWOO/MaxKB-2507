@@ -118,14 +118,30 @@ npm run test:unit
 
 ## 部署相關
 
+### 本地開發部署（Windows）
+使用提供的 bat 腳本進行快速部署：
+```bash
+# 首次部署（從本地代碼構建）
+./deploy-local.bat
+
+# 修改代碼後重新部署
+./redeploy.bat
+
+# 容器管理
+./manage-container.bat
+```
+
 ### Docker 部署
 - `installer/` 目錄包含 Docker 相關文件
 - 支援單容器部署和分離式部署
 - 預設端口：8080
+- 容器名稱：maxkb-mindup
+- 數據持久化目錄：`C:\maxkb` 和 `C:\python-packages`
 
 ### 環境配置
 - 配置文件：`config_example.yml`
 - 環境變量通過 `apps/smartdoc/const.py` 中的 CONFIG 對象管理
+- 預設帳號：admin / MaxKB@123..
 
 ## 開發注意事項
 
