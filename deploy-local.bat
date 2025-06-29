@@ -49,7 +49,7 @@ if not exist "node_modules" (
 )
 
 echo 構建前端生產版本...
-call npm run build
+call npm run build-only
 if errorlevel 1 (
     echo 錯誤：前端構建失敗
     cd ..
