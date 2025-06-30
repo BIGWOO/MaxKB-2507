@@ -329,15 +329,20 @@ function getChatRecord() {
         v['write_ed'] = true
         v['record_id'] = v.id
       })
-      currentRecordList.value = [...list, ...currentRecordList.value].sort((a, b) =>
-        a.create_time.localeCompare(b.create_time)
-      )
+      currentRecordList.value = [...list, ...currentRecordList.value].sort((a, b) => {
+        const timeA = a.create_time || ''
+        const timeB = b.create_time || ''
+        return timeA.localeCompare(timeB)
+      })
       
       if (paginationConfig.value.current_page === 1) {
         nextTick(() => {
           AiChatRef.value?.setScrollBottom()
         })
       }
+    })
+    .catch((error) => {
+      throw error // 重新拋出錯誤以供調用者處理
     })
 }
 
@@ -402,55 +407,93 @@ async function exportHTML(): Promise<void> {
  * 處理初始 URL 參數
  */
 const handleInitialParams = () => {
-  console.log('🎯 handleInitialParams called with:', {
-    initial_chat_id: props.initial_chat_id,
-    initial_form_id: props.initial_form_id
-  })
-  
   // 處理 chat_id 參數
   if (props.initial_chat_id && props.initial_chat_id !== 'new') {
     const targetChat = chatLogData.value.find((item: any) => item.id === props.initial_chat_id)
     
     if (targetChat) {
       clickListHandle(targetChat)
+      
+      // 等待歷史對話載入完成後再處理 form_id
+      nextTick(() => {
+        handleFormIdAfterChatLoad()
+      })
     } else {
       // 直接設置 chat_id 並嘗試載入對話記錄
       currentChatId.value = props.initial_chat_id
       updateChatIdInUrl(props.initial_chat_id)
       
-      // 嘗試獲取對話記錄
-      getChatRecord().catch(() => {
-        newChat()
-      })
+      // 嘗試獲取對話記錄，改善錯誤處理和重試機制
+      const loadChatRecord = async (retryCount = 0) => {
+        try {
+          await getChatRecord()
+          
+          // 歷史對話載入完成後處理 form_id
+          nextTick(() => {
+            handleFormIdAfterChatLoad()
+          })
+        } catch (error) {
+          // 檢查是否為 404 錯誤（對話不存在）
+          if (error?.response?.status === 404 || error?.message?.includes('404')) {
+            newChat()
+            // 新對話也需要處理 form_id
+            nextTick(() => {
+              handleFormIdAfterChatLoad()
+            })
+            return
+          }
+          
+          // 網路錯誤且重試次數小於 2 次，則重試
+          if (retryCount < 2 && (error?.code === 'NETWORK_ERROR' || !error?.response)) {
+            setTimeout(() => loadChatRecord(retryCount + 1), 1000 * (retryCount + 1))
+            return
+          }
+          
+          // 其他錯誤或重試次數用盡，保留 chat_id 但顯示錯誤狀態
+          currentRecordList.value = []
+          paginationConfig.value.total = 0
+          
+          // 即使載入失敗也處理 form_id
+          nextTick(() => {
+            handleFormIdAfterChatLoad()
+          })
+        }
+      }
+      
+      loadChatRecord()
     }
   } else {
     // 如果當前還沒有設定 currentChatId 或者被自動設定為歷史記錄中的對話
     if (currentChatId.value === 'new' || !currentChatId.value || chatLogData.value.some(item => item.id === currentChatId.value)) {
       newChat()
     }
-  }
-  
-  // 處理 form_id 參數
-  if (props.initial_form_id) {
-    console.log('📋 Processing form_id:', props.initial_form_id)
     
+    // 新對話狀態下也要處理 form_id
+    nextTick(() => {
+      handleFormIdAfterChatLoad()
+    })
+  }
+}
+
+/**
+ * 在歷史對話載入完成後處理 form_id 參數
+ */
+const handleFormIdAfterChatLoad = () => {
+  if (props.initial_form_id) {
     // 檢查是否已經處理過這個 form_id
     if (!window.processedFormIds) {
       window.processedFormIds = new Set()
     }
     
     if (!window.processedFormIds.has(props.initial_form_id)) {
-      console.log('✅ form_id not processed yet, adding to processed list')
       window.processedFormIds.add(props.initial_form_id)
       
-      nextTick(() => {
-        console.log('🚀 Sending form message and removing form_id from URL')
+      // 給一個短暫的延遲確保歷史對話已完全載入並渲染
+      setTimeout(() => {
         sendFormMessage(props.initial_form_id!)
         // 立即移除 form_id，避免 URL 閃爍
         removeFormIdFromUrl()
-      })
-    } else {
-      console.log('⏭️ form_id already processed, skipping')
+      }, 500) // 500ms 延遲確保渲染完成
     }
   }
 }
