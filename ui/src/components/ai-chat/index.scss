@@ -6,7 +6,6 @@
   box-sizing: border-box;
   position: relative;
   color: var(--app-text-color);
-  box-sizing: border-box;
   &__content {
     padding-top: 0;
     box-sizing: border-box;
@@ -16,9 +15,6 @@
     }
 
     .content {
-      // padding-left: var(--padding-left);
-      // padding-right: var(--padding-left);
-
       :deep(ol) {
         margin-left: 16px !important;
       }
@@ -40,6 +36,20 @@
 @media only screen and (max-width: 768px) {
   .ai-chat {
     height: calc(100% - 106px) !important;
+    
+    // 解決手機端底部輸入框遮擋問題
+    &__content {
+      padding-bottom: 120px !important; // 留出足夠空間給底部操作區
+      
+      // 根據不同螢幕高度調整
+      @media (max-height: 667px) {
+        padding-bottom: 110px !important; // 較小螢幕減少一些
+      }
+      
+      @media (min-height: 800px) {
+        padding-bottom: 130px !important; // 較大螢幕可以留更多空間
+      }
+    }
   }
 }
 .chat-mobile {

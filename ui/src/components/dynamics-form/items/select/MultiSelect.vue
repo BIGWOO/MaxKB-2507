@@ -1,14 +1,24 @@
 <template>
   <el-select
+    ref="selectRef"
     class="m-2"
     multiple
     collapse-tags
     collapse-tags-tooltip
     :max-collapse-tags="3"
-    filterable
+    :filterable="!isMobile"
+    :readonly="isMobile"
+    :teleported="true"
+    :popper-class="popperClass"
+    :popper-options="popperOptions"
+    :input-style="inputStyle"
     clearable
     v-bind="$attrs"
     v-model="_modelValue"
+    @visible-change="handleVisibleChange"
+    @focus="handleFocus"
+    @touchstart="handleTouchStart"
+    @touchend="handleTouchEnd"
   >
     <el-option
       v-for="(item, index) in option_list"
@@ -21,9 +31,12 @@
 </template>
 <script setup lang="ts">
 import type { FormField } from '@/components/dynamics-form/type'
-import { computed, ref } from 'vue'
-import _ from 'lodash'
-const rowTemp = ref<any>()
+import { computed, ref, nextTick } from 'vue'
+import useStore from '@/stores'
+
+const { common } = useStore()
+const selectRef = ref()
+const touchStartTime = ref(0)
 
 const props = defineProps<{
   modelValue?: Array<any>
@@ -60,8 +73,476 @@ const option_list = computed(() => {
   return props.formField.option_list ? props.formField.option_list : []
 })
 
+// 移動設備檢測
+const isMobile = computed(() => common.isMobile())
+
+// 移動端樣式和配置
+const inputStyle = computed(() => 
+  isMobile.value ? { cursor: 'pointer', caretColor: 'transparent' } : {}
+)
+
+const popperClass = computed(() => 
+  isMobile.value ? 'dynamics-multi-select mobile-optimized' : 'dynamics-multi-select'
+)
+
+const popperOptions = computed(() => {
+  if (!isMobile.value) return {}
+  
+  return {
+    strategy: 'fixed',
+    placement: 'top', // 改為 top 避免初始的 bottom 定位
+    modifiers: [
+      {
+        name: 'flip',
+        enabled: false
+      },
+      {
+        name: 'preventOverflow', 
+        enabled: false
+      },
+      {
+        name: 'offset',
+        enabled: false // 完全禁用 offset
+      },
+      {
+        name: 'computeStyles',
+        enabled: false // 完全禁用計算樣式
+      },
+      {
+        name: 'applyStyles',
+        enabled: false // 禁用應用樣式，避免初始定位
+      },
+      {
+        name: 'centerPosition',
+        enabled: true,
+        phase: 'beforeWrite',
+        fn: ({ state }) => {
+          // 直接設置為螢幕中央，跳過所有 Popper 計算
+          state.styles.popper = {
+            position: 'fixed',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            zIndex: '9999'
+          }
+        }
+      }
+    ]
+  }
+})
+
+// 移動端事件處理
+const handleTouchStart = () => {
+  if (isMobile.value) {
+    touchStartTime.value = Date.now()
+  }
+}
+
+const handleTouchEnd = (event: TouchEvent) => {
+  if (!isMobile.value) return
+  
+  const touchDuration = Date.now() - touchStartTime.value
+  
+  // 短觸控視為點擊
+  if (touchDuration < 200) {
+    event.preventDefault()
+    
+    nextTick(() => {
+      if (selectRef.value && !selectRef.value.visible) {
+        selectRef.value.toggleMenu()
+      }
+    })
+  }
+}
+
+const handleFocus = (event: FocusEvent) => {
+  if (isMobile.value) {
+    // 阻止輸入框獲得焦點，避免鍵盤彈出
+    ;(event.target as HTMLInputElement).blur()
+  }
+}
+
+const handleVisibleChange = (visible: boolean) => {
+  if (visible && isMobile.value) {
+    // 立即設置中央定位，避免跳動
+    const setImmediatePosition = () => {
+      const dropdown = document.querySelector('.mobile-optimized .el-select-dropdown') as HTMLElement
+      if (dropdown) {
+        // 根據螢幕尺寸設置最大高度，讓內容自適應
+        const screenHeight = window.innerHeight
+        let maxHeight = '80vh'
+        
+        if (screenHeight <= 667) {
+          maxHeight = '60vh' // 小螢幕適當減少
+        } else if (screenHeight >= 900) {
+          maxHeight = '75vh' // 超大螢幕
+        } else if (screenHeight >= 800) {
+          maxHeight = '70vh' // 較大螢幕
+        } else {
+          maxHeight = '65vh' // 一般螢幕（多選框比單選框大一點）
+        }
+        
+        // 立即強制中央定位，覆蓋 Popper 的初始計算
+        dropdown.style.cssText = `
+          position: fixed !important;
+          top: 50% !important;
+          left: 50% !important;
+          right: auto !important;
+          bottom: auto !important;
+          transform: translate(-50%, -50%) !important;
+          z-index: 9999 !important;
+          max-height: ${maxHeight} !important;
+          height: auto !important;
+          opacity: 0;
+        `
+        
+        // 同時設置內層容器的高度
+        const wrap = dropdown.querySelector('.el-select-dropdown__wrap') as HTMLElement
+        if (wrap) {
+          wrap.style.setProperty('max-height', 'inherit', 'important')
+          wrap.style.setProperty('height', 'auto', 'important')
+        }
+        
+        const scrollbar = dropdown.querySelector('.el-scrollbar') as HTMLElement
+        if (scrollbar) {
+          scrollbar.style.setProperty('max-height', 'inherit', 'important')
+          scrollbar.style.setProperty('height', 'auto', 'important')
+          
+          const scrollWrap = scrollbar.querySelector('.el-scrollbar__wrap') as HTMLElement
+          if (scrollWrap) {
+            scrollWrap.style.setProperty('max-height', 'inherit', 'important')
+          }
+        }
+        
+        // 短暫延遲後顯示，確保位置已正確設置
+        setTimeout(() => {
+          dropdown.style.opacity = '1'
+        }, 10)
+      }
+    }
+    
+    // 同時在多個時機執行，確保覆蓋 Popper 的定位
+    setImmediatePosition()
+    setTimeout(setImmediatePosition, 0)
+    nextTick(setImmediatePosition)
+  }
+}
+
 const label = (option: any) => {
   return option[textField.value]
 }
 </script>
-<style lang="scss"></style>
+<style lang="scss">
+.dynamics-multi-select {
+  .el-select-dropdown {
+    max-width: 300px;
+  }
+  
+  // 移動設備專用樣式 - 中央展開設計
+  &.mobile-optimized {
+    .el-select-dropdown {
+      // 螢幕中央定位
+      position: fixed !important;
+      top: 50% !important;
+      left: 50% !important;
+      right: auto !important;
+      bottom: auto !important;
+      transform: translate(-50%, -50%) !important;
+      margin: 0 !important;
+      
+      // 尺寸控制 - 多選框響應式設計
+      width: 90vw !important;
+      max-width: 450px !important;
+      min-width: 320px !important;
+      
+      // 動態高度：上下各留 10% 空間，方便點擊背景關閉
+      height: auto !important;
+      max-height: 65vh !important; // 多選框比單選框稍大一點
+      
+      // 特殊螢幕尺寸優化
+      @media (max-height: 667px) { // iPhone SE/8 等較矮螢幕
+        max-height: 60vh !important; // 較小螢幕適當減少
+      }
+      
+      @media (min-height: 800px) { // 較高螢幕如 iPhone 14 Pro Max
+        max-height: 70vh !important; // 較大螢幕可以稍微增加
+      }
+      
+      @media (min-height: 900px) { // 超高螢幕如 iPad
+        max-height: 75vh !important; // 超大螢幕的上限
+      }
+      
+      // 層級控制
+      z-index: 9999 !important;
+      
+      // 背景和視覺效果
+      background: #ffffff !important;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      
+      // 現代化設計
+      border: none !important;
+      border-radius: 16px !important;
+      box-shadow: 
+        0 25px 50px -12px rgba(0, 0, 0, 0.25),
+        0 10px 25px -5px rgba(0, 0, 0, 0.1),
+        0 0 0 1px rgba(255, 255, 255, 0.9) inset !important;
+      
+      // 滾動優化 - 多選框更需要好的滾動體驗
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      
+      // 內容佈局：自適應高度，不強制最小高度
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      
+      // 讓內容自然擴展，避免空白區域
+      min-height: fit-content !important;
+      
+      // 覆蓋 Element Plus 內層容器的高度限制
+      .el-select-dropdown__wrap {
+        max-height: inherit !important; // 繼承外層的 max-height
+        height: auto !important;
+      }
+      
+      // 確保內層滾動容器也沒有高度限制
+      .el-scrollbar {
+        height: auto !important;
+        max-height: inherit !important;
+        
+        .el-scrollbar__wrap {
+          max-height: inherit !important;
+        }
+        
+        .el-scrollbar__view {
+          height: auto !important;
+        }
+      }
+      
+      // 中央展開動畫（移除初始的透明度動畫，改用 JavaScript 控制）
+      animation: mobileCenterExpand 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      
+      // 確保一開始就在中央，避免跳動
+      top: 50% !important;
+      left: 50% !important;
+      transform: translate(-50%, -50%) !important;
+      
+      // 內邊距優化
+      padding: 12px 0 !important;
+      
+      .el-select-dropdown__item {
+        // 觸控區域優化 - 多選框響應式觸控區域
+        padding: 22px 24px !important;
+        min-height: 62px !important;
+        
+        // 小螢幕優化
+        @media (max-height: 667px) {
+          padding: 18px 20px !important;
+          min-height: 54px !important;
+        }
+        
+        // 大螢幕增強體驗 - 多選框需要更大空間
+        @media (min-height: 800px) {
+          padding: 26px 28px !important;
+          min-height: 66px !important;
+        }
+        
+        @media (min-height: 900px) {
+          padding: 30px 32px !important;
+          min-height: 70px !important;
+        }
+        
+        // 背景設置
+        background-color: transparent !important;
+        
+        // 現代化分隔線
+        border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+        margin: 0 16px;
+        
+        // 字體樣式
+        color: #1f2937 !important;
+        font-size: 17px;
+        font-weight: 400;
+        line-height: 1.4;
+        
+        // 觸控反饋動畫
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        border-radius: 12px;
+        
+        // 多選框的特殊佈局
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        
+        // 觸控狀態
+        &:hover, &:active {
+          background-color: #f1f5f9 !important;
+          color: #0f172a !important;
+          transform: scale(1.02);
+        }
+        
+        // 選中狀態（多選）
+        &.selected {
+          background-color: #eff6ff !important;
+          color: #2563eb !important;
+          font-weight: 500;
+          
+          &::after {
+            content: '✓';
+            float: right;
+            color: #2563eb;
+            font-weight: bold;
+            font-size: 20px;
+          }
+        }
+        
+        // Checkbox 樣式優化
+        .el-checkbox {
+          .el-checkbox__input {
+            .el-checkbox__inner {
+              width: 22px;
+              height: 22px;
+              border-radius: 8px;
+              border: 2px solid #d1d5db;
+              transition: all 0.2s ease;
+              
+              &:hover {
+                border-color: #2563eb;
+                box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+              }
+            }
+            
+            &.is-checked .el-checkbox__inner {
+              background-color: #2563eb;
+              border-color: #2563eb;
+            }
+          }
+        }
+        
+        // 第一項和最後一項特殊樣式
+        &:first-child {
+          margin-top: 8px;
+          border-top-left-radius: 12px;
+          border-top-right-radius: 12px;
+        }
+        
+        &:last-child {
+          margin-bottom: 8px;
+          border-bottom: none;
+          border-bottom-left-radius: 12px;
+          border-bottom-right-radius: 12px;
+        }
+      }
+      
+      // 滾動條美化
+      &::-webkit-scrollbar {
+        width: 6px;
+      }
+      
+      &::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 3px;
+      }
+      
+      &::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, #cbd5e1, #94a3b8);
+        border-radius: 3px;
+        
+        &:hover {
+          background: linear-gradient(180deg, #94a3b8, #64748b);
+        }
+      }
+      
+      // 移除箭頭指示器，改用中央展開設計
+    }
+  }
+}
+
+// 移動設備通用優化
+@media only screen and (max-width: 768px) {
+  .dynamics-multi-select {
+    // 多選框輸入框優化
+    .el-input__wrapper {
+      min-height: 44px;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        box-shadow: 0 0 0 1px #e1e5e9;
+      }
+      
+      &.is-focus {
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+        border-color: #3b82f6;
+      }
+    }
+    
+    // 已選標籤優化
+    .el-tag {
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 14px;
+      margin-right: 4px;
+      
+      .el-tag__close {
+        font-size: 12px;
+        margin-left: 4px;
+      }
+    }
+    
+    // 下拉箭頭優化
+    .el-input__suffix {
+      .el-icon {
+        transition: transform 0.3s ease;
+      }
+    }
+    
+    // 移動端不需要箭頭動畫，已經改用中央展開
+  }
+}
+
+// 中央展開動畫效果
+.dynamics-multi-select.mobile-optimized {
+  .el-select-dropdown {
+    .el-select-dropdown__item {
+      // 選項依序出現動畫
+      opacity: 0;
+      animation: centerItemFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      
+      @for $i from 1 through 15 {
+        &:nth-child(#{$i}) {
+          animation-delay: #{0.1 + ($i - 1) * 0.03}s;
+        }
+      }
+    }
+  }
+}
+
+// 動畫關鍵幀
+@keyframes mobileCenterExpand {
+  from {
+    transform: translate(-50%, -50%) scale(0.8);
+    filter: blur(8px);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.02);
+    filter: blur(3px);
+  }
+  to {
+    transform: translate(-50%, -50%) scale(1);
+    filter: blur(0px);
+  }
+}
+
+@keyframes centerItemFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+</style>
