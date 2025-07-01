@@ -110,7 +110,7 @@ const popperOptions = computed(() => {
         name: 'centerPosition',
         enabled: true,
         phase: 'beforeWrite',
-        fn: ({ state }) => {
+        fn: ({ state }: { state: any }) => {
           // 直接設置為螢幕中央，跳過所有 Popper 計算
           state.styles.popper = {
             position: 'fixed',
