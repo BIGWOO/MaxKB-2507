@@ -73,6 +73,9 @@ def convert_value(name: str, value, _type, is_required, source, node):
         value = node.workflow_manage.get_reference_field(
             value[0],
             value[1:])
+        # 非必填參考型欄位允許為 None 或空字串，直接返回 None，避免被當成 string 驗證而報錯
+        if not is_required and (value is None or (isinstance(value, str) and len(value) == 0)):
+            return None
         valid_reference_value(_type, value, name)
         if _type == 'int':
             return int(value)
