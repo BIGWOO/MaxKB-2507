@@ -50,12 +50,10 @@
 
   <el-form-item
     class="defaultValueItem"
-    :required="formValue.required"
+    :required="false"
     prop="default_value"
     :label="$t('dynamicsForm.default.label')"
-    :rules="
-      formValue.required ? [{ required: true, message: `${$t('dynamicsForm.default.label')}${$t('dynamicsForm.default.requiredMessage')}` }, ...rules] : rules
-    "
+    :rules="rules"
   >
     <div class="defaultValueCheckbox">
       <el-checkbox
@@ -153,9 +151,21 @@ const rangeRules = [
 ]
 const rules = computed(() => [
   {
-    min: formValue.value.minlength,
-    max: formValue.value.maxlength,
-    message: `${t('dynamicsForm.TextInput.length.requiredMessage1')} ${formValue.value.minlength} ${t('dynamicsForm.TextInput.length.requiredMessage2')} ${formValue.value.maxlength} ${t('dynamicsForm.TextInput.length.requiredMessage3')}`,
+    validator: (rule: any, value: any, callback: any) => {
+      const v = value ?? ''
+      if (!v) {
+        return callback()
+      }
+      const len = v.length
+      if (len < formValue.value.minlength || len > formValue.value.maxlength) {
+        return callback(
+          new Error(
+            `${t('dynamicsForm.TextInput.length.requiredMessage1')} ${formValue.value.minlength} ${t('dynamicsForm.TextInput.length.requiredMessage2')} ${formValue.value.maxlength} ${t('dynamicsForm.TextInput.length.requiredMessage3')}`
+          )
+        )
+      }
+      callback()
+    },
     trigger: 'blur'
   }
 ])

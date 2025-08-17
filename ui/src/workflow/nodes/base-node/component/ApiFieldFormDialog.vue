@@ -35,11 +35,7 @@
       <el-form-item
         :label="$t('dynamicsForm.default.label')"
         prop="default_value"
-        :rules="{
-          required: form.is_required,
-          message: $t('dynamicsForm.default.placeholder'),
-          trigger: 'blur'
-        }"
+        :rules="[]"
       >
         <el-input
           v-model="form.default_value"
