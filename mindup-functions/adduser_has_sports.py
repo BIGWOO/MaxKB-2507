@@ -13,6 +13,7 @@ logging.basicConfig(level=logging.INFO, # 可以設為 DEBUG, INFO, WARNING, ERR
 
 def add_member(
     id=None,
+    fullname=None,
     age=None,
     height=None,
     weight=None,
@@ -22,6 +23,7 @@ def add_member(
     medical_history=None,
     medical_history_other=None,
     sleep_quality=None,
+    ideal_sleep_state=None,
     sleep_disturbance=None,
     sleep_disturbance_other=None,
     daily_conditions=None,
@@ -45,6 +47,7 @@ def add_member(
     # 使用 locals() 可以簡化，但顯式列出更清晰，且避免包含非預期變數
     data = {
         'id': id,
+        'fullname': fullname,
         'age': age,
         'height': height,
         'weight': weight,
@@ -54,6 +57,7 @@ def add_member(
         'medical_history': medical_history,
         'medical_history_other': medical_history_other,
         'sleep_quality': sleep_quality,
+        'ideal_sleep_state': ideal_sleep_state,
         'sleep_disturbance': sleep_disturbance,
         'sleep_disturbance_other': sleep_disturbance_other,
         'daily_conditions': daily_conditions,
@@ -111,6 +115,17 @@ def add_member(
                     # 如果值不是 None 也不是 list，記錄一個警告，因為這可能不是預期的類型
                     logging.warning(f"欄位 '{field}' 的值不是預期的 list 或 None，收到的類型是: {type(data[field])}，值: {data[field]}。將按原樣儲存。")
                     # 注意：如果資料庫欄位類型不匹配，這裡仍然可能導致 SQL 錯誤
+
+        # --- 將 *_other 欄位的空值預設為『無』 ---
+        other_text_fields = [
+            'medical_history_other', 'sleep_disturbance_other', 'daily_conditions_other',
+            'psychological_conditions_other', 'before_bed_other', 'ideal_sleep_state'
+        ]
+        for field in other_text_fields:
+            if field in data:
+                value = data.get(field)
+                if value is None or (isinstance(value, str) and value.strip() == ''):
+                    data[field] = '無'
 
         # --- 準備 SQL ---
         fields = list(data.keys()) # 直接從 data keys 取得所有欄位
@@ -182,6 +197,7 @@ def add_member(
         # --- 準備成功回傳資料 ---
         # 從 data 字典中獲取最終值 (可能已被處理過，如 list 轉 string)
         return_data = {
+            "姓名": data.get('fullname'),
             "身高": data.get('height'),
             "體重": data.get('weight'),
             "年齡": data.get('age'),
@@ -191,6 +207,7 @@ def add_member(
             "病史": data.get('medical_history'),
             "其他病史": data.get('medical_history_other'),
             "睡眠品質": data.get('sleep_quality'),
+            "我理想的睡眠狀態": data.get('ideal_sleep_state'),
             "睡眠困擾": data.get('sleep_disturbance'),
             "其他睡眠困擾": data.get('sleep_disturbance_other'),
             "日常狀況": data.get('daily_conditions'),
