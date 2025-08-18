@@ -42,10 +42,10 @@
           @click="toggleSelection(item[valueField])"
         >
           <div class="option-text">{{ label(item) }}</div>
-          <el-checkbox 
-            :model-value="isSelected(item[valueField])"
-            @click.stop
-          />
+          <div class="custom-checkbox" :class="{ 'checked': isSelected(item[valueField]) }">
+            <span v-if="isSelected(item[valueField])" class="check-icon">✓</span>
+            <span v-else class="uncheck-icon">○</span>
+          </div>
         </div>
       </div>
       
@@ -304,9 +304,24 @@ const confirmAndClose = () => {
           word-break: break-word;
         }
         
-        .el-checkbox {
+        .custom-checkbox {
           flex-shrink: 0;
-          margin-top: 2px;
+          width: 20px;
+          height: 20px;
+          border: 1px solid #dcdfe6;
+          border-radius: 4px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 14px;
+          color: #dcdfe6;
+          transition: all 0.2s ease;
+
+          &.checked {
+            background-color: #409eff;
+            border-color: #409eff;
+            color: #fff;
+          }
         }
       }
     }
@@ -335,3 +350,4 @@ const confirmAndClose = () => {
   }
 }
 </style>
+
