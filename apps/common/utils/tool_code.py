@@ -8,6 +8,7 @@ import socket
 import subprocess
 import sys
 import signal
+import time
 import uuid_utils.compat as uuid
 from common.utils.logger import maxkb_logger
 from django.utils.translation import gettext_lazy as _
@@ -221,26 +222,40 @@ exec({dedent(code)!a})
         return tool_config
 
     def _exec_sandbox(self, _code):
-        kwargs = {'cwd': BASE_DIR}
-        kwargs['env'] = {
+        kwargs = {'cwd': BASE_DIR, 'env': {
             'LD_PRELOAD': self.sandbox_so_path,
-        }
+        }}
         maxkb_logger.debug(f"Sandbox execute code: {_code}")
         compressed_and_base64_encoded_code_str = base64.b64encode(gzip.compress(_code.encode())).decode()
+        cmd = [
+            'su', '-s', python_directory, '-c',
+            f'import base64,gzip; exec(gzip.decompress(base64.b64decode(\'{compressed_and_base64_encoded_code_str}\')).decode())',
+            self.user
+        ]
         try:
-            subprocess_result = subprocess.run(
-                ['su', '-s', python_directory, '-c',
-                 f'import base64,gzip; exec(gzip.decompress(base64.b64decode(\'{compressed_and_base64_encoded_code_str}\')).decode())',
-                 self.user],
+            proc = subprocess.Popen(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
                 text=True,
-                capture_output=True,
-                timeout=self.process_timeout_seconds,
-                preexec_fn=os.setsid,
-                **kwargs)
-        except subprocess.TimeoutExpired as e:
-            os.killpg(e.pid, signal.SIGKILL)
+                **kwargs,
+                start_new_session=True
+            )
+            proc.wait(timeout=self.process_timeout_seconds)
+            return subprocess.CompletedProcess(
+                proc.args,
+                proc.returncode,
+                proc.stdout.read(),
+                proc.stderr.read()
+            )
+        except subprocess.TimeoutExpired:
+            pgid = os.getpgid(proc.pid)
+            os.killpg(pgid, signal.SIGTERM) #温和终止
+            time.sleep(1) #留出短暂时间让进程清理
+            if proc.poll() is None: #如果仍未终止，强制终止
+                os.killpg(pgid, signal.SIGKILL)
+            proc.wait()
             raise Exception(_("Sandbox process execution timeout, consider increasing MAXKB_SANDBOX_PYTHON_PROCESS_TIMEOUT_SECONDS."))
-        return subprocess_result
 
     def validate_mcp_transport(self, code_str):
         servers = json.loads(code_str)
