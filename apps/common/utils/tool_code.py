@@ -7,6 +7,7 @@ import os
 import socket
 import subprocess
 import sys
+import signal
 import uuid_utils.compat as uuid
 from common.utils.logger import maxkb_logger
 from django.utils.translation import gettext_lazy as _
@@ -234,8 +235,10 @@ exec({dedent(code)!a})
                 text=True,
                 capture_output=True,
                 timeout=self.process_timeout_seconds,
+                preexec_fn=os.setsid,
                 **kwargs)
-        except subprocess.TimeoutExpired:
+        except subprocess.TimeoutExpired as e:
+            os.killpg(e.pid, signal.SIGKILL)
             raise Exception(_("Sandbox process execution timeout, consider increasing MAXKB_SANDBOX_PYTHON_PROCESS_TIMEOUT_SECONDS."))
         return subprocess_result
 
