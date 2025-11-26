@@ -23,7 +23,11 @@
 #define CONFIG_FILE ".sandbox.conf"
 #define KEY_BANNED_HOSTS "SANDBOX_PYTHON_BANNED_HOSTS"
 #define KEY_ALLOW_SUBPROCESS "SANDBOX_PYTHON_ALLOW_SUBPROCESS"
-
+#define RESOLVE_REAL(func)                      \
+    static typeof(func) *real_##func = NULL;    \
+    if (!real_##func) {                         \
+        real_##func = dlsym(RTLD_NEXT, #func);  \
+    }
 static char *banned_hosts = NULL;
 static int allow_subprocess = 0; // 默认禁止
 
@@ -116,8 +120,7 @@ static int match_env_patterns(const char *target, const char *env_val) {
 /** 拦截 connect() —— 精确匹配 IP */
 int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen) {
     static int (*real_connect)(int, const struct sockaddr *, socklen_t) = NULL;
-    if (!real_connect)
-        real_connect = dlsym(RTLD_NEXT, "connect");
+    RESOLVE_REAL(connect);
     ensure_config_loaded();
     char ip[INET6_ADDRSTRLEN] = {0};
     if (addr->sa_family == AF_INET)
@@ -137,8 +140,7 @@ int getaddrinfo(const char *node, const char *service,
                 const struct addrinfo *hints, struct addrinfo **res) {
     static int (*real_getaddrinfo)(const char *, const char *,
                                    const struct addrinfo *, struct addrinfo **) = NULL;
-    if (!real_getaddrinfo)
-        real_getaddrinfo = dlsym(RTLD_NEXT, "getaddrinfo");
+    RESOLVE_REAL(getaddrinfo);
     ensure_config_loaded();
     if (banned_hosts && *banned_hosts && node) {
         // 检测 node 是否是 IP
@@ -164,12 +166,6 @@ static int deny() {
     _exit(1);
     return -1;
 }
-#define RESOLVE_REAL(func)                      \
-    static typeof(func) *real_##func = NULL;    \
-    if (!real_##func) {                         \
-        real_##func = dlsym(RTLD_NEXT, #func);  \
-    }
-
 int execve(const char *filename, char *const argv[], char *const envp[]) {
     RESOLVE_REAL(execve);
     if (!allow_create_subprocess()) return deny();
@@ -182,7 +178,21 @@ int execveat(int dirfd, const char *pathname,
     if (!allow_create_subprocess())  return deny();
     return real_execveat(dirfd, pathname, argv, envp, flags);
 }
-
+int __execve(const char *filename, char *const argv[], char *const envp[]) {
+    RESOLVE_REAL(__execve);
+    if (!allow_create_subprocess()) return deny();
+    return real___execve(filename, argv, envp);
+}
+int execvpe(const char *file, char *const argv[], char *const envp[]) {
+    RESOLVE_REAL(execvpe);
+    if (!allow_create_subprocess()) return deny();
+    return real_execvpe(file, argv, envp);
+}
+int __execvpe(const char *file, char *const argv[], char *const envp[]) {
+    RESOLVE_REAL(__execvpe);
+    if (!allow_create_subprocess()) return deny();
+    return real___execvpe(file, argv, envp);
+}
 pid_t fork(void) {
     RESOLVE_REAL(fork);
     if (!allow_create_subprocess()) return deny();
@@ -253,7 +263,7 @@ int __libc_system(const char *command) {
 }
 long (*real_syscall)(long, ...) = NULL;
 long syscall(long number, ...) {
-    if (!real_syscall) real_syscall = dlsym(RTLD_NEXT, "syscall");
+    RESOLVE_REAL(syscall);
     va_list ap;
     va_start(ap, number);
     long a1 = va_arg(ap, long);
