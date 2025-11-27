@@ -254,7 +254,7 @@ exec({dedent(code)!a})
             if proc.poll() is None: #如果仍未终止，强制终止
                 os.killpg(pgid, signal.SIGKILL)
             proc.wait()
-            raise Exception(_("Process execution timed out.")) # 执行超时，到了MAXKB_SANDBOX_PYTHON_PROCESS_TIMEOUT_SECONDS限制
+            raise Exception(_(f"Process execution timed out after {self.process_timeout_seconds} seconds."))
 
     def validate_mcp_transport(self, code_str):
         servers = json.loads(code_str)
