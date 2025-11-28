@@ -34,8 +34,8 @@
               class="mb-16"
               :title="
                 props.nodeModel.type === 'application-node'
-                  ? $t('views.applicationWorkflow.tip.applicationNodeError')
-                  : $t('views.applicationWorkflow.tip.functionNodeError')
+                  ? $t('views.workflow.tip.applicationNodeError')
+                  : $t('views.workflow.tip.functionNodeError')
               "
               type="error"
               show-icon
@@ -58,7 +58,7 @@
                   <span class="break-all">{{ item.label }} {{ '{' + item.value + '}' }}</span>
                   <el-tooltip
                     effect="dark"
-                    :content="$t('views.applicationWorkflow.setting.copyParam')"
+                    :content="$t('views.workflow.setting.copyParam')"
                     placement="top"
                     v-if="showicon === index"
                   >
@@ -75,7 +75,7 @@
     </div>
 
     <el-dialog
-      :title="$t('views.applicationWorkflow.nodeName')"
+      :title="$t('views.workflow.nodeName')"
       v-model="nodeNameDialogVisible"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
@@ -111,16 +111,14 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, computed, provide } from 'vue'
+import { ref, computed, provide, inject } from 'vue'
 import { set } from 'lodash'
 import { iconComponent } from '../../icons/utils'
 import { copyClick } from '@/utils/clipboard'
 import { ElMessage } from 'element-plus'
 import type { FormInstance } from 'element-plus'
 import { t } from '@/locales'
-import { WorkflowMode } from '@/enums/application'
-
-provide('workflowMode', WorkflowMode.ApplicationLoop)
+provide('workflowMode', inject('loopWorkflowMode'))
 
 const props = defineProps<{
   nodeModel: any
@@ -165,7 +163,7 @@ const editName = async (formEl: FormInstance | undefined) => {
         nodeNameDialogVisible.value = false
         formEl.resetFields()
       } else {
-        ElMessage.error(t('views.applicationWorkflow.tip.repeatedNodeError'))
+        ElMessage.error(t('views.workflow.tip.repeatedNodeError'))
       }
     }
   })

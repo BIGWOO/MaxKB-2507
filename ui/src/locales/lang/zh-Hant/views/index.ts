@@ -12,7 +12,7 @@ import paragraph from './paragraph'
 import problem from './problem'
 import chatLog from './chat-log'
 import chatUser from './chat-user'
-import applicationWorkflow from './application-workflow'
+import workflow from './workflow'
 import login from './login'
 import operateLog from './operate-log'
 import shared from './shared'
@@ -24,7 +24,7 @@ export default {
   userManage,
   model,
   knowledge,
-  applicationWorkflow,
+  workflow,
   document,
   paragraph,
   problem,
@@ -34,5 +34,5 @@ export default {
   role,
   workspace,
   chatUser,
-  shared
+  shared,
 }

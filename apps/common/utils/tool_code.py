@@ -2,6 +2,7 @@
 import ast
 import base64
 import gzip
+import io
 import json
 import os
 import socket
@@ -76,10 +77,12 @@ class ToolExecutor:
             f.write(f"SANDBOX_PYTHON_ALLOW_SUBPROCESS={allow_subprocess}\n")
         os.system(f"chmod -R 550 {self.sandbox_path}")
 
-    def exec_code(self, code_str, keywords):
+    def exec_code(self, code_str, keywords, function_name=None):
         _id = str(uuid.uuid7())
         success = '{"code":200,"msg":"成功","data":exec_result}'
         err = '{"code":500,"msg":str(e),"data":None}'
+        action_function = f'({function_name !a}, locals_v.get({function_name !a}))' if function_name else 'locals_v.popitem()'
+        result_path = f'{self.sandbox_path}/result/{_id}.result'
         python_paths = CONFIG.get_sandbox_python_package_paths().split(',')
         _exec_code = f"""
 try:
@@ -92,7 +95,7 @@ try:
     globals_v={'{}'}
     os.environ.clear()
     exec({dedent(code_str)!a}, globals_v, locals_v)
-    f_name, f = locals_v.popitem()
+    f_name, f = {action_function}
     for local in locals_v:
         globals_v[local] = locals_v[local]
     exec_result=f(**keywords)
@@ -216,7 +219,10 @@ exec({dedent(code)!a})
         else:
             tool_config = {
                 'command': sys.executable,
-                'args': f'import base64,gzip; exec(gzip.decompress(base64.b64decode(\'{compressed_and_base64_encoded_code_str}\')).decode())',
+                'args': [
+                    '-c',
+                    f'import base64,gzip; exec(gzip.decompress(base64.b64decode(\'{compressed_and_base64_encoded_code_str}\')).decode())',
+                ],
                 'transport': 'stdio',
             }
         return tool_config

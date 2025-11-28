@@ -4,12 +4,13 @@ export default {
   baseComponent: 'Basic',
   nodeSetting: 'Node Settings',
   workflow: 'Workflow',
-  searchBar: {
-    placeholder: 'Search by name',
-  },
+  knowledgeWorkflow: 'Knowledge Workflow',
   info: {
     previewVersion: 'Preview Version:',
     saveTime: 'Last Saved:',
+  },
+  operation: {
+    toImportDoc: 'Go to Import Documents',
   },
   setting: {
     restoreVersion: 'Restore Previous Version"',
@@ -79,6 +80,21 @@ export default {
     loopNodeBreakNodeRequired: 'Wireless loop must have a Break node',
   },
   nodes: {
+    knowledgeWriteNode: {
+      chunk_length: 'Chunk length',
+      text: 'Knowledge write',
+      label: 'Knowledge write',
+    },
+    dataSourceWebNode: {
+      label: 'Web Site',
+      text: 'Web Site',
+      field_label: 'Document list',
+    },
+    dataSourceLocalNode: {
+      label: 'Local File',
+      text: 'Local File',
+      fileList: 'File List',
+    },
     classify: {
       aiCapability: 'AI capability',
       businessLogic: 'Business logic',
@@ -151,8 +167,8 @@ export default {
       customTooltip: 'Manually set tag filtering conditions',
       auto: 'Automatic',
       autoTooltip: 'Automatically filter setting tag conditions based on the search question',
-      document_list: 'Document List',
-      knowledge_list: 'Knowledge Base List',
+      documentList: 'Document List',
+      knowledgeList: 'Knowledge Base List',
       result: 'Search Results',
       searchParam: 'Search Parameters',
       select_variable: 'Select Variable',
@@ -238,6 +254,16 @@ You are a master of problem optimization, adept at accurately inferring user int
       label: 'Document Content Extraction',
       text: 'Extract content from documents',
       content: 'Document Content',
+    },
+    documentSplitNode: {
+      label: 'Document Splitting',
+      text: 'Split document content into smaller segments',
+      paragraphList: 'List of split segments',
+      splitStrategy: {
+        label: 'Splitting Strategy',
+        placeholder: 'Please select a splitting strategy',
+        requiredMessage: 'Please select a splitting strategy',
+      },
     },
     imageUnderstandNode: {
       label: 'Image Understanding',
@@ -476,4 +502,9 @@ You are a master of problem optimization, adept at accurately inferring user int
   },
   SystemPromptPlaceholder: 'System Prompt, can reference variables in the system, such as',
   UserPromptPlaceholder: 'User Prompt, can reference variables in the system, such as',
+  debug: {
+    executionResult: 'Execution Result',
+    executionSuccess: 'Execution Succeeded',
+    executionFailed: 'Execution Failed',
+  },
 }

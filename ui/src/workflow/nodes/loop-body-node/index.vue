@@ -6,7 +6,7 @@
 <script setup lang="ts">
 import { set, cloneDeep } from 'lodash'
 import AppEdge from '@/workflow/common/edge'
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, inject } from 'vue'
 import LogicFlow from '@logicflow/core'
 import Dagre from '@/workflow/plugins/dagre'
 import { initDefaultShortcut } from '@/workflow/common/shortcut'
@@ -15,6 +15,7 @@ import { WorkflowMode } from '@/enums/application'
 import { WorkFlowInstance } from '@/workflow/common/validate'
 import { t } from '@/locales'
 import { disconnectByFlow } from '@/workflow/common/teleport'
+const loop_workflow_mode = inject('loopWorkflowMode') || WorkflowMode.ApplicationLoop
 const nodes: any = import.meta.glob('@/workflow/nodes/**/index.ts', { eager: true })
 const props = defineProps<{ nodeModel: any }>()
 const containerRef = ref()
@@ -30,7 +31,7 @@ const validate = () => {
         if (loop_node.properties.node_data.loop_type == 'LOOP' && !workflow.exist_break_node()) {
           return Promise.reject({
             node: loop_node,
-            errMessage: t('views.applicationWorkflow.validate.loopNodeBreakNodeRequired'),
+            errMessage: t('views.workflow.validate.loopNodeBreakNodeRequired'),
           })
         }
 
@@ -125,7 +126,7 @@ const renderGraphData = (data?: any) => {
       return {
         getNode: () => node,
         getGraph: () => graph,
-        workflowMode: WorkflowMode.ApplicationLoop,
+        workflowMode: loop_workflow_mode,
       }
     }
     lf.value.graphModel.refresh_loop_fields = refresh_loop_fields

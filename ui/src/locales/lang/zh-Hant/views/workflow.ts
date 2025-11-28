@@ -4,12 +4,13 @@ export default {
   baseComponent: '基礎組件',
   nodeSetting: '節點設置',
   workflow: '工作流',
-  searchBar: {
-    placeholder: '按名稱搜索',
-  },
+  knowledgeWorkflow: '知識庫工作流',
   info: {
     previewVersion: '預覽版本：',
     saveTime: '保存時間：',
+  },
+  operation: {
+    toImportDoc: '去導入文檔',
   },
   setting: {
     restoreVersion: '恢復版本',
@@ -19,7 +20,6 @@ export default {
     autoSave: '自動保存',
     latestRelease: '最近發布',
     copyParam: '複製參數',
-    debug: '調試',
     exit: '直接退出',
     exitSave: '保存並退出',
   },
@@ -80,6 +80,21 @@ export default {
     loopNodeBreakNodeRequired: '無限循環必須存在Break節點',
   },
   nodes: {
+    knowledgeWriteNode: {
+      chunk_length: '子分塊長度',
+      text: '知識庫寫入',
+      label: '知識庫寫入',
+    },
+    dataSourceWebNode: {
+      label: 'Web網站',
+      text: 'Web網站',
+      field_label: '文件列表',
+    },
+    dataSourceLocalNode: {
+      label: '本地文件',
+      text: '本地文件',
+      fileList: '文件列表',
+    },
     classify: {
       aiCapability: 'AI能力',
       businessLogic: '業務邏輯',
@@ -152,8 +167,8 @@ export default {
       customTooltip: '手動設置標籤過濾條件',
       auto: '自動',
       autoTooltip: '根據檢索問題自動匹配文檔標簽',
-      document_list: '文件清單',
-      knowledge_list: '知識庫列表',
+      documentList: '文檔列表',
+      knowledgeList: '知識庫列表',
       result: '檢索結果',
       searchParam: '檢索參數',
       select_variable: '選擇變數',
@@ -238,6 +253,16 @@ export default {
       label: '文檔內容提取',
       text: '提取文檔中的內容',
       content: '文檔內容',
+    },
+    documentSplitNode: {
+      label: '文檔拆分',
+      text: '將文檔內容拆分為多個分段',
+      paragraphList: '分段列表',
+      splitStrategy: {
+        label: '分段策略',
+        placeholder: '請選擇分段策略',
+        requiredMessage: '請選擇分段策略',
+      },
     },
     imageUnderstandNode: {
       label: '圖片理解',
@@ -462,4 +487,9 @@ export default {
   },
   SystemPromptPlaceholder: '系統提示詞，可以引用系統中的變量：如',
   UserPromptPlaceholder: '用戶提示詞，可以引用系統中的變量：如',
+  debug: {
+    executionResult: '執行結果',
+    executionSuccess: '執行成功',
+    executionFailed: '執行失敗',
+  },
 }

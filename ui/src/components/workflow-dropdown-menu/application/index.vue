@@ -13,7 +13,7 @@
         <el-input
           v-model="search_text"
           class="mr-12 ml-12"
-          :placeholder="$t('views.applicationWorkflow.searchBar.placeholder')"
+          :placeholder="$t('common.searchBar.placeholder')"
         >
           <template #suffix>
             <el-icon class="el-input__icon">
@@ -23,7 +23,7 @@
         </el-input>
       </div>
 
-      <el-tab-pane :label="$t('views.applicationWorkflow.baseComponent')" name="base">
+      <el-tab-pane :label="$t('views.workflow.baseComponent')" name="base">
         <el-scrollbar height="400">
           <div v-if="filter_menu_nodes.length > 0">
             <template v-for="(node, index) in filter_menu_nodes" :key="index">
@@ -67,7 +67,7 @@
             </template>
           </div>
           <div v-else class="ml-16 mt-8">
-            <el-text type="info">{{ $t('views.applicationWorkflow.tip.noData') }}</el-text>
+            <el-text type="info">{{ $t('views.workflow.tip.noData') }}</el-text>
           </div>
         </el-scrollbar>
       </el-tab-pane>
@@ -310,39 +310,5 @@ async function handleClick(val: string) {
 onMounted(() => {})
 </script>
 <style lang="scss" scoped>
-.workflow-dropdown-menu {
-  -moz-user-select: none; /* Firefox */
-  -webkit-user-select: none; /* WebKit内核 */
-  -ms-user-select: none; /* IE10及以后 */
-  -khtml-user-select: none; /* 早期浏览器 */
-  -o-user-select: none; /* Opera */
-  user-select: none; /* CSS3属性 */
-  position: absolute;
-  top: 49px;
-  right: 16px;
-  z-index: 99;
-  width: 600px;
-  box-shadow: 0px 4px 8px 0px var(--app-text-color-light-1);
-  padding-bottom: 8px;
 
-  .title {
-    padding: 12px 12px 4px;
-  }
-  .workflow-dropdown-item {
-    &:hover {
-      background: var(--app-text-color-light-1);
-    }
-  }
-
-  .list-item {
-    box-sizing: border-box;
-    &:hover {
-      border-color: var(--el-color-primary);
-    }
-  }
-
-  :deep(.el-tabs__header) {
-    margin-bottom: 0;
-  }
-}
 </style>

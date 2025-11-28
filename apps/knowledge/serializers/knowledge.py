@@ -31,7 +31,7 @@ from common.utils.fork import Fork, ChildLink
 from common.utils.logger import maxkb_logger
 from common.utils.split_model import get_split_model
 from knowledge.models import Knowledge, KnowledgeScope, KnowledgeType, Document, Paragraph, Problem, \
-    ProblemParagraphMapping, TaskType, State, SearchMode, KnowledgeFolder, File, Tag
+    ProblemParagraphMapping, TaskType, State, SearchMode, KnowledgeFolder, File, Tag, KnowledgeWorkflow
 from knowledge.serializers.common import ProblemParagraphManage, drop_knowledge_index, \
     get_embedding_model_id_by_knowledge_id, MetaSerializer, \
     GenerateRelatedSerializer, get_embedding_model_by_knowledge_id, list_paragraph, write_image, zip_dir
@@ -342,8 +342,15 @@ class KnowledgeSerializer(serializers.Serializer):
                     )
                 )
             ), with_search_one=True)
+            workflow = {}
+            if knowledge_dict.get('type') == 4:
+                from knowledge.models import KnowledgeWorkflow
+                k = QuerySet(KnowledgeWorkflow).filter(knowledge_id=knowledge_dict.get('id')).first()
+                if k:
+                    workflow = k.work_flow
             return {
                 **knowledge_dict,
+                'work_flow': workflow,
                 'meta': json.loads(knowledge_dict.get('meta', '{}')),
                 'application_id_list': list(filter(
                     lambda application_id: all_application_list.__contains__(application_id),
@@ -406,7 +413,15 @@ class KnowledgeSerializer(serializers.Serializer):
                         application_id=application_id, knowledge_id=self.data.get('knowledge_id')
                     ) for application_id in application_id_list
                 ]) if len(application_id_list) > 0 else None
-
+            if instance.get("work_flow"):
+                QuerySet(KnowledgeWorkflow).update_or_create(knowledge_id=self.data.get("knowledge_id"),
+                                                             create_defaults={'id': uuid.uuid7(),
+                                                                       'knowledge_id': self.data.get("knowledge_id"),
+                                                                       "workspace_id": self.data.get('workspace_id'),
+                                                                       'work_flow': instance.get('work_flow', {}), },
+                                                             defaults={
+                                                                 'work_flow': instance.get('work_flow')
+                                                             })
             knowledge.save()
             if select_one:
                 return self.one()

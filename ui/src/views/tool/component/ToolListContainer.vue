@@ -54,7 +54,7 @@
               <el-dropdown-item @click="openCreateDialog()">
                 <div class="flex align-center">
                   <el-avatar class="avatar-green" shape="square" :size="32">
-                    <img src="@/assets/workflow/icon_tool.svg" style="width: 58%" alt="" />
+                    <img src="@/assets/tool/icon_tool.svg" style="width: 58%" alt="" />
                   </el-avatar>
                   <div class="pre-wrap ml-8">
                     <div class="lighter">{{ $t('views.tool.createTool') }}</div>
@@ -64,10 +64,21 @@
               <el-dropdown-item @click="openCreateMcpDialog()">
                 <div class="flex align-center">
                   <el-avatar shape="square" :size="32">
-                    <img src="@/assets/workflow/icon_mcp.svg" style="width: 75%" alt="" />
+                    <img src="@/assets/tool/icon_mcp.svg" style="width: 75%" alt="" />
                   </el-avatar>
                   <div class="pre-wrap ml-8">
                     <div class="lighter">{{ $t('views.tool.createMcpTool') }}</div>
+                  </div>
+                </div>
+              </el-dropdown-item>
+
+              <el-dropdown-item @click="openCreateDataSourceDialog()">
+                <div class="flex align-center">
+                  <el-avatar class="avatar-purple" shape="square" :size="32">
+                    <img src="@/assets/tool/icon_datasource.svg" style="width: 58%" alt="" />
+                  </el-avatar>
+                  <div class="pre-wrap ml-8">
+                    <div class="lighter">{{ $t('views.tool.dataSource.createDataSource') }}</div>
                   </div>
                 </div>
               </el-dropdown-item>
@@ -93,18 +104,6 @@
                   </div>
                 </el-dropdown-item>
               </el-upload>
-              <!-- <el-dropdown-item @click="openToolStoreDialog()">
-                <div class="flex align-center">
-                  <el-avatar shape="square" :size="32" style="background: none">
-                    <img src="@/assets/icon_tool_shop.svg" alt="" />
-                  </el-avatar>
-                  <div class="pre-wrap ml-8">
-                    <div class="lighter">
-                      {{ $t('views.tool.toolStore.createFromToolStore') }}
-                    </div>
-                  </div>
-                </div>
-              </el-dropdown-item> -->
               <el-dropdown-item @click="openCreateFolder" divided v-if="apiType === 'workspace'">
                 <div class="flex align-center">
                   <AppIcon iconName="app-folder" style="font-size: 32px"></AppIcon>
@@ -200,7 +199,7 @@
                   <el-tag v-if="isShared" type="info" class="info-tag">
                     {{ t('views.shared.title') }}
                   </el-tag>
-                  <el-tooltip effect="dark" content="更新版本">
+                  <el-tooltip effect="dark" :content="$t('views.tool.updatedVersion')">
                     <el-button
                       text
                       @click.stop
@@ -349,6 +348,11 @@
   <InitParamDrawer ref="InitParamDrawerRef" @refresh="refresh" />
   <ToolFormDrawer ref="ToolFormDrawerRef" @refresh="refresh" :title="ToolDrawertitle" />
   <McpToolFormDrawer ref="McpToolFormDrawerRef" @refresh="refresh" :title="McpToolDrawertitle" />
+  <DataSourceToolFormDrawer
+    ref="DataSourceToolFormDrawerRef"
+    @refresh="refresh"
+    :title="DataSourceToolDrawertitle"
+  />
   <CreateFolderDialog ref="CreateFolderDialogRef" v-if="!isShared" @refresh="refreshFolder" />
   <ToolStoreDialog ref="toolStoreDialogRef" :api-type="apiType" @refresh="refresh" />
   <AddInternalToolDialog ref="AddInternalToolDialogRef" @refresh="confirmAddInternalTool" />
@@ -378,6 +382,7 @@ import { useRoute, onBeforeRouteLeave } from 'vue-router'
 import InitParamDrawer from '@/views/tool/component/InitParamDrawer.vue'
 import ToolFormDrawer from '@/views/tool/ToolFormDrawer.vue'
 import McpToolFormDrawer from '@/views/tool/McpToolFormDrawer.vue'
+import DataSourceToolFormDrawer from '@/views/tool/DataSourceToolFormDrawer.vue'
 import CreateFolderDialog from '@/components/folder-tree/CreateFolderDialog.vue'
 import AuthorizedWorkspace from '@/views/system-shared/AuthorizedWorkspaceDialog.vue'
 import ToolStoreDialog from '@/views/tool/toolStore/ToolStoreDialog.vue'
@@ -460,8 +465,10 @@ const search_type_change = () => {
 }
 const ToolFormDrawerRef = ref()
 const McpToolFormDrawerRef = ref()
+const DataSourceToolFormDrawerRef = ref()
 const ToolDrawertitle = ref('')
 const McpToolDrawertitle = ref('')
+const DataSourceToolDrawertitle = ref('')
 
 const MoveToDialogRef = ref()
 function openMoveToDialog(data: any) {
@@ -492,6 +499,12 @@ function openCreateDialog(data?: any) {
   if (data?.tool_type === 'MCP') {
     bus.emit('select_node', data.folder_id)
     openCreateMcpDialog(data)
+    return
+  }
+  // 数据源工具
+  if (data?.tool_type === 'DATA_SOURCE') {
+    bus.emit('select_node', data.folder_id)
+    openCreateDataSourceDialog(data)
     return
   }
   // 有版本号的展示readme，是商店更新过来的
@@ -548,6 +561,29 @@ function openCreateMcpDialog(data?: any) {
       })
   } else {
     McpToolFormDrawerRef.value.open(data)
+  }
+}
+
+function openCreateDataSourceDialog(data?: any) {
+  // 有template_id的不允许编辑，是模板转换来的
+  if (data?.template_id) {
+    return
+  }
+  // 共享过来的工具不让编辑
+  if (isShared.value) {
+    return
+  }
+  DataSourceToolDrawertitle.value = data
+    ? t('views.tool.dataSource.editDataSource')
+    : t('views.tool.dataSource.createDataSource')
+  if (data) {
+    loadSharedApi({ type: 'tool', systemType: apiType.value })
+      .getToolById(data?.id, loading)
+      .then((res: any) => {
+        DataSourceToolFormDrawerRef.value.open(res.data)
+      })
+  } else {
+    DataSourceToolFormDrawerRef.value.open(data)
   }
 }
 
@@ -611,6 +647,18 @@ async function changeState(row: any) {
 }
 
 async function copyTool(row: any) {
+  // mcp工具
+  if (row?.tool_type === 'MCP') {
+    bus.emit('select_node', row.folder_id)
+    await copyMcpTool(row)
+    return
+  }
+  // 数据源工具
+  if (row?.tool_type === 'DATA_SOURCE') {
+    bus.emit('select_node', row.folder_id)
+    await copyDataSource(row)
+    return
+  }
   ToolDrawertitle.value = t('views.tool.copyTool')
   const res = await loadSharedApi({ type: 'tool', systemType: apiType.value }).getToolById(
     row.id,
@@ -620,6 +668,30 @@ async function copyTool(row: any) {
   delete obj['id']
   obj['name'] = obj['name'] + `  ${t('common.copyTitle')}`
   ToolFormDrawerRef.value.open(obj)
+}
+
+async function copyMcpTool(row: any) {
+  McpToolDrawertitle.value = t('views.tool.copyMcpTool')
+  const res = await loadSharedApi({ type: 'tool', systemType: apiType.value }).getToolById(
+    row.id,
+    changeStateloading,
+  )
+  const obj = cloneDeep(res.data)
+  delete obj['id']
+  obj['name'] = obj['name'] + `  ${t('common.copyTitle')}`
+  McpToolFormDrawerRef.value.open(obj)
+}
+
+async function copyDataSource(row: any) {
+  DataSourceToolDrawertitle.value = t('views.tool.dataSource.copyDataSource')
+  const res = await loadSharedApi({ type: 'tool', systemType: apiType.value }).getToolById(
+    row.id,
+    changeStateloading,
+  )
+  const obj = cloneDeep(res.data)
+  delete obj['id']
+  obj['name'] = obj['name'] + `  ${t('common.copyTitle')}`
+  DataSourceToolFormDrawerRef.value.open(obj)
 }
 
 function exportTool(row: any) {

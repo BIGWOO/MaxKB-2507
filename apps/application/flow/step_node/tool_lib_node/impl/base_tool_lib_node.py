@@ -126,6 +126,16 @@ def valid_function(tool_lib, workspace_id):
     if not tool_lib.is_active:
         raise Exception(_("Tool is not active"))
 
+def _filter_file_bytes(data):
+    """递归过滤掉所有层级的 file_bytes"""
+    if isinstance(data, dict):
+        return {k: _filter_file_bytes(v) for k, v in data.items() if k != 'file_bytes'}
+    elif isinstance(data, list):
+        return [_filter_file_bytes(item) for item in data]
+    else:
+        return data
+
+
 
 class BaseToolLibNodeNode(IToolLibNode):
     def save_context(self, details, workflow_manage):
@@ -138,7 +148,7 @@ class BaseToolLibNodeNode(IToolLibNode):
         tool_lib = QuerySet(Tool).filter(id=tool_lib_id).first()
         valid_function(tool_lib, workspace_id)
         params = {
-            field.get('name'):  convert_value(
+            field.get('name'): convert_value(
                 field.get('name'), field.get('value'), field.get('type'),
                 field.get('is_required'),
                 field.get('source'), self
@@ -157,14 +167,20 @@ class BaseToolLibNodeNode(IToolLibNode):
             all_params = init_params_default_value | json.loads(rsa_long_decrypt(tool_lib.init_params)) | params
         else:
             all_params = init_params_default_value | params
+        if self.node.properties.get('kind') == 'data-source':
+            all_params = {**all_params, **self.workflow_params.get('data_source')}
         result = function_executor.exec_code(tool_lib.code, all_params)
-        return NodeResult({'result': result}, {}, _write_context=write_context)
+        return NodeResult({'result': result},
+                          (self.workflow_manage.params.get('knowledge_base') or {}) if self.node.properties.get(
+                              'kind') == 'data-source' else {}, _write_context=write_context)
 
     def get_details(self, index: int, **kwargs):
+        result = _filter_file_bytes(self.context.get('result'))
+
         return {
             'name': self.node.properties.get('stepName'),
             "index": index,
-            "result": self.context.get('result'),
+            "result": result,
             "params": self.context.get('params'),
             'run_time': self.context.get('run_time'),
             'type': self.node.type,
