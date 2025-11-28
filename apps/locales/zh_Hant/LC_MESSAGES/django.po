@@ -8899,3 +8899,12 @@ msgstr "應用令牌使用統計"
 
 msgid "Application top question statistics"
 msgstr "應用提問次數統計"
+
+msgid "SAML2 Metadata"
+msgstr "SAML2 元數據"
+
+msgid "SAML2 Log in"
+msgstr "SAML2 登入"
+
+msgid "SAML2 SSO"
+msgstr "SAML2 單點登入"

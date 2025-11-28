@@ -3,9 +3,8 @@ from typing import Dict
 from openai import OpenAI
 
 from common.config.tokenizer_manage_config import TokenizerManage
-from common.utils.common import _remove_empty_lines
 from models_provider.base_model_provider import MaxKBBaseModel
-from models_provider.impl.base_tts import BaseTextToSpeech
+from models_provider.impl.base_tti import BaseTextToImage
 
 
 def custom_get_token_ids(text: str):
@@ -13,7 +12,7 @@ def custom_get_token_ids(text: str):
     return tokenizer.encode(text)
 
 
-class OpenAITextToSpeech(MaxKBBaseModel, BaseTextToSpeech):
+class DockerAITextToImage(MaxKBBaseModel, BaseTextToImage):
     api_base: str
     api_key: str
     model: str
@@ -32,11 +31,11 @@ class OpenAITextToSpeech(MaxKBBaseModel, BaseTextToSpeech):
 
     @staticmethod
     def new_instance(model_type, model_name, model_credential: Dict[str, object], **model_kwargs):
-        optional_params = {'params': {'voice': 'alloy'}}
+        optional_params = {'params': {'size': '1024x1024', 'quality': 'standard', 'n': 1}}
         for key, value in model_kwargs.items():
             if key not in ['model_id', 'use_local', 'streaming']:
                 optional_params['params'][key] = value
-        return OpenAITextToSpeech(
+        return DockerAITextToImage(
             model=model_name,
             api_base=model_credential.get('api_base'),
             api_key=model_credential.get('api_key'),
@@ -44,22 +43,17 @@ class OpenAITextToSpeech(MaxKBBaseModel, BaseTextToSpeech):
         )
 
     def check_auth(self):
-        client = OpenAI(
-            base_url=self.api_base,
-            api_key=self.api_key
-        )
-        response_list = client.models.with_raw_response.list()
-        # print(response_list)
+        chat = OpenAI(api_key=self.api_key, base_url=self.api_base)
+        response_list = chat.models.with_raw_response.list()
 
-    def text_to_speech(self, text):
-        client = OpenAI(
-            base_url=self.api_base,
-            api_key=self.api_key
-        )
-        text = _remove_empty_lines(text)
-        with client.audio.speech.with_streaming_response.create(
-                model=self.model,
-                input=text,
-                **self.params
-        ) as response:
-            return response.read()
+        # self.generate_image('生成一个小猫图片')
+
+    def generate_image(self, prompt: str, negative_prompt: str = None):
+        chat = OpenAI(api_key=self.api_key, base_url=self.api_base)
+        res = chat.images.generate(model=self.model, prompt=prompt, **self.params)
+        file_urls = []
+        for content in res.data:
+            url = content.url
+            file_urls.append(url)
+
+        return file_urls

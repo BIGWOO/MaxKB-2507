@@ -13,7 +13,7 @@ def custom_get_token_ids(text: str):
     return tokenizer.encode(text)
 
 
-class OpenAITextToSpeech(MaxKBBaseModel, BaseTextToSpeech):
+class DockerAITextToSpeech(MaxKBBaseModel, BaseTextToSpeech):
     api_base: str
     api_key: str
     model: str
@@ -36,7 +36,7 @@ class OpenAITextToSpeech(MaxKBBaseModel, BaseTextToSpeech):
         for key, value in model_kwargs.items():
             if key not in ['model_id', 'use_local', 'streaming']:
                 optional_params['params'][key] = value
-        return OpenAITextToSpeech(
+        return DockerAITextToSpeech(
             model=model_name,
             api_base=model_credential.get('api_base'),
             api_key=model_credential.get('api_key'),
