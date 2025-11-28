@@ -74,7 +74,7 @@ class ToolExecutor:
         with open(sandbox_conf_file_path, "w") as f:
             f.write(f"SANDBOX_PYTHON_BANNED_HOSTS={banned_hosts}\n")
             f.write(f"SANDBOX_PYTHON_ALLOW_SUBPROCESS={allow_subprocess}\n")
-        os.system(f"chmod -R 550 {sandbox_lib_path}")
+        os.system(f"chmod -R 550 {self.sandbox_path}")
 
     def exec_code(self, code_str, keywords):
         _id = str(uuid.uuid7())
