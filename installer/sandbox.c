@@ -56,8 +56,8 @@ static void load_sandbox_config() {
         char *value = strtok(NULL, "\n");
         if (!key || !value) continue;
         while (*key == ' ' || *key == '\t') key++;
-        char *kend = key + strlen(key) - 1;
-        while (kend > key && (*kend == ' ' || *kend == '\t')) *kend-- = '\0';
+        char *keyend = key + strlen(key) - 1;
+        while (keyend > key && (*keyend == ' ' || *keyend == '\t')) *keyend-- = '\0';
         while (*value == ' ' || *value == '\t') value++;
         char *vend = value + strlen(value) - 1;
         while (vend > value && (*vend == ' ' || *vend == '\t')) *vend-- = '\0';
@@ -171,6 +171,11 @@ static int not_supported(const char *function_name) {
     _exit(1);
     return -1;
 }
+static pid_t ppid = 0;
+// 在进程初始化时保存 PID
+__attribute__((constructor)) static void init_sandbox() {
+    ppid = getpid();
+}
 #define RESOLVE_REAL(func)                      \
     static typeof(func) *real_##func = NULL;    \
     if (!real_##func) {                         \
@@ -178,12 +183,22 @@ static int not_supported(const char *function_name) {
     }
 int execv(const char *path, char *const argv[]) {
     RESOLVE_REAL(execv);
-    if (!allow_create_subprocess() && strstr(path, "bin/python") == NULL)  return deny();
+    // fprintf(stdout, "execv path: %s ppid=%d pid=%d\n", path, sandbox_pid, getpid());
+    if (!allow_create_subprocess()) {
+        // 只允许创建python进程，但不允许python进程替换（用os.execvp里又启动另一个python进程）
+        if (strstr(path, "bin/python") == NULL || getpid() == ppid) {
+            return deny();
+        }
+    }
     return real_execv(path, argv);
 }
 int __execv(const char *path, char *const argv[]) {
     RESOLVE_REAL(__execv);
-    if (!allow_create_subprocess() && strstr(path, "bin/python") == NULL)  return deny();
+    if (!allow_create_subprocess()) {
+        if (strstr(path, "bin/python") == NULL || getpid() == ppid) {
+            return deny();
+        }
+    }
     return real___execv(path, argv);
 }
 int execve(const char *filename, char *const argv[], char *const envp[]) {
