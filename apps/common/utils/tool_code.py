@@ -2,7 +2,6 @@
 import ast
 import base64
 import gzip
-import io
 import json
 import os
 import socket
@@ -82,7 +81,6 @@ class ToolExecutor:
         success = '{"code":200,"msg":"成功","data":exec_result}'
         err = '{"code":500,"msg":str(e),"data":None}'
         action_function = f'({function_name !a}, locals_v.get({function_name !a}))' if function_name else 'locals_v.popitem()'
-        result_path = f'{self.sandbox_path}/result/{_id}.result'
         python_paths = CONFIG.get_sandbox_python_package_paths().split(',')
         _exec_code = f"""
 try:
