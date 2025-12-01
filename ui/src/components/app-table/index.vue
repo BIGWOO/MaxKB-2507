@@ -94,7 +94,7 @@ const appTableRef = ref()
 const loading = ref(false)
 const showInput = ref(false)
 const inputValue = ref('')
-const tableHeight = ref(0)
+const tableHeight = ref(300)
 
 watch(showInput, (bool) => {
   if (!bool) {
