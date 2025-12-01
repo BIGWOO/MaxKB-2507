@@ -230,7 +230,10 @@
                 />
               </div>
             </el-card>
-            <el-form-item>
+            <el-form-item
+              :label="
+              $t('views.workflow.nodes.baseNode.FileUploadSetting.fileUploadType.uploadMethod')
+            ">
               <div class="flex align-center">
                 <el-checkbox
                   v-model="form_data.local_upload"

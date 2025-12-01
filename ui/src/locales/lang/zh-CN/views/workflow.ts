@@ -130,6 +130,7 @@ export default {
           audioText: '需要使用“语音转文本”节点解析音频内容',
           videoText: '需要使用“视频理解”节点解析视频内容',
           otherText: '需要自行解析该类型文件',
+          uploadMethod: '上传方式',
         },
       },
     },
