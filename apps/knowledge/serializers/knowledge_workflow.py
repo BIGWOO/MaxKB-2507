@@ -1,6 +1,5 @@
 # coding=utf-8
 import asyncio
-import datetime
 import json
 from typing import Dict
 
@@ -10,7 +9,6 @@ from django.db.models import QuerySet
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
-from rest_framework.views import APIView
 
 from application.flow.common import Workflow, WorkflowMode
 from application.flow.i_step_node import KnowledgeWorkflowPostHandler
@@ -187,8 +185,9 @@ class KnowledgeWorkflowSerializer(serializers.Serializer):
                                                          publish_user_name=user.username,
                                                          workspace_id=workspace_id)
             work_flow_version.save()
-            QuerySet(KnowledgeWorkflow).filter(knowledge_id=self.data.get("knowledge_id")).update(is_publish=True,
-                                                                                                  publish_time=datetime.datetime.now())
+            QuerySet(KnowledgeWorkflow).filter(
+                knowledge_id=self.data.get("knowledge_id")
+            ).update(is_publish=True, publish_time=timezone.now())
             return True
 
         def edit(self, instance: Dict):

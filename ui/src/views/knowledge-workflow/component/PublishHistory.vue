@@ -80,7 +80,9 @@ const {
   params: { id },
 } = route as any
 const apiType = computed(() => {
-  if (route.path.includes('resource-management')) {
+  if (route.path.includes('shared')) {
+    return 'systemShare'
+  } else if (route.path.includes('resource-management')) {
     return 'systemManage'
   } else {
     return 'workspace'

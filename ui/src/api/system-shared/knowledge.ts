@@ -361,6 +361,20 @@ const getWorkflowAction: (
   return get(`${prefix}/${knowledge_id}/action/${knowledge_action_id}`, {}, loading)
 }
 
+const publish: (knowledge_id: string, loading?: Ref<boolean>) => Promise<Result<any>> = (
+  knowledge_id: string,
+  loading,
+) => {
+  return put(`${prefix}/${knowledge_id}/publish`, {}, {}, loading)
+}
+
+const listKnowledgeVersion: (
+  knowledge_id: string,
+  loading?: Ref<boolean>,
+) => Promise<Result<any>> = (knowledge_id: string, loading) => {
+  return get(`${prefix}/${knowledge_id}/knowledge_version`, {}, loading)
+}
+
 export default {
   getKnowledgeList,
   getKnowledgeListPage,
@@ -389,6 +403,8 @@ export default {
   getKnowledgeWorkflowFormList,
   getKnowledgeWorkflowDatasourceDetails,
   workflowAction,
+  publish,
+  listKnowledgeVersion,
 } as {
   [key: string]: any
 }
