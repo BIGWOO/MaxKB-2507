@@ -18,9 +18,9 @@
 #include <sys/types.h>
 #include <time.h>
 #include <execinfo.h>
-#include <dlfcn.h>
 #include <linux/sched.h>
 #include <pty.h>
+#include <stdint.h>
 
 #define CONFIG_FILE ".sandbox.conf"
 #define KEY_BANNED_HOSTS "SANDBOX_PYTHON_BANNED_HOSTS"
@@ -30,25 +30,26 @@ static char *banned_hosts = NULL;
 static int allow_subprocess = 0; // 默认禁止
 
 static void load_sandbox_config() {
-     Dl_info info;
-     if (dladdr((void *)load_sandbox_config, &info) == 0 || !info.dli_fname) {
-         banned_hosts = strdup("");
-         allow_subprocess = 0;
-         return;
-     }
-     char so_path[PATH_MAX];
-     strncpy(so_path, info.dli_fname, sizeof(so_path));
-     so_path[sizeof(so_path) - 1] = '\0';
-     char *dir = dirname(so_path);
-     char config_path[PATH_MAX];
-     snprintf(config_path, sizeof(config_path), "%s/%s", dir, CONFIG_FILE);
-     FILE *fp = fopen(config_path, "r");
-     if (!fp) {
-         banned_hosts = strdup("");
-         allow_subprocess = 0;
-         return;
-     }
+    Dl_info info;
+    if (dladdr((void *)load_sandbox_config, &info) == 0 || !info.dli_fname) {
+        banned_hosts = strdup("");
+        allow_subprocess = 0;
+        return;
+    }
+    char so_path[PATH_MAX];
+    strncpy(so_path, info.dli_fname, sizeof(so_path));
+    so_path[sizeof(so_path) - 1] = '\0';
+    char *dir = dirname(so_path);
+    char config_path[PATH_MAX];
+    snprintf(config_path, sizeof(config_path), "%s/%s", dir, CONFIG_FILE);
+    FILE *fp = fopen(config_path, "r");
+    if (!fp) {
+        banned_hosts = strdup("");
+        allow_subprocess = 0;
+        return;
+    }
     char line[512];
+    if (banned_hosts) { free(banned_hosts); banned_hosts = NULL; }
     banned_hosts = strdup("");
     allow_subprocess = 0;
     while (fgets(line, sizeof(line), fp)) {
@@ -77,7 +78,7 @@ static int is_sandbox_user() {
     uid_t uid = getuid();
     struct passwd *pw = getpwuid(uid);
     if (!pw || !pw->pw_name) {
-        return 1;  // 无法识别用户 → 认为是sandbox
+        return 1;  // 无法识别用户 → 认为是 sandbox
     }
     if (strcmp(pw->pw_name, "sandbox") == 0) {
         return 1;
@@ -85,7 +86,7 @@ static int is_sandbox_user() {
     return 0;
 }
 /**
- * 精确匹配黑名单
+ * 匹配黑名单（用于域名或具体字符串匹配）
  */
 static int match_env_patterns(const char *target, const char *env_val) {
     if (!target || !env_val || !*env_val) return 0;
@@ -114,8 +115,43 @@ static int match_env_patterns(const char *target, const char *env_val) {
     free(patterns);
     return matched;
 }
-
-/** 拦截 connect() —— 精确匹配 IP */
+// ------------------ IP/CIDR 黑名单 ------------------
+static int match_banned_ip(const char *ip_str, const char *banned_list) {
+    if (!ip_str || !banned_list || !*banned_list) return 0;
+    char *list = strdup(banned_list);
+    char *token = strtok(list, ",");
+    int blocked = 0;
+    while (token) {
+        while (*token == ' ' || *token == '\t') token++;
+        char *end = token + strlen(token) - 1;
+        while (end > token && (*end == ' ' || *end == '\t')) *end-- = '\0';
+        if (*token) {
+            char *slash = strchr(token, '/');
+            if (!slash) {
+                if (strcmp(ip_str, token) == 0) {
+                    blocked = 1;
+                    break;
+                }
+            } else {
+                *slash = 0;
+                int prefix = atoi(slash + 1);
+                struct in_addr ip, net, mask;
+                if (inet_pton(AF_INET, token, &net) == 1 &&
+                    inet_pton(AF_INET, ip_str, &ip) == 1) {
+                    mask.s_addr = prefix == 0 ? 0 : htonl(0xFFFFFFFF << (32 - prefix));
+                    if ((ip.s_addr & mask.s_addr) == (net.s_addr & mask.s_addr)) {
+                        blocked = 1;
+                        break;
+                    }
+                }
+            }
+        }
+        token = strtok(NULL, ",");
+    }
+    free(list);
+    return blocked;
+}
+// ------------------ 网络拦截 ------------------
 int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen) {
     static int (*real_connect)(int, const struct sockaddr *, socklen_t) = NULL;
     if (!real_connect)
@@ -126,15 +162,16 @@ int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen) {
         inet_ntop(AF_INET, &((struct sockaddr_in *)addr)->sin_addr, ip, sizeof(ip));
     else if (addr->sa_family == AF_INET6)
         inet_ntop(AF_INET6, &((struct sockaddr_in6 *)addr)->sin6_addr, ip, sizeof(ip));
-    if (is_sandbox_user() && banned_hosts && *banned_hosts && match_env_patterns(ip, banned_hosts)) {
-        fprintf(stderr, "[sandbox] 🚫 Access to host %s is banned\n", ip);
-        errno = EACCES; // EACCES 的值是 13, 意思是 Permission denied
-        return -1;
+
+    if (is_sandbox_user() && banned_hosts && *banned_hosts) {
+        if (ip[0] && match_banned_ip(ip, banned_hosts)) {
+            fprintf(stderr, "[sandbox] 🚫 Access to IP %s is banned\n", ip);
+            errno = EACCES;  // Permission denied
+            return -1;
+        }
     }
     return real_connect(sockfd, addr, addrlen);
 }
-
-/** 拦截 getaddrinfo() —— 只拦截域名，不拦截纯 IP */
 int getaddrinfo(const char *node, const char *service,
                 const struct addrinfo *hints, struct addrinfo **res) {
     static int (*real_getaddrinfo)(const char *, const char *,
@@ -142,16 +179,17 @@ int getaddrinfo(const char *node, const char *service,
     if (!real_getaddrinfo)
         real_getaddrinfo = dlsym(RTLD_NEXT, "getaddrinfo");
     ensure_config_loaded();
-    if (banned_hosts && *banned_hosts && node) {
-        // 检测 node 是否是 IP
+    if (banned_hosts && *banned_hosts && node && is_sandbox_user()) {
         struct in_addr ipv4;
         struct in6_addr ipv6;
-        int is_ip = (inet_pton(AF_INET, node, &ipv4) == 1) ||
-                    (inet_pton(AF_INET6, node, &ipv6) == 1);
-        // 只对“非IP的域名”进行屏蔽
-        if (is_sandbox_user() && !is_ip && match_env_patterns(node, banned_hosts )) {
-            fprintf(stderr, "[sandbox] 🚫 Access to host %s is banned (DNS blocked)\n", node);
-            return EAI_FAIL; // 模拟 DNS 层禁止
+        int is_ip = inet_pton(AF_INET, node, &ipv4) == 1 ||
+                    inet_pton(AF_INET6, node, &ipv6) == 1;
+        if (!is_ip) {
+            // 仅对域名进行阻塞
+            if (match_env_patterns(node, banned_hosts)) {
+                fprintf(stderr, "[sandbox] 🚫 Access to host %s is banned (DNS blocked)\n", node);
+                return EAI_FAIL;
+            }
         }
     }
     return real_getaddrinfo(node, service, hints, res);
@@ -287,7 +325,6 @@ int posix_spawn(pid_t *pid, const char *path,
     if (!allow_create_subprocess()) return deny();
     return real_posix_spawn(pid, path, file_actions, attrp, argv, envp);
 }
-
 int posix_spawnp(pid_t *pid, const char *file,
                  const posix_spawn_file_actions_t *file_actions,
                  const posix_spawnattr_t *attrp,
@@ -304,7 +341,6 @@ int __posix_spawn(pid_t *pid, const char *path,
     if (!allow_create_subprocess()) return deny();
     return real___posix_spawn(pid, path, file_actions, attrp, argv, envp);
 }
-
 int __posix_spawnp(pid_t *pid, const char *file,
                    const posix_spawn_file_actions_t *file_actions,
                    const posix_spawnattr_t *attrp,
@@ -351,6 +387,7 @@ pid_t __libc_clone(int (*fn)(void *), void *child_stack, int flags, void *arg, .
     va_end(ap);
     return real___libc_clone(fn, child_stack, flags, arg, (void *)a4, (void *)a5);
 }
+
 pid_t forkpty(int *amaster, char *name, const struct termios *termp, const struct winsize *winp) {
     RESOLVE_REAL(forkpty);
     if (!allow_create_subprocess()) return deny();
@@ -361,6 +398,7 @@ pid_t __forkpty(int *amaster, char *name, const struct termios *termp, const str
     if (!allow_create_subprocess()) return deny();
     return real___forkpty(amaster, name, termp, winp);
 }
+/* syscall wrapper to intercept syscalls that directly create processes */
 long (*real_syscall)(long, ...) = NULL;
 long syscall(long number, ...) {
     RESOLVE_REAL(syscall);
