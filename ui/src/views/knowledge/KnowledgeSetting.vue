@@ -82,7 +82,7 @@
                 >
                   <div class="flex align-center">
                     <el-avatar class="avatar-purple mt-4" shape="square" :size="32">
-                      <img src="@/assets/knowledge/logo_workflow.svg" style="width: 600%" alt="" />
+                      <img src="@/assets/knowledge/logo_workflow.svg" style="width: 60%" alt="" />
                     </el-avatar>
                     <div>
                       <p>
