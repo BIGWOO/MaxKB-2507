@@ -1,3 +1,6 @@
+import tool from '@/api/tool/tool'
+import type { title } from 'process'
+
 export default {
   node: '节点',
   nodeName: '节点名称',
@@ -82,7 +85,6 @@ export default {
   },
   nodes: {
     knowledgeWriteNode: {
-      chunk_length: '子分块长度',
       text: '知识库写入',
       label: '知识库写入',
     },
@@ -95,6 +97,16 @@ export default {
       label: '本地文件',
       text: '本地文件',
       fileList: '文件列表',
+      fileFormat: {
+        label: '支持的文件格式',
+        requiredMessage: '请选择文件格式',
+      },
+      maxFileNumber: {
+        label: '每次上传最大文件数',
+      },
+      maxFileCountNumber: {
+        label: '上传的每个文档最大(MB)',
+      },
     },
     classify: {
       aiCapability: 'AI能力',
@@ -270,6 +282,16 @@ export default {
         placeholder: '请选择分段策略',
         requiredMessage: '请选择分段策略',
       },
+      chunk_length: {
+        label: '子分块长度',
+        tooltip1: '核心目标是平衡检索精度与召回效率',
+        tooltip2:
+          '避免过短拆分：单块＜50 字易导致语义碎片化，检索时可能因缺少上下文无法匹配查询意图',
+        tooltip3:
+          '避免过长拆分：单块＞500 字会增加冗余信息，降低检索精准度，且占用更多存储和计算资源',
+      },
+      title1: '分段标题设置为分段的关联问题',
+      title2: '文档名称设置为分段的关联问题',
     },
     imageUnderstandNode: {
       label: '图片理解',
@@ -421,7 +443,6 @@ export default {
       placeholder: '请选择分类项',
       classify: {
         label: '意图分类',
-        placeholder: '请输入',
       },
       input: {
         label: '输入',

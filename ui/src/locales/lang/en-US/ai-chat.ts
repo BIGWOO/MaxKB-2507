@@ -108,7 +108,6 @@ export default {
     knowedMessage: 'Known Information',
     documentSplitTip: 'Each document can preview only the first five segments',
     paragraphRules: 'Segmentation Rules',
-    subBlockLength: 'Sub-block Length',
     writeContent: 'Content Written',
   },
   KnowledgeSource: {

@@ -1114,7 +1114,9 @@
             </div>
             <div class="card-never border-r-6 mt-8">
               <h5 class="p-8-12">
-                {{ $t('common.param.outputParam') }}（{{ $t('chat.executionDetails.documentSplitTip') }}）
+                {{ $t('common.param.outputParam') }}（{{
+                  $t('chat.executionDetails.documentSplitTip')
+                }}）
               </h5>
               <div class="p-8-12 border-t-dashed lighter">
                 <el-radio-group v-model="currentParagraph" class="app-radio-button-group mb-8">
@@ -1150,12 +1152,14 @@
                 {{ $t('common.param.inputParam') }}
               </h5>
               <div class="p-8-12 border-t-dashed lighter">
-                <span class="color-secondary">{{$t('chat.executionDetails.subBlockLength')}}:</span>
+                <span class="color-secondary"
+                  >{{ $t('views.workflow.nodes.documentSplitNode.chunk_length.label') }}:</span
+                >
                 {{ data.size }}
               </div>
             </div>
             <div class="card-never border-r-6 mt-8">
-              <h5 class="p-8-12">{{$t('chat.executionDetails.writeContent')}}</h5>
+              <h5 class="p-8-12">{{ $t('chat.executionDetails.writeContent') }}</h5>
               <div class="p-8-12 border-t-dashed lighter">
                 <el-radio-group v-model="currentWriteContent" class="app-radio-button-group mb-8">
                   <template

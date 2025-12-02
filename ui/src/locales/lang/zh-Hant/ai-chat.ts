@@ -106,7 +106,6 @@ export default {
     knowedMessage: '已知資訊',
     documentSplitTip: '每個文件僅能預覽前五個段落',
     paragraphRules: '分段規則',
-    subBlockLength: '子分塊長度',
     writeContent: '寫入內容',
   },
   KnowledgeSource: {

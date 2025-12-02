@@ -108,7 +108,7 @@
               <el-form-item
                 :prop="`branch.${index}.content`"
                 :rules="{
-                  message: $t('views.workflow.nodes.intentNode.classify.placeholder'),
+                  message: $t('common.inputPlaceholder'),
                   trigger: 'change',
                   required: true,
                 }"
@@ -119,9 +119,7 @@
                       v-model="item.content"
                       style="width: 210px"
                       :disabled="item.isOther"
-                      :placeholder="
-                        $t('views.workflow.nodes.intentNode.classify.placeholder')
-                      "
+                      :placeholder="$t('common.inputPlaceholder')"
                     />
                   </el-col>
                   <el-col :span="3">

@@ -81,7 +81,6 @@ export default {
   },
   nodes: {
     knowledgeWriteNode: {
-      chunk_length: 'Chunk length',
       text: 'Knowledge write',
       label: 'Knowledge write',
     },
@@ -94,6 +93,16 @@ export default {
       label: 'Local File',
       text: 'Local File',
       fileList: 'File List',
+      fileFormat: {
+        label: 'Supported File Formats',
+        requiredMessage: 'Please select file formats',
+      },
+      maxFileNumber: {
+        label: 'Maximum Number of Files per Upload',
+      },
+      maxFileCountNumber: {
+        label: 'Maximum Size per File (MB)',
+      },
     },
     classify: {
       aiCapability: 'AI capability',
@@ -265,6 +274,16 @@ You are a master of problem optimization, adept at accurately inferring user int
         placeholder: 'Please select a splitting strategy',
         requiredMessage: 'Please select a splitting strategy',
       },
+      chunk_length: {
+        label: 'Chunk length',
+        tooltip1: 'Core objective is to balance retrieval precision and recall efficiency',
+        tooltip2:
+          'Avoid excessively short segmentation: A single segment <50 characters may lead to semantic fragmentation, potentially failing to match query intent during retrieval due to lack of context.',
+        tooltip3:
+          'Avoid excessive segmentation: A single block exceeding 500 characters increases redundant information, reduces retrieval accuracy, and consumes more storage and computing resources.',
+      },
+      title1: 'Segment title set as the associated question of the segment',
+      title2: 'Document name set as the associated question of the segment',
     },
     imageUnderstandNode: {
       label: 'Image Understanding',
@@ -410,7 +429,6 @@ You are a master of problem optimization, adept at accurately inferring user int
       placeholder: 'Please choose a classification option',
       classify: {
         label: 'Intent classify',
-        placeholder: 'Please input',
       },
       input: {
         label: 'Input',

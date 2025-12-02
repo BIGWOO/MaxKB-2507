@@ -10,25 +10,17 @@
         label-width="auto"
       >
         <el-form-item
-          :label="$t('views.workflow.nodes.dataSourceLocalNode.fileFormat.label', '支持的文件格式')"
+          :label="$t('views.workflow.nodes.dataSourceLocalNode.fileFormat.label')"
           :rules="{
             type: 'array',
             required: true,
-            message: $t(
-              'views.workflow.nodes.dataSourceLocalNode.fileFormat.message',
-              '请选择文件格式',
-            ),
+            message: $t('views.workflow.nodes.dataSourceLocalNode.fileFormat.requiredMessage'),
             trigger: 'change',
           }"
         >
           <el-select
             v-model="form_data.file_type_list"
-            :placeholder="
-              $t(
-                'views.workflow.nodes.dataSourceLocalNode.fileFormat.placeholder',
-                '请选择文件格式',
-              )
-            "
+            :placeholder="$t('views.workflow.nodes.dataSourceLocalNode.fileFormat.requiredMessage')"
             class="w-240"
             clearable
             multiple
@@ -48,16 +40,11 @@
           </el-select>
         </el-form-item>
         <el-form-item
-          :label="
-            $t('views.workflow.nodes.dataSourceLocalNode.maxFileNumber.label', '每次上传最大文件数')
-          "
+          :label="$t('views.workflow.nodes.dataSourceLocalNode.maxFileNumber.label')"
           :rules="{
             type: 'array',
             required: true,
-            message: $t(
-              'views.workflow.nodes.dataSourceLocalNode.maxFileNumber.placeholder',
-              '请输入最大文件数',
-            ),
+            message: $t('common.inputPlaceholder'),
             trigger: 'change',
           }"
         >
@@ -73,19 +60,11 @@
           />
         </el-form-item>
         <el-form-item
-          :label="
-            $t(
-              'views.workflow.nodes.dataSourceLocalNode.maxFileNumber.label',
-              '上传的每个文档最大(MB)',
-            )
-          "
+          :label="$t('views.workflow.nodes.dataSourceLocalNode.maxFileCountNumber.label')"
           :rules="{
             type: 'array',
             required: true,
-            message: $t(
-              'views.workflow.nodes.dataSourceLocalNode.maxFileNumber.placeholder',
-              '上传的每个文档最大(MB) 必填',
-            ),
+            message: $t('common.inputPlaceholder'),
             trigger: 'change',
           }"
         >

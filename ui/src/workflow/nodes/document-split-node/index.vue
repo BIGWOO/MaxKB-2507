@@ -10,11 +10,13 @@
         require-asterisk-position="right"
         label-width="auto"
       >
-        <el-form-item :label="$t('views.problem.relateParagraph.selectDocument')" :rules="{
+        <el-form-item
+          :label="$t('views.problem.relateParagraph.selectDocument')"
+          :rules="{
             type: 'array',
             required: true,
             message: $t('views.chatLog.documentPlaceholder'),
-            trigger: 'change'
+            trigger: 'change',
           }"
         >
           <NodeCascader
@@ -30,39 +32,28 @@
           :rules="{
             required: true,
             message: $t('views.workflow.nodes.documentSplitNode.splitStrategy.requiredMessage'),
-            trigger: 'change'
+            trigger: 'change',
           }"
         >
           <el-select
             v-model="form_data.split_strategy"
-            :placeholder="$t('views.workflow.nodes.documentSplitNode.splitStrategy.placeholder')">
-            <el-option
-              :label="$t('views.document.setRules.intelligent.label')"
-              value="auto"
-            />
-            <el-option
-              :label="$t('views.document.setRules.advanced.label')"
-              value="custom"
-            />
-            <el-option
-              :label="$t('views.document.fileType.QA.label')"
-              value="qa"
-            />
+            :placeholder="$t('views.workflow.nodes.documentSplitNode.splitStrategy.placeholder')"
+          >
+            <el-option :label="$t('views.document.setRules.intelligent.label')" value="auto" />
+            <el-option :label="$t('views.document.setRules.advanced.label')" value="custom" />
+            <el-option :label="$t('views.document.fileType.QA.label')" value="qa" />
           </el-select>
         </el-form-item>
         <el-form-item>
           <template #label>
             <div class="flex-between">
-              <span>
-                <span>子分块长度</span>
-                <el-tooltip
-                  effect="dark"
-                  placement="right"
-                >
+              <span class="flex align-center">
+                <span>{{ $t('views.workflow.nodes.documentSplitNode.chunk_length.label') }}</span>
+                <el-tooltip effect="dark" placement="right">
                   <template #content>
-                  核心目标是平衡检索精度与召回效率 <br/>
-                  •避免过短拆分：单块＜50 字易导致语义碎片化，检索时可能因缺少上下文无法匹配查询意图<br/>
-                  •避免过长拆分：单块＞500 字会增加冗余信息，降低检索精准度，且占用更多存储和计算资源
+                    {{ $t('views.workflow.nodes.documentSplitNode.chunk_length.tooltip1') }}<br />
+                    {{ $t('views.workflow.nodes.documentSplitNode.chunk_length.tooltip2') }}<br />
+                    {{ $t('views.workflow.nodes.documentSplitNode.chunk_length.tooltip3') }}
                   </template>
                   <AppIcon iconName="app-warning" class="app-warning-icon"></AppIcon>
                 </el-tooltip>
@@ -72,10 +63,7 @@
                   :label="$t('views.workflow.nodes.searchDocumentNode.custom')"
                   value="custom"
                 />
-                <el-option
-                  :label="$t('views.workflow.variable.Referencing')"
-                  value="referencing"
-                />
+                <el-option :label="$t('views.workflow.variable.Referencing')" value="referencing" />
               </el-select>
             </div>
           </template>
@@ -200,7 +188,11 @@
                   />
                 </el-select>
               </div>
-              <el-switch v-if="form_data.with_filter_type === 'custom'" size="small" v-model="form_data.with_filter" />
+              <el-switch
+                v-if="form_data.with_filter_type === 'custom'"
+                size="small"
+                v-model="form_data.with_filter"
+              />
               <NodeCascader
                 v-else
                 ref="nodeCascaderRef7"
@@ -212,8 +204,7 @@
               <div style="margin-top: 4px">
                 <el-text type="info">
                   {{ $t('views.document.setRules.with_filter.text') }}
-                </el-text
-                >
+                </el-text>
               </div>
             </div>
           </div>
@@ -221,17 +212,17 @@
         <el-form-item v-if="form_data.split_strategy !== 'qa'">
           <template #label>
             <div class="flex-between">
-              <span>分段标题设置为分段的关联问题</span>
-              <el-select v-model="form_data.paragraph_title_relate_problem_type" size="small"
-                         style="width: 100px">
+              <span> {{ $t('views.workflow.nodes.documentSplitNode.title1') }}</span>
+              <el-select
+                v-model="form_data.paragraph_title_relate_problem_type"
+                size="small"
+                style="width: 100px"
+              >
                 <el-option
                   :label="$t('views.workflow.nodes.searchDocumentNode.custom')"
                   value="custom"
                 />
-                <el-option
-                  :label="$t('views.workflow.variable.Referencing')"
-                  value="referencing"
-                />
+                <el-option :label="$t('views.workflow.variable.Referencing')" value="referencing" />
               </el-select>
             </div>
           </template>
@@ -252,17 +243,17 @@
         <el-form-item>
           <template #label>
             <div class="flex-between">
-              <span>文档名称设置为分段的关联问题</span>
-              <el-select v-model="form_data.document_name_relate_problem_type" size="small"
-                         style="width: 100px">
+              <span>{{ $t('views.workflow.nodes.documentSplitNode.title2') }}</span>
+              <el-select
+                v-model="form_data.document_name_relate_problem_type"
+                size="small"
+                style="width: 100px"
+              >
                 <el-option
                   :label="$t('views.workflow.nodes.searchDocumentNode.custom')"
                   value="custom"
                 />
-                <el-option
-                  :label="$t('views.workflow.variable.Referencing')"
-                  value="referencing"
-                />
+                <el-option :label="$t('views.workflow.variable.Referencing')" value="referencing" />
               </el-select>
             </div>
           </template>
@@ -297,7 +288,7 @@ import { useRoute } from 'vue-router'
 
 const route = useRoute()
 const {
-  query: { id } // id为knowledgeID
+  query: { id }, // id为knowledgeID
 } = route as any
 
 const apiType = computed(() => {
@@ -333,9 +324,8 @@ const form = {
   patterns_reference: [],
   with_filter: false,
   with_filter_type: 'custom',
-  with_filter_reference: []
+  with_filter_reference: [],
 }
-
 
 const form_data = computed({
   get: () => {
@@ -348,9 +338,8 @@ const form_data = computed({
   },
   set: (value) => {
     set(props.nodeModel.properties, 'node_data', value)
-  }
+  },
 })
-
 
 const aiChatNodeFormRef = ref<FormInstance>()
 const nodeCascaderRef = ref()
@@ -362,7 +351,7 @@ const validate = () => {
     nodeCascaderRef.value ? nodeCascaderRef.value.validate() : Promise.resolve(''),
     nodeCascaderRef2.value ? nodeCascaderRef2.value.validate() : Promise.resolve(''),
     nodeCascaderRef3.value ? nodeCascaderRef3.value.validate() : Promise.resolve(''),
-    aiChatNodeFormRef.value?.validate()
+    aiChatNodeFormRef.value?.validate(),
   ]).catch((err: any) => {
     return Promise.reject({ node: props.nodeModel, errMessage: err })
   })
@@ -377,15 +366,11 @@ const initSplitPatternList = () => {
     })
 }
 
-
 onMounted(() => {
   initSplitPatternList()
 
   set(props.nodeModel, 'validate', validate)
 })
-
 </script>
 
-<style lang="scss" scoped>
-
-</style>
+<style lang="scss" scoped></style>

@@ -81,7 +81,6 @@ export default {
   },
   nodes: {
     knowledgeWriteNode: {
-      chunk_length: '子分塊長度',
       text: '知識庫寫入',
       label: '知識庫寫入',
     },
@@ -94,6 +93,16 @@ export default {
       label: '本地文件',
       text: '本地文件',
       fileList: '文件列表',
+      fileFormat: {
+        label: '支持的文件格式',
+        requiredMessage: '請選擇文件格式',
+      },
+      maxFileNumber: {
+        label: '每次上傳最大文件數',
+      },
+      maxFileCountNumber: {
+        label: '上傳的每個文檔最大(MB)',
+      },
     },
     classify: {
       aiCapability: 'AI能力',
@@ -264,6 +273,16 @@ export default {
         placeholder: '請選擇分段策略',
         requiredMessage: '請選擇分段策略',
       },
+      chunk_length: {
+        label: '子分塊長度',
+        tooltip1: '核心目標是平衡檢索精度與召回效率',
+        tooltip2:
+          '避免過短拆分：單塊＜50 字易導致語義碎片化，檢索時可能因缺少上下文無法匹配查詢意圖',
+        tooltip3:
+          '避免過長拆分：單塊＞500 字會增加冗餘信息，降低檢索精准度，且佔用更多存儲和計算資源',
+      },
+      title1: '分段標題設置為分段的關聯問題',
+      title2: '文檔名稱設置為分段的關聯問題',
     },
     imageUnderstandNode: {
       label: '圖片理解',
@@ -402,7 +421,6 @@ export default {
       placeholder: '請選擇分類項',
       classify: {
         label: '意圖分類',
-        placeholder: '請輸入',
       },
       input: {
         label: '輸入',
@@ -438,13 +456,13 @@ export default {
       loopIndex: '下標',
       loopItem: '循環元素',
     },
-    loopBodyNode: {label: '循環體', text: '循環體'},
+    loopBodyNode: { label: '循環體', text: '循環體' },
     loopContinueNode: {
       label: 'Continue',
       text: '用於終止當前循環，執行下次循環',
       isContinue: 'Continue',
     },
-    loopBreakNode: {label: 'Break', text: '終止當前循環，跳出循環體', isBreak: 'Break'},
+    loopBreakNode: { label: 'Break', text: '終止當前循環，跳出循環體', isBreak: 'Break' },
     variableSplittingNode: {
       label: '變量拆分',
       text: '通過配置 JSON Path 表達式，對輸入的 JSON 格式變量進行解析和拆分',

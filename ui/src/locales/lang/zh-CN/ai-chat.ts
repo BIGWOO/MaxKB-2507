@@ -106,7 +106,6 @@ export default {
     knowedMessage: '已知信息',
     documentSplitTip: '每个文档仅能预览前五个分段',
     paragraphRules: '分段规则',
-    subBlockLength: '子分块长度',
     writeContent: '写入内容',
   },
   KnowledgeSource: {
