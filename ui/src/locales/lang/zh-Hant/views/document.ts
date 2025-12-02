@@ -94,6 +94,7 @@ export default {
     next: '下一步',
     import: '開始導入',
     preview: '生成預覽',
+    continueImporting: '繼續導入文檔',
   },
   tag: {
     label: '標籤管理',

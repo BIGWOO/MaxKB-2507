@@ -48,12 +48,10 @@
           </el-button>
           <template #dropdown>
             <el-dropdown-menu>
-              <a :href="shareUrl" target="_blank">
-                <el-dropdown-item>
-                  <AppIcon iconName="app-create-chat" class="color-secondary"></AppIcon>
-                  {{ $t('views.workflow.operation.toImportDoc') }}
-                </el-dropdown-item>
-              </a>
+              <el-dropdown-item @click="toImportDoc">
+                <AppIcon iconName="app-create-chat" class="color-secondary"></AppIcon>
+                {{ $t('views.workflow.operation.toImportDoc') }}
+              </el-dropdown-item>
 
               <el-dropdown-item @click="openHistory">
                 <AppIcon iconName="app-history-outlined" class="color-secondary"></AppIcon>
@@ -466,37 +464,47 @@ function saveknowledge(bool?: boolean, back?: boolean) {
 const go = () => {
   if (route.path.includes('resource-management')) {
     return router.push({ path: get_resource_management_route() })
-  } else if (route.path.includes('shared')) { 
+  } else if (route.path.includes('shared')) {
     return router.push({ path: get_shared_route() })
   } else {
     return router.push({ path: get_route() })
   }
 }
 
-const get_shared_route = () => { 
+const get_shared_route = () => {
   if (hasPermission([RoleConst.ADMIN, PermissionConst.SHARED_KNOWLEDGE_DOCUMENT_READ], 'OR')) {
     return `knowledge/${id}/shared/4/document`
-  } else if (hasPermission([RoleConst.ADMIN, PermissionConst.SHARED_KNOWLEDGE_PROBLEM_READ], 'OR')) {
+  } else if (
+    hasPermission([RoleConst.ADMIN, PermissionConst.SHARED_KNOWLEDGE_PROBLEM_READ], 'OR')
+  ) {
     return `/knowledge/${id}/shared/4/problem`
-  } else if (hasPermission([RoleConst.ADMIN, PermissionConst.SHARED_KNOWLEDGE_HIT_TEST_READ], 'OR')) {
+  } else if (
+    hasPermission([RoleConst.ADMIN, PermissionConst.SHARED_KNOWLEDGE_HIT_TEST_READ], 'OR')
+  ) {
     return `/knowledge/${id}/shared/4/hit-test`
-  } else if (hasPermission([RoleConst.ADMIN, PermissionConst.SHARED_KNOWLEDGE_CHAT_USER_READ], 'OR')) {
+  } else if (
+    hasPermission([RoleConst.ADMIN, PermissionConst.SHARED_KNOWLEDGE_CHAT_USER_READ], 'OR')
+  ) {
     return `/knowledge/${id}/shared/4/chat-user`
   } else if (hasPermission([RoleConst.ADMIN, PermissionConst.SHARED_KNOWLEDGE_EDIT], 'OR')) {
     return `/knowledge/${id}/shared/4/setting`
   } else {
-      return `/system/shared/knowledge`
+    return `/system/shared/knowledge`
   }
 }
 
 const get_resource_management_route = () => {
-  if (hasPermission([RoleConst.ADMIN, PermissionConst.RESOURCE_KNOWLEDGE_DOCUMENT_READ],'OR')) {
+  if (hasPermission([RoleConst.ADMIN, PermissionConst.RESOURCE_KNOWLEDGE_DOCUMENT_READ], 'OR')) {
     return `/knowledge/${id}/resource-management/4/document`
-  } else if (hasPermission([RoleConst.ADMIN, PermissionConst.RESOURCE_KNOWLEDGE_PROBLEM_READ], 'OR')) {
+  } else if (
+    hasPermission([RoleConst.ADMIN, PermissionConst.RESOURCE_KNOWLEDGE_PROBLEM_READ], 'OR')
+  ) {
     return `/knowledge/${id}/resource-management/4/problem`
   } else if (hasPermission([RoleConst.ADMIN, PermissionConst.RESOURCE_KNOWLEDGE_HIT_TEST], 'OR')) {
     return `/knowledge/${id}/resource-management/4/hit-test`
-  } else if (hasPermission([RoleConst.ADMIN, PermissionConst.RESOURCE_KNOWLEDGE_CHAT_USER_READ], 'OR')) {
+  } else if (
+    hasPermission([RoleConst.ADMIN, PermissionConst.RESOURCE_KNOWLEDGE_CHAT_USER_READ], 'OR')
+  ) {
     return `/knowledge/${id}/resource-management/4/chat-user`
   } else if (hasPermission([RoleConst.ADMIN, PermissionConst.RESOURCE_KNOWLEDGE_EDIT], 'OR')) {
     return `/knowledge/${id}/resource-management/4/setting`
@@ -507,20 +515,22 @@ const get_resource_management_route = () => {
 
 const get_route = () => {
   const checkPermission = (permissionConst: Permission) => {
-    return hasPermission([
-      new ComplexPermission(
-        [RoleConst.USER],
-        [PermissionConst.KNOWLEDGE.getKnowledgeWorkspaceResourcePermission(id)],
-        [],
-        'AND'
-      ),
-      RoleConst.WORKSPACE_MANAGE.getWorkspaceRole,
-      permissionConst.getWorkspacePermissionWorkspaceManageRole,
-      permissionConst.getKnowledgeWorkspaceResourcePermission(id),
-    ],'OR'
+    return hasPermission(
+      [
+        new ComplexPermission(
+          [RoleConst.USER],
+          [PermissionConst.KNOWLEDGE.getKnowledgeWorkspaceResourcePermission(id)],
+          [],
+          'AND',
+        ),
+        RoleConst.WORKSPACE_MANAGE.getWorkspaceRole,
+        permissionConst.getWorkspacePermissionWorkspaceManageRole,
+        permissionConst.getKnowledgeWorkspaceResourcePermission(id),
+      ],
+      'OR',
     )
   }
-   if (checkPermission(PermissionConst.KNOWLEDGE_DOCUMENT_READ)) {
+  if (checkPermission(PermissionConst.KNOWLEDGE_DOCUMENT_READ)) {
     return `/knowledge/${id}/${folderId}/4/document`
   } else if (checkPermission(PermissionConst.KNOWLEDGE_PROBLEM_READ)) {
     return `/knowledge/${id}/${folderId}/4/problem`
@@ -533,6 +543,15 @@ const get_route = () => {
   } else {
     return `/knowledge`
   }
+}
+
+const toImportDoc = () => {
+  router.push({
+    path: `/knowledge/import/workflow/${folderId}`,
+    query: {
+      id: id,
+    },
+  })
 }
 
 /**

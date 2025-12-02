@@ -83,7 +83,7 @@ export default {
     localUpload: '本地上傳',
     urlPlaceholder: '請輸入 URL 地址，每行一個地址',
     urlTitle: 'URL 地址',
-    urlErrorMessage: '文件类型不符合要求'
+    urlErrorMessage: '文件类型不符合要求',
   },
   executionDetails: {
     title: '執行詳細',
@@ -104,6 +104,10 @@ export default {
     noSubmit: '用戶未提交',
     errMessage: '錯誤日誌',
     knowedMessage: '已知資訊',
+    documentSplitTip: '每個文件僅能預覽前五個段落',
+    paragraphRules: '分段規則',
+    subBlockLength: '子分塊長度',
+    writeContent: '寫入內容',
   },
   KnowledgeSource: {
     title: '知識來源',

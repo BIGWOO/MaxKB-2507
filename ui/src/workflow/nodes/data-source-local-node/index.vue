@@ -29,11 +29,12 @@
                 '请选择文件格式',
               )
             "
-            style="width: 240px"
+            class="w-240"
             clearable
             multiple
-            filterable
             allow-create
+            filterable
+            default-first-option
           >
             <template #label="{ label, value }">
               <span>{{ label }} </span>
@@ -60,7 +61,16 @@
             trigger: 'change',
           }"
         >
-          <el-slider v-model="form_data.file_count_limit" show-input />
+          <el-input-number
+            v-model="form_data.file_count_limit"
+            :min="1"
+            :max="1000"
+            :value-on-clear="0"
+            controls-position="right"
+            class="w-full"
+            :step="1"
+            :step-strictly="true"
+          />
         </el-form-item>
         <el-form-item
           :label="
@@ -79,7 +89,16 @@
             trigger: 'change',
           }"
         >
-          <el-slider v-model="form_data.file_size_limit" show-input />
+          <el-input-number
+            v-model="form_data.file_size_limit"
+            :min="1"
+            :max="1000"
+            :value-on-clear="0"
+            controls-position="right"
+            class="w-full"
+            :step="1"
+            :step-strictly="true"
+          />
         </el-form-item>
       </el-form>
     </el-card>

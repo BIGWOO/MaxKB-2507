@@ -21,6 +21,9 @@
     </div>
     <template #footer>
       <el-button :loading="loading" @click="close">{{ $t('common.cancel') }}</el-button>
+      <!-- <el-button v-if="active == 'result'" @click="continueImporting" :loading="loading">
+        {{ $t('views.document.buttons.continueImporting') }}
+      </el-button> -->
       <el-button
         v-if="base_form_list.length > 0 && active == 'knowledge_base'"
         :loading="loading"
@@ -43,6 +46,16 @@
       >
         {{ $t('views.document.buttons.import') }}
       </el-button>
+      <!-- <el-button
+        v-if="active == 'result'"
+        type="primary"
+        @click="
+          router.push({
+            path: `/knowledge/${id}/${folderId}/4/document`,
+          })
+        "
+        >{{ $t('views.knowledge.ResultSuccess.buttons.toDocument') }}</el-button
+      > -->
     </template>
   </el-drawer>
 </template>
@@ -54,13 +67,14 @@ import applicationApi from '@/api/application/application'
 import KnowledgeBase from '@/views/knowledge-workflow/component/action/KnowledgeBase.vue'
 import { WorkflowType } from '@/enums/application'
 import { loadSharedApi } from '@/utils/dynamics-api/shared-api.ts'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 provide('upload', (file: any, loading?: Ref<boolean>) => {
   return applicationApi.postUploadFile(file, id, 'KNOWLEDGE', loading)
 })
+const router = useRouter()
 const route = useRoute()
 const {
-  params: { id },
+  params: { id, folderId },
   /*
   id 为 knowledge_id
   */
@@ -124,6 +138,10 @@ const upload = () => {
         active.value = 'result'
       })
   })
+}
+const continueImporting = () => {
+  action_id.value = undefined
+  active.value = 'data_source'
 }
 defineExpose({ close, open })
 </script>

@@ -92,6 +92,7 @@ export default {
     next: '下一步',
     import: '开始导入',
     preview: '生成预览',
+    continueImporting: '继续导入文档',
   },
   tag: {
     label: '标签管理',

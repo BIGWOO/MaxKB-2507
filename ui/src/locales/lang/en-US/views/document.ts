@@ -96,6 +96,7 @@ export default {
     next: 'Next',
     import: 'Start Import',
     preview: 'Apply',
+    continueImporting: 'Continue Importing Documents',
   },
   tag: {
     label: 'Tag Management',
