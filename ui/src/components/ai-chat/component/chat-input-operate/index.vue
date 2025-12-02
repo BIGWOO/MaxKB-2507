@@ -1239,7 +1239,7 @@ async function saveUrl() {
   async function processUrl(url: string) {
     try {
       const appId = props.appId || props.applicationDetails?.id;
-      const res = await imageApi.getFile(appId, {url});
+      const res = await imageApi.getFile(appId, {url})
       if (res.data['status_code'] !== 200) {
         MsgWarning(url + ' ' + t('chat.uploadFile.invalidUrl'));
         return;
@@ -1305,7 +1305,7 @@ async function saveUrl() {
       }
     } catch (e) {
       console.error(e);
-      MsgWarning(`${url} 无法访问`);
+      return
     }
   }
 
