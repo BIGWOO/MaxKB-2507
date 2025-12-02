@@ -187,7 +187,7 @@ def get_url_content(url, application_id: str):
         raise ValueError("Blocked unsafe redirect to internal host")
     # 判断文件大小
     if int(response.headers.get('Content-Length', 0)) > file_limit:
-        return AppApiException(500, _('File size exceeds limit'))
+        raise AppApiException(500, _('File size exceeds limit'))
     # 返回状态码 响应内容大小  响应的contenttype 还有字节流
     content_type = response.headers.get('Content-Type', '')
     # 根据内容类型决定如何处理
