@@ -212,11 +212,6 @@ static int not_supported(const char *function_name) {
     _exit(1);
     return -1;
 }
-static pid_t ppid = 0;
-// 在进程初始化时保存 PID
-__attribute__((constructor)) static void init_sandbox() {
-    ppid = getpid();
-}
 #define RESOLVE_REAL(func)                      \
     static typeof(func) *real_##func = NULL;    \
     if (!real_##func) {                         \
@@ -224,22 +219,12 @@ __attribute__((constructor)) static void init_sandbox() {
     }
 int execv(const char *path, char *const argv[]) {
     RESOLVE_REAL(execv);
-    // fprintf(stdout, "execv path: %s ppid=%d pid=%d\n", path, sandbox_pid, getpid());
-    if (!allow_create_subprocess()) {
-        // 只允许创建python进程，但不允许python进程替换（用os.execvp里又启动另一个python进程）
-        if (strstr(path, "bin/python") == NULL || getpid() == ppid) {
-            return deny();
-        }
-    }
+    if (!allow_create_subprocess()) return deny();
     return real_execv(path, argv);
 }
 int __execv(const char *path, char *const argv[]) {
     RESOLVE_REAL(__execv);
-    if (!allow_create_subprocess()) {
-        if (strstr(path, "bin/python") == NULL || getpid() == ppid) {
-            return deny();
-        }
-    }
+    if (!allow_create_subprocess()) return deny();
     return real___execv(path, argv);
 }
 int execve(const char *filename, char *const argv[], char *const envp[]) {
@@ -259,16 +244,24 @@ int execveat(int dirfd, const char *pathname,
     return real_execveat(dirfd, pathname, argv, envp, flags);
 }
 int execvpe(const char *file, char *const argv[], char *const envp[]) {
-    return not_supported("execvpe");
+    RESOLVE_REAL(execvpe);
+    if (!allow_create_subprocess()) return deny();
+    return real_execvpe(file, argv, envp);
 }
 int __execvpe(const char *file, char *const argv[], char *const envp[]) {
-    return not_supported("__execvpe");
+    RESOLVE_REAL(__execvpe);
+    if (!allow_create_subprocess()) return deny();
+    return real___execvpe(file, argv, envp);
 }
 int execvp(const char *file, char *const argv[]) {
-    return not_supported("execvp");
+    RESOLVE_REAL(execvp);
+    if (!allow_create_subprocess()) return deny();
+    return real_execvp(file, argv);
 }
 int __execvp(const char *file, char *const argv[]) {
-    return not_supported("__execvp");
+    RESOLVE_REAL(__execvp);
+    if (!allow_create_subprocess()) return deny();
+    return real___execvp(file, argv);
 }
 int execl(const char *path, const char *arg, ...) {
     return not_supported("execl");

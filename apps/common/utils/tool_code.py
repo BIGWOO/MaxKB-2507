@@ -186,6 +186,7 @@ except Exception as e:
     def generate_mcp_server_code(self, code_str, params):
         python_paths = CONFIG.get_sandbox_python_package_paths().split(',')
         code = self._generate_mcp_server_code(code_str, params)
+        set_run_user = f'os.setgid({pwd.getpwnam(self.user).pw_gid});os.setuid({pwd.getpwnam(self.user).pw_uid});' if self.sandbox else ''
         return f"""
 import os, sys, logging
 logging.basicConfig(level=logging.WARNING)
@@ -194,6 +195,7 @@ logging.getLogger("mcp.server").setLevel(logging.ERROR)
 path_to_exclude = ['/opt/py3/lib/python3.11/site-packages', '/opt/maxkb-app/apps']
 sys.path = [p for p in sys.path if p not in path_to_exclude]
 sys.path += {python_paths}
+{set_run_user}
 os.environ.clear()
 exec({dedent(code)!a})
 """
@@ -202,30 +204,17 @@ exec({dedent(code)!a})
         _code = self.generate_mcp_server_code(code, params)
         maxkb_logger.debug(f"Python code of mcp tool: {_code}")
         compressed_and_base64_encoded_code_str = base64.b64encode(gzip.compress(_code.encode())).decode()
-        if self.sandbox:
-            tool_config = {
-                'command': 'su',
-                'args': [
-                    '-s', sys.executable,
-                    '-c',
-                    f'import base64,gzip; exec(gzip.decompress(base64.b64decode(\'{compressed_and_base64_encoded_code_str}\')).decode())',
-                    self.user,
-                ],
-                'cwd': self.sandbox_path,
-                'env': {
-                    'LD_PRELOAD': self.sandbox_so_path,
-                },
-                'transport': 'stdio',
-            }
-        else:
-            tool_config = {
-                'command': sys.executable,
-                'args': [
-                    '-c',
-                    f'import base64,gzip; exec(gzip.decompress(base64.b64decode(\'{compressed_and_base64_encoded_code_str}\')).decode())',
-                ],
-                'transport': 'stdio',
-            }
+        tool_config = {
+            'command': sys.executable,
+            'args': [
+                '-c',
+                f'import base64,gzip; exec(gzip.decompress(base64.b64decode(\'{compressed_and_base64_encoded_code_str}\')).decode())',
+            ],
+            'env': {
+               'LD_PRELOAD': self.sandbox_so_path,
+            },
+            'transport': 'stdio',
+        }
         return tool_config
 
     def _exec(self, execute_file):
