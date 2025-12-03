@@ -92,6 +92,7 @@ function refreshFolder() {
 
 onMounted(() => {
   getFolder(folder.currentFolder?.id ? false : true)
+  radioChange()
 })
 </script>
 
