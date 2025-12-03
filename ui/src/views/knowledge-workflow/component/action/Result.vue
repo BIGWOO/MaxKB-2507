@@ -29,6 +29,10 @@ import { onUnmounted, ref, computed } from 'vue'
 import knowledgeApi from '@/api/knowledge/knowledge'
 const props = defineProps<{ id: string; knowledge_id: string }>()
 import ExecutionDetailContent from '@/components/ai-chat/component/knowledge-source-component/ExecutionDetailContent.vue'
+import { useRoute } from "vue-router";
+import { loadSharedApi } from "@/utils/dynamics-api/shared-api.ts";
+const route = useRoute()
+
 const detail = computed(() => {
   if (knowledge_action.value) {
     return Object.values(knowledge_action.value.details)
@@ -41,6 +45,15 @@ const state = computed(() => {
   }
   return 'PADDING'
 })
+const apiType = computed(() => {
+  if (route.path.includes('shared')) {
+    return 'systemShare'
+  } else if (route.path.includes('resource-management')) {
+    return 'systemManage'
+  } else {
+    return 'workspace'
+  }
+})
 const knowledge_action = ref<any>()
 let pollingTimer: any = null
 
@@ -48,9 +61,9 @@ const getKnowledgeWorkflowAction = () => {
   if (pollingTimer == null) {
     return
   }
-  knowledgeApi
+  loadSharedApi({type: 'knowledge', systemType: apiType.value})
     .getWorkflowAction(props.knowledge_id, props.id)
-    .then((ok) => {
+    .then((ok: any) => {
       knowledge_action.value = ok.data
     })
     .finally(() => {
