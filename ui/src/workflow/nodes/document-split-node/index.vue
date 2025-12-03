@@ -58,21 +58,22 @@
                   <AppIcon iconName="app-warning" class="app-warning-icon"></AppIcon>
                 </el-tooltip>
               </span>
-              <el-select v-model="form_data.chunk_size_type" size="small" style="width: 100px">
-                <el-option
-                  :label="$t('views.workflow.nodes.searchDocumentNode.custom')"
-                  value="custom"
-                />
+              <el-select v-model="form_data.chunk_size_type" size="small" style="width: 85px">
                 <el-option :label="$t('views.workflow.variable.Referencing')" value="referencing" />
+                <el-option :label="$t('common.custom')" value="custom" />
               </el-select>
             </div>
           </template>
           <el-input-number
             v-if="form_data.chunk_size_type === 'custom'"
             v-model="form_data.chunk_size"
-            show-input
             :min="50"
             :max="100000"
+            :value-on-clear="0"
+            controls-position="right"
+            class="w-full"
+            :step="1"
+            :step-strictly="true"
           />
           <NodeCascader
             v-else
@@ -83,132 +84,127 @@
             v-model="form_data.chunk_size_reference"
           />
         </el-form-item>
-        <div v-if="form_data.split_strategy === 'custom'">
-          <div class="set-rules__form">
-            <div class="form-item mb-16">
-              <div class="flex-between">
-                <div class="title flex align-center mb-8">
-                  <span style="margin-right: 4px">
-                    {{ $t('views.document.setRules.patterns.label') }}
-                  </span>
-                  <el-tooltip
-                    effect="dark"
-                    :content="$t('views.document.setRules.patterns.tooltip')"
-                    placement="right"
-                  >
-                    <AppIcon iconName="app-warning" class="app-warning-icon"></AppIcon>
-                  </el-tooltip>
-                </div>
-                <el-select v-model="form_data.patterns_type" size="small" style="width: 100px">
-                  <el-option
-                    :label="$t('views.workflow.nodes.searchDocumentNode.custom')"
-                    value="custom"
-                  />
-                  <el-option
-                    :label="$t('views.workflow.variable.Referencing')"
-                    value="referencing"
-                  />
-                </el-select>
-              </div>
-              <div @click.stop>
-                <el-select
-                  v-if="form_data.patterns_type === 'custom'"
-                  v-model="form_data.patterns"
-                  multiple
-                  :reserve-keyword="false"
-                  allow-create
-                  default-first-option
-                  filterable
-                  :placeholder="$t('views.document.setRules.patterns.placeholder')"
+
+        <el-form-item v-if="form_data.split_strategy === 'custom'">
+          <template #label>
+            <div class="flex-between">
+              <div class="flex align-center mb-8">
+                <span class="mr-4">
+                  {{ $t('views.document.setRules.patterns.label') }}
+                </span>
+                <el-tooltip
+                  effect="dark"
+                  :content="$t('views.document.setRules.patterns.tooltip')"
+                  placement="right"
                 >
-                  <el-option
-                    v-for="(item, index) in splitPatternList"
-                    :key="index"
-                    :label="item.key"
-                    :value="item.value"
-                  >
-                  </el-option>
-                </el-select>
-                <NodeCascader
-                  v-else
-                  ref="nodeCascaderRef5"
-                  :nodeModel="nodeModel"
-                  class="w-full"
-                  :placeholder="$t('views.chatLog.documentPlaceholder')"
-                  v-model="form_data.patterns_reference"
-                />
+                  <AppIcon iconName="app-warning" class="app-warning-icon"></AppIcon>
+                </el-tooltip>
               </div>
-            </div>
-            <div class="form-item mb-16">
-              <div class="flex-between">
-                <div class="title mb-8">
-                  {{ $t('views.document.setRules.limit.label') }}
-                </div>
-                <el-select v-model="form_data.limit_type" size="small" style="width: 100px">
-                  <el-option
-                    :label="$t('views.workflow.nodes.searchDocumentNode.custom')"
-                    value="custom"
-                  />
-                  <el-option
-                    :label="$t('views.workflow.variable.Referencing')"
-                    value="referencing"
-                  />
-                </el-select>
-              </div>
-              <el-slider
-                v-if="form_data.limit_type === 'custom'"
-                v-model="form_data.limit"
-                show-input
-                :show-input-controls="false"
-                :min="50"
-                :max="100000"
-              />
-              <NodeCascader
-                v-else
-                ref="nodeCascaderRef6"
-                :nodeModel="nodeModel"
-                class="w-full"
-                :placeholder="$t('views.chatLog.documentPlaceholder')"
-                v-model="form_data.limit_reference"
-              />
-            </div>
-            <div class="form-item mb-16">
-              <div class="flex-between">
-                <div class="title mb-8">
-                  {{ $t('views.document.setRules.with_filter.label') }}
-                </div>
-                <el-select v-model="form_data.with_filter_type" size="small" style="width: 100px">
-                  <el-option
-                    :label="$t('views.workflow.nodes.searchDocumentNode.custom')"
-                    value="custom"
-                  />
-                  <el-option
-                    :label="$t('views.workflow.variable.Referencing')"
-                    value="referencing"
-                  />
-                </el-select>
-              </div>
-              <el-switch
-                v-if="form_data.with_filter_type === 'custom'"
+              <el-select
+                :teleported="false"
+                v-model="form_data.patterns_type"
                 size="small"
-                v-model="form_data.with_filter"
-              />
-              <NodeCascader
-                v-else
-                ref="nodeCascaderRef7"
-                :nodeModel="nodeModel"
-                class="w-full"
-                :placeholder="$t('views.chatLog.documentPlaceholder')"
-                v-model="form_data.with_filter_reference"
-              />
-              <div style="margin-top: 4px">
-                <el-text type="info">
-                  {{ $t('views.document.setRules.with_filter.text') }}
-                </el-text>
-              </div>
+                style="width: 85px"
+              >
+                <el-option :label="$t('views.workflow.variable.Referencing')" value="referencing" />
+                <el-option :label="$t('common.custom')" value="custom" />
+              </el-select>
             </div>
-          </div>
-        </div>
+          </template>
+          <el-select
+            v-if="form_data.patterns_type === 'custom'"
+            v-model="form_data.patterns"
+            multiple
+            :reserve-keyword="false"
+            allow-create
+            default-first-option
+            filterable
+            :placeholder="$t('views.document.setRules.patterns.placeholder')"
+          >
+            <el-option
+              v-for="(item, index) in splitPatternList"
+              :key="index"
+              :label="item.key"
+              :value="item.value"
+            >
+            </el-option>
+          </el-select>
+          <NodeCascader
+            v-else
+            ref="nodeCascaderRef5"
+            :nodeModel="nodeModel"
+            class="w-full"
+            :placeholder="$t('views.chatLog.documentPlaceholder')"
+            v-model="form_data.patterns_reference"
+          />
+        </el-form-item>
+        <el-form-item v-if="form_data.split_strategy === 'custom'">
+          <template #label>
+            <div class="flex-between">
+              <span>
+                {{ $t('views.document.setRules.limit.label') }}
+              </span>
+              <el-select v-model="form_data.limit_type" size="small" style="width: 85px">
+                <el-option :label="$t('views.workflow.variable.Referencing')" value="referencing" />
+                <el-option :label="$t('common.custom')" value="custom" />
+              </el-select>
+            </div>
+          </template>
+          <el-input-number
+            v-if="form_data.limit_type === 'custom'"
+            v-model="form_data.limit"
+            :min="50"
+            :max="100000"
+            :value-on-clear="0"
+            controls-position="right"
+            class="w-full"
+            :step="1"
+            :step-strictly="true"
+          />
+          <NodeCascader
+            v-else
+            ref="nodeCascaderRef6"
+            :nodeModel="nodeModel"
+            class="w-full"
+            :placeholder="$t('views.chatLog.documentPlaceholder')"
+            v-model="form_data.limit_reference"
+          />
+        </el-form-item>
+        <el-form-item v-if="form_data.split_strategy === 'custom'">
+          <template #label>
+            <div class="flex-between">
+              <div class="flex align-center mb-8">
+                <span class="mr-4">
+                  {{ $t('views.document.setRules.with_filter.label') }}
+                </span>
+                <el-tooltip
+                  effect="dark"
+                  :content="$t('views.document.setRules.with_filter.text')"
+                  placement="right"
+                >
+                  <AppIcon iconName="app-warning" class="app-warning-icon"></AppIcon>
+                </el-tooltip>
+              </div>
+              <el-select v-model="form_data.limit_type" size="small" style="width: 85px">
+                <el-option :label="$t('views.workflow.variable.Referencing')" value="referencing" />
+                <el-option :label="$t('common.custom')" value="custom" />
+              </el-select>
+            </div>
+          </template>
+          <el-switch
+            v-if="form_data.with_filter_type === 'custom'"
+            size="small"
+            v-model="form_data.with_filter"
+          />
+          <NodeCascader
+            v-else
+            ref="nodeCascaderRef7"
+            :nodeModel="nodeModel"
+            class="w-full"
+            :placeholder="$t('views.chatLog.documentPlaceholder')"
+            v-model="form_data.with_filter_reference"
+          />
+        </el-form-item>
         <el-form-item v-if="form_data.split_strategy !== 'qa'">
           <template #label>
             <div class="flex-between">
@@ -216,13 +212,10 @@
               <el-select
                 v-model="form_data.paragraph_title_relate_problem_type"
                 size="small"
-                style="width: 100px"
+                style="width: 85px"
               >
-                <el-option
-                  :label="$t('views.workflow.nodes.searchDocumentNode.custom')"
-                  value="custom"
-                />
                 <el-option :label="$t('views.workflow.variable.Referencing')" value="referencing" />
+                <el-option :label="$t('common.custom')" value="custom" />
               </el-select>
             </div>
           </template>
@@ -247,13 +240,10 @@
               <el-select
                 v-model="form_data.document_name_relate_problem_type"
                 size="small"
-                style="width: 100px"
+                style="width: 85px"
               >
-                <el-option
-                  :label="$t('views.workflow.nodes.searchDocumentNode.custom')"
-                  value="custom"
-                />
                 <el-option :label="$t('views.workflow.variable.Referencing')" value="referencing" />
+                <el-option :label="$t('common.custom')" value="custom" />
               </el-select>
             </div>
           </template>

@@ -42,7 +42,6 @@
         <el-form-item
           :label="$t('views.workflow.nodes.dataSourceLocalNode.maxFileNumber.label')"
           :rules="{
-            type: 'array',
             required: true,
             message: $t('common.inputPlaceholder'),
             trigger: 'change',
@@ -62,7 +61,6 @@
         <el-form-item
           :label="$t('views.workflow.nodes.dataSourceLocalNode.maxFileCountNumber.label')"
           :rules="{
-            type: 'array',
             required: true,
             message: $t('common.inputPlaceholder'),
             trigger: 'change',

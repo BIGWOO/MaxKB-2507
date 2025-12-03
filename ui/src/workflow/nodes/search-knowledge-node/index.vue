@@ -14,9 +14,7 @@
         <el-form-item>
           <template #label>
             <div class="flex-between">
-              <span>
-                {{ $t('views.workflow.nodes.searchDocumentNode.selectKnowledge') }}</span
-              >
+              <span> {{ $t('views.workflow.nodes.searchDocumentNode.selectKnowledge') }}</span>
               <span>
                 <el-button
                   v-if="form_data.search_scope_type === 'custom'"
@@ -33,13 +31,10 @@
                   style="width: 85px"
                 >
                   <el-option
-                    :label="$t('views.workflow.nodes.searchDocumentNode.custom')"
-                    value="custom"
-                  />
-                  <el-option
                     :label="$t('views.workflow.variable.Referencing')"
                     value="referencing"
                   />
+                  <el-option :label="$t('common.custom')" value="custom" />
                 </el-select>
               </span>
             </div>
@@ -91,15 +86,11 @@
                       @change="form_data.search_scope_reference = []"
                     >
                       <el-option
-                        :label="
-                          $t('views.workflow.nodes.searchDocumentNode.knowledgeList')
-                        "
+                        :label="$t('views.workflow.nodes.searchDocumentNode.knowledgeList')"
                         value="knowledge"
                       />
                       <el-option
-                        :label="
-                          $t('views.workflow.nodes.searchDocumentNode.documentList')
-                        "
+                        :label="$t('views.workflow.nodes.searchDocumentNode.documentList')"
                         value="document"
                       />
                     </el-select>
@@ -116,14 +107,10 @@
             </el-form-item>
           </div>
         </el-form-item>
-        <el-form-item
-          :label="$t('views.workflow.nodes.searchKnowledgeNode.searchParam')"
-        >
+        <el-form-item :label="$t('views.workflow.nodes.searchKnowledgeNode.searchParam')">
           <template #label>
             <div class="flex-between">
-              <span
-                >{{ $t('views.workflow.nodes.searchKnowledgeNode.searchParam') }}
-              </span>
+              <span>{{ $t('views.workflow.nodes.searchKnowledgeNode.searchParam') }} </span>
               <el-button type="primary" link @click="openParamSettingDialog">
                 <AppIcon iconName="app-setting"></AppIcon>
               </el-button>
@@ -161,9 +148,7 @@
         <el-form-item
           prop="question_reference_address"
           :rules="{
-            message: $t(
-              'views.workflow.nodes.searchKnowledgeNode.searchQuestion.requiredMessage',
-            ),
+            message: $t('views.workflow.nodes.searchKnowledgeNode.searchQuestion.requiredMessage'),
             trigger: 'blur',
             required: true,
           }"
@@ -180,18 +165,14 @@
             ref="nodeCascaderRef"
             :nodeModel="nodeModel"
             class="w-full"
-            :placeholder="
-              $t('views.workflow.nodes.searchKnowledgeNode.searchQuestion.placeholder')
-            "
+            :placeholder="$t('views.workflow.nodes.searchKnowledgeNode.searchQuestion.placeholder')"
             v-model="form_data.question_reference_address"
           />
         </el-form-item>
         <el-form-item
           prop="show_knowledge"
           :rules="{
-            message: $t(
-              'views.workflow.nodes.searchKnowledgeNode.showKnowledge.requiredMessage',
-            ),
+            message: $t('views.workflow.nodes.searchKnowledgeNode.showKnowledge.requiredMessage'),
             trigger: 'blur',
             required: true,
           }"

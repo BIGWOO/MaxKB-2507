@@ -32,13 +32,10 @@
                   style="width: 85px"
                 >
                   <el-option
-                    :label="$t('views.workflow.nodes.searchDocumentNode.custom')"
-                    value="custom"
-                  />
-                  <el-option
                     :label="$t('views.workflow.variable.Referencing')"
                     value="referencing"
                   />
+                  <el-option :label="$t('common.custom')" value="custom" />
                 </el-select>
               </span>
             </div>
@@ -92,15 +89,11 @@
                       @change="form_data.search_scope_reference = []"
                     >
                       <el-option
-                        :label="
-                          $t('views.workflow.nodes.searchDocumentNode.knowledgeList')
-                        "
+                        :label="$t('views.workflow.nodes.searchDocumentNode.knowledgeList')"
                         value="knowledge"
                       />
                       <el-option
-                        :label="
-                          $t('views.workflow.nodes.searchDocumentNode.documentList')
-                        "
+                        :label="$t('views.workflow.nodes.searchDocumentNode.documentList')"
                         value="document"
                       />
                     </el-select>
@@ -117,9 +110,7 @@
             </el-form-item>
           </div>
         </el-form-item>
-        <el-form-item
-          :label="$t('views.workflow.nodes.searchDocumentNode.searchSetting')"
-        >
+        <el-form-item :label="$t('views.workflow.nodes.searchDocumentNode.searchSetting')">
           <el-radio-group v-model="form_data.search_mode">
             <el-radio value="auto">
               <span class="flex align-center">
@@ -194,7 +185,11 @@
             <div v-for="(c, index) in form_data.search_condition_list" :key="index">
               <el-row :gutter="8" class="mb-8">
                 <el-col :span="8">
-                  <el-select v-model="c.key" filterable @focus="getAllTags(form_data.knowledge_id_list)">
+                  <el-select
+                    v-model="c.key"
+                    filterable
+                    @focus="getAllTags(form_data.knowledge_id_list)"
+                  >
                     <el-option
                       v-for="tag in form_data.knowledge_tags"
                       :key="tag"
@@ -216,9 +211,7 @@
                 <el-col :span="8">
                   <el-input
                     v-model="c.value"
-                    :placeholder="
-                      $t('views.workflow.nodes.searchDocumentNode.valueMessage')
-                    "
+                    :placeholder="$t('views.workflow.nodes.searchDocumentNode.valueMessage')"
                   ></el-input>
                 </el-col>
                 <el-col :span="1">
