@@ -9,6 +9,7 @@ import subprocess
 import sys
 import tempfile
 import pwd
+import resource
 import uuid_utils.compat as uuid
 from common.utils.logger import maxkb_logger
 from django.utils.translation import gettext_lazy as _
@@ -222,8 +223,14 @@ exec({dedent(code)!a})
             'LD_PRELOAD': self.sandbox_so_path,
         }}
         try:
+            def set_resource_limit():
+                if not self.sandbox:
+                    return
+                mem_limit = int(CONFIG.get("SANDBOX_PYTHON_PROCESS_LIMIT_MEM_MB", '128')) * 1024 * 1024
+                resource.setrlimit(resource.RLIMIT_RSS, (mem_limit, mem_limit))
             subprocess_result = subprocess.run(
                 [python_directory, execute_file],
+                preexec_fn=set_resource_limit,
                 timeout=self.process_timeout_seconds,
                 text=True,
                 capture_output=True, **kwargs)
