@@ -41,7 +41,6 @@
         <el-col :span="12" class="mb-8">
           <el-card
             shadow="never"
-            class="file-List-card"
             style="--el-card-padding: 8px 12px; line-height: normal"
           >
             <div class="flex-between">

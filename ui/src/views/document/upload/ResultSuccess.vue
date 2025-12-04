@@ -49,7 +49,8 @@
       <p class="bolder">{{ $t('views.knowledge.ResultSuccess.documentList') }}</p>
       <el-card
         shadow="never"
-        class="file-List-card mt-8"
+        class="mt-8"
+        style="--el-card-padding: 8px 12px; line-height: normal"
         v-for="(item, index) in data?.document_list"
         :key="index"
       >

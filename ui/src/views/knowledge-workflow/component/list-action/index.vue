@@ -22,11 +22,11 @@
         </template>
       </el-table-column>
     </el-table>
-    <Result
+    <!-- <Result
       v-if="active == 'details'"
       :id="active_action_id"
       :knowledge_id="active_knowledge_id"
-    ></Result>
+    ></Result> -->
   </el-drawer>
 </template>
 <script setup lang="ts">
@@ -64,7 +64,7 @@ const query = ref<any>({
 const data = ref<Array<any>>([])
 const page = () => {
   loadSharedApi({ type: 'knowledge', systemType: apiType.value })
-    .pageWorkflowAction(active_knowledge_id.value, paginationConfig, query)
+    .getWorkflowActionPage(active_knowledge_id.value, paginationConfig, query.value)
     .then((ok: any) => {
       paginationConfig.total = ok.data?.total
       data.value = ok.data.records

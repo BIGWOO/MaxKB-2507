@@ -414,7 +414,7 @@ const updateKnowledgeVersion: (
     loading,
   )
 }
-const pageWorkflowAction: (
+const getWorkflowActionPage: (
   knowledge_id: string,
   page: pageRequest,
   query: any,
@@ -479,5 +479,5 @@ export default {
   publish,
   putKnowledgeWorkflow,
   workflowUpload,
-  pageWorkflowAction,
+  getWorkflowActionPage,
 }
