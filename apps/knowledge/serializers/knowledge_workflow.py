@@ -28,7 +28,7 @@ from system_manage.serializers.user_resource_permission import UserResourcePermi
 from tools.models import Tool
 from users.models import User
 
-tool_executor = ToolExecutor(CONFIG.get('SANDBOX'))
+tool_executor = ToolExecutor()
 
 
 class KnowledgeWorkflowModelSerializer(serializers.ModelSerializer):

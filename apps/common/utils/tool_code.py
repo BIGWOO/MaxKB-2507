@@ -19,24 +19,21 @@ from maxkb.const import BASE_DIR, CONFIG
 from maxkb.const import PROJECT_DIR
 from textwrap import dedent
 
+_enable_sandbox = bool(CONFIG.get('SANDBOX', 0))
+_run_user = 'sandbox' if _enable_sandbox else getpass.getuser()
+_sandbox_path = CONFIG.get("SANDBOX_HOME", '/opt/maxkb-app/sandbox') if _enable_sandbox else os.path.join(PROJECT_DIR, 'data', 'sandbox')
+_process_limit_timeout_seconds = int(CONFIG.get("SANDBOX_PYTHON_PROCESS_LIMIT_TIMEOUT_SECONDS", '3600'))
+_process_limit_cpu_cores = min(max(int(CONFIG.get("SANDBOX_PYTHON_PROCESS_LIMIT_CPU_CORES", '1')), 1), len(os.sched_getaffinity(0))) if sys.platform.startswith("linux") else os.cpu_count() # 只支持linux，window和mac不支持
+_process_limit_mem_mb = int(CONFIG.get("SANDBOX_PYTHON_PROCESS_LIMIT_MEM_MB", '256'))
+
 class ToolExecutor:
 
-    enable_sandbox = bool(CONFIG.get('SANDBOX', 0))
-    sandbox_path = CONFIG.get("SANDBOX_HOME", '/opt/maxkb-app/sandbox') if enable_sandbox else os.path.join(PROJECT_DIR, 'data', 'sandbox')
-    process_timeout_seconds = int(CONFIG.get("SANDBOX_PYTHON_PROCESS_TIMEOUT_SECONDS", '3600'))
-    process_limit_mem_mb = int(CONFIG.get("SANDBOX_PYTHON_PROCESS_LIMIT_MEM_MB", '256'))
-    process_limit_cpu_cores = min(max(int(CONFIG.get("SANDBOX_PYTHON_PROCESS_LIMIT_CPU_CORES", '1')), 1), len(os.sched_getaffinity(0))) if sys.platform.startswith("linux") else os.cpu_count() # 只支持linux，window和mac不支持
-
-    def __init__(self, sandbox=False):
-        self.sandbox = sandbox
-        if sandbox:
-            self.user = 'sandbox'
-        else:
-            self.user = getpass.getuser()
+    def __init__(self):
+        pass
 
     @staticmethod
     def init_sandbox_dir():
-        if not ToolExecutor.enable_sandbox:
+        if not _enable_sandbox:
             # 不启用sandbox就不初始化目录
             return
         try:
@@ -57,7 +54,7 @@ class ToolExecutor:
         if CONFIG.get("SANDBOX_TMP_DIR_ENABLED", '0') == "1":
             os.system("chmod g+rwx /tmp")
         # 初始化sandbox配置文件
-        sandbox_lib_path = os.path.dirname(f'{ToolExecutor.sandbox_path}/lib/sandbox.so')
+        sandbox_lib_path = os.path.dirname(f'{_sandbox_path}/lib/sandbox.so')
         sandbox_conf_file_path = f'{sandbox_lib_path}/.sandbox.conf'
         if os.path.exists(sandbox_conf_file_path):
             os.remove(sandbox_conf_file_path)
@@ -70,8 +67,12 @@ class ToolExecutor:
         with open(sandbox_conf_file_path, "w") as f:
             f.write(f"SANDBOX_PYTHON_BANNED_HOSTS={banned_hosts}\n")
             f.write(f"SANDBOX_PYTHON_ALLOW_SUBPROCESS={allow_subprocess}\n")
-        os.system(f"chmod -R 550 {ToolExecutor.sandbox_path}")
+        os.system(f"chmod -R 550 {_sandbox_path}")
 
+    try:
+        init_sandbox_dir()
+    except Exception as e:
+        maxkb_logger.error(f'Exception: {e}', exc_info=True)
 
     def exec_code(self, code_str, keywords, function_name=None):
         _id = str(uuid.uuid7())
@@ -79,7 +80,7 @@ class ToolExecutor:
         err = '{"code":500,"msg":str(e),"data":None}'
         action_function = f'({function_name !a}, locals_v.get({function_name !a}))' if function_name else 'locals_v.popitem()'
         python_paths = CONFIG.get_sandbox_python_package_paths().split(',')
-        set_run_user = f'os.setgid({pwd.getpwnam(self.user).pw_gid});os.setuid({pwd.getpwnam(self.user).pw_uid});' if self.sandbox else ''
+        set_run_user = f'os.setgid({pwd.getpwnam(_run_user).pw_gid});os.setuid({pwd.getpwnam(_run_user).pw_uid});' if _enable_sandbox else ''
         _exec_code = f"""
 try:
     import os, sys, json, base64, builtins
@@ -98,7 +99,7 @@ try:
     exec_result=f(**keywords)
     builtins.print("\\n{_id}:"+base64.b64encode(json.dumps({success}, default=str).encode()).decode(), flush=True)
 except Exception as e:
-    if isinstance(e, MemoryError): e = Exception("Cannot allocate more memory: exceeded the limit of {ToolExecutor.process_limit_mem_mb} MB.")
+    if isinstance(e, MemoryError): e = Exception("Cannot allocate more memory: exceeded the limit of {_process_limit_mem_mb} MB.")
     builtins.print("\\n{_id}:"+base64.b64encode(json.dumps({err}, default=str).encode()).decode(), flush=True)
 """
         maxkb_logger.debug(f"Sandbox execute code: {_exec_code}")
@@ -184,7 +185,7 @@ except Exception as e:
     def generate_mcp_server_code(self, code_str, params):
         python_paths = CONFIG.get_sandbox_python_package_paths().split(',')
         code = self._generate_mcp_server_code(code_str, params)
-        set_run_user = f'os.setgid({pwd.getpwnam(self.user).pw_gid});os.setuid({pwd.getpwnam(self.user).pw_uid});' if self.sandbox else ''
+        set_run_user = f'os.setgid({pwd.getpwnam(_run_user).pw_gid});os.setuid({pwd.getpwnam(_run_user).pw_uid});' if _enable_sandbox else ''
         return f"""
 import os, sys, logging
 logging.basicConfig(level=logging.WARNING)
@@ -208,9 +209,9 @@ exec({dedent(code)!a})
                 '-c',
                 f'import base64,gzip; exec(gzip.decompress(base64.b64decode(\'{compressed_and_base64_encoded_code_str}\')).decode())',
             ],
-            'cwd': ToolExecutor.sandbox_path,
+            'cwd': _sandbox_path,
             'env': {
-               'LD_PRELOAD': f'{ToolExecutor.sandbox_path}/lib/sandbox.so',
+               'LD_PRELOAD': f'{_sandbox_path}/lib/sandbox.so',
             },
             'transport': 'stdio',
         }
@@ -218,31 +219,26 @@ exec({dedent(code)!a})
 
     def _exec(self, execute_file):
         kwargs = {'cwd': BASE_DIR, 'env': {
-            'LD_PRELOAD': f'{ToolExecutor.sandbox_path}/lib/sandbox.so',
+            'LD_PRELOAD': f'{_sandbox_path}/lib/sandbox.so',
         }}
         try:
             subprocess_result = subprocess.run(
                 [sys.executable, execute_file],
-                timeout=ToolExecutor.process_timeout_seconds,
+                timeout=_process_limit_timeout_seconds,
                 text=True,
                 capture_output=True,
                 **kwargs,
-                preexec_fn=(lambda: None if (not self.sandbox or not sys.platform.startswith("linux")) else (
-                    resource.setrlimit(resource.RLIMIT_AS, (ToolExecutor.process_limit_mem_mb * 1024 * 1024,) * 2),
-                    os.sched_setaffinity(0, set(random.sample(list(os.sched_getaffinity(0)), ToolExecutor.process_limit_cpu_cores)))
+                preexec_fn=(lambda: None if (not _enable_sandbox or not sys.platform.startswith("linux")) else (
+                    resource.setrlimit(resource.RLIMIT_AS, (_process_limit_mem_mb * 1024 * 1024,) * 2),
+                    os.sched_setaffinity(0, set(random.sample(list(os.sched_getaffinity(0)), _process_limit_cpu_cores)))
                 ))
             )
             return subprocess_result
         except subprocess.TimeoutExpired:
-            raise Exception(_(f"Process execution timed out after {ToolExecutor.process_timeout_seconds} seconds."))
+            raise Exception(_(f"Process execution timed out after {_process_limit_timeout_seconds} seconds."))
 
     def validate_mcp_transport(self, code_str):
         servers = json.loads(code_str)
         for server, config in servers.items():
             if config.get('transport') not in ['sse', 'streamable_http']:
                 raise Exception(_('Only support transport=sse or transport=streamable_http'))
-
-try:
-    ToolExecutor.init_sandbox_dir()
-except Exception as e:
-    maxkb_logger.error(f'Exception: {e}', exc_info=True)

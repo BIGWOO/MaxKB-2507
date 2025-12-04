@@ -253,7 +253,7 @@ class BaseChatStep(IChatStep):
                     tool = QuerySet(Tool).filter(id=tool_id).first()
                     if tool is None or tool.is_active is False:
                         continue
-                    executor = ToolExecutor(CONFIG.get('SANDBOX'))
+                    executor = ToolExecutor()
                     if tool.init_params is not None:
                         params = json.loads(rsa_long_decrypt(tool.init_params))
                     else:

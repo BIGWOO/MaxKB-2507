@@ -22,7 +22,7 @@ from common.utils.tool_code import ToolExecutor
 from maxkb.const import CONFIG
 from tools.models import Tool
 
-function_executor = ToolExecutor(CONFIG.get('SANDBOX'))
+function_executor = ToolExecutor()
 
 
 def write_context(step_variable: Dict, global_variable: Dict, node, workflow):

@@ -38,7 +38,7 @@ from system_manage.serializers.user_resource_permission import UserResourcePermi
 from tools.models import Tool, ToolScope, ToolFolder, ToolType
 from users.serializers.user import is_workspace_manage
 
-tool_executor = ToolExecutor(CONFIG.get('SANDBOX'))
+tool_executor = ToolExecutor()
 
 
 class ToolInstance:

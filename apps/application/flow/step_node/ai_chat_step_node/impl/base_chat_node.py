@@ -237,7 +237,7 @@ class BaseChatNode(IChatNode):
                     tool = QuerySet(Tool).filter(id=tool_id).first()
                     if not tool.is_active:
                         continue
-                    executor = ToolExecutor(CONFIG.get('SANDBOX'))
+                    executor = ToolExecutor()
                     if tool.init_params is not None:
                         params = json.loads(rsa_long_decrypt(tool.init_params))
                     else:
