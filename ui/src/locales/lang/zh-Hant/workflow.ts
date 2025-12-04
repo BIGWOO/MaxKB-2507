@@ -469,13 +469,13 @@ export default {
       loopIndex: '下標',
       loopItem: '循環元素',
     },
-    loopBodyNode: {label: '循環體', text: '循環體'},
+    loopBodyNode: { label: '循環體', text: '循環體' },
     loopContinueNode: {
       label: 'Continue',
       text: '用於終止當前循環，執行下次循環',
       isContinue: 'Continue',
     },
-    loopBreakNode: {label: 'Break', text: '終止當前循環，跳出循環體', isBreak: 'Break'},
+    loopBreakNode: { label: 'Break', text: '終止當前循環，跳出循環體', isBreak: 'Break' },
     variableSplittingNode: {
       label: '變量拆分',
       text: '通過配置 JSON Path 表達式，對輸入的 JSON 格式變量進行解析和拆分',
@@ -520,5 +520,6 @@ export default {
   SystemPromptPlaceholder: '系統提示詞，可以引用系統中的變量：如',
   UserPromptPlaceholder: '用戶提示詞，可以引用系統中的變量：如',
   ExecutionRecord: '執行記錄',
+  initiator: '發起人',
   debug: {},
 }

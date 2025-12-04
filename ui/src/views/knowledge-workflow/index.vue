@@ -54,7 +54,7 @@
               </el-dropdown-item>
               <el-dropdown-item @click="openListAction">
                 <AppIcon iconName="app-history-outlined" class="color-secondary"></AppIcon>
-                执行记录
+                {{ $t('workflow.ExecutionRecord') }}
               </el-dropdown-item>
               <el-dropdown-item @click="openHistory">
                 <AppIcon iconName="app-history-outlined" class="color-secondary"></AppIcon>
@@ -129,7 +129,7 @@
       </div>
     </el-collapse-transition>
     <DebugVue ref="DebugRef"></DebugVue>
-    <ListAction ref="ListActionRef"></ListAction>
+    <ExecutionRecord ref="ListActionRef"></ExecutionRecord>
     <!-- 发布历史 -->
     <PublishHistory
       v-if="showHistory"
@@ -145,7 +145,7 @@ import { useRouter, useRoute } from 'vue-router'
 import type { Action } from 'element-plus'
 import Workflow from '@/workflow/index.vue'
 import DropdownMenu from '@/components/workflow-dropdown-menu/index.vue'
-import ListAction from '@/views/knowledge-workflow/component/list-action/index.vue'
+import ExecutionRecord from '@/views/knowledge-workflow/component/execution-record/ExecutionRecordDrawer.vue'
 import PublishHistory from '@/views/knowledge-workflow/component/PublishHistory.vue'
 import { isAppIcon, resetUrl } from '@/utils/common'
 import { MsgSuccess, MsgError, MsgConfirm } from '@/utils/message'
@@ -194,7 +194,7 @@ const isDefaultTheme = computed(() => {
   return theme.isDefaultTheme()
 })
 const DebugRef = ref<InstanceType<typeof DebugVue>>()
-const ListActionRef = ref<InstanceType<typeof ListAction>>()
+const ListActionRef = ref<InstanceType<typeof ExecutionRecord>>()
 let interval: any
 const workflowRef = ref()
 const workflowMainRef = ref()
