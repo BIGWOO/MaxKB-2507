@@ -419,7 +419,6 @@ import bus from '@/bus'
 import 'recorder-core/src/engine/mp3'
 import 'recorder-core/src/engine/mp3-engine'
 import chatAPI from '@/api/chat/chat'
-import imageApi from '@/api/image'
 
 const router = useRouter()
 const route = useRoute()
@@ -1238,7 +1237,11 @@ async function saveUrl() {
   async function processUrl(url: string) {
     try {
       const appId = props.appId || props.applicationDetails?.id;
-      const res = await imageApi.getFile(appId, {url})
+      const res =
+        props.type === 'debug-ai-chat'
+          ? await applicationApi.getFile(appId, {url})
+          : await chatAPI.getFile(appId, {url})
+
       if (res.data['status_code'] !== 200) {
         MsgWarning(url + ' ' + t('chat.uploadFile.invalidUrl'));
         return;

@@ -401,6 +401,10 @@ const postUploadFile: (
   return post(`/oss/file`, fd, undefined, loading)
 }
 
+
+const getFile: (application_id: string, params: any) => Promise<Result<any>> = (application_id, params) => {
+  return get(`/oss/get_url/${application_id}`, params)
+}
 export default {
   getAllApplication,
   getApplication,
@@ -430,5 +434,6 @@ export default {
   postUploadFile,
   generate_prompt,
   getTokenUsage,
-  topQuestions
+  topQuestions,
+  getFile
 }
