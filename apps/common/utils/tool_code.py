@@ -83,7 +83,7 @@ class ToolExecutor:
         set_run_user = f'os.setgid({pwd.getpwnam(_run_user).pw_gid});os.setuid({pwd.getpwnam(_run_user).pw_uid});' if _enable_sandbox else ''
         _exec_code = f"""
 try:
-    import os, sys, json, base64, builtins
+    import os, sys, json
     path_to_exclude = ['/opt/py3/lib/python3.11/site-packages', '/opt/maxkb-app/apps']
     sys.path = [p for p in sys.path if p not in path_to_exclude]
     sys.path += {python_paths}
@@ -97,10 +97,13 @@ try:
     for local in locals_v:
         globals_v[local] = locals_v[local]
     exec_result=f(**keywords)
-    builtins.print("\\n{_id}:"+base64.b64encode(json.dumps({success}, default=str).encode()).decode(), flush=True)
+    sys.stdout.write("\\n{_id}:")
+    json.dump({success}, sys.stdout, default=str)
 except Exception as e:
     if isinstance(e, MemoryError): e = Exception("Cannot allocate more memory: exceeded the limit of {_process_limit_mem_mb} MB.")
-    builtins.print("\\n{_id}:"+base64.b64encode(json.dumps({err}, default=str).encode()).decode(), flush=True)
+    sys.stdout.write("\\n{_id}:")
+    json.dump({err}, sys.stdout, default=str)
+sys.stdout.flush()    
 """
         maxkb_logger.debug(f"Sandbox execute code: {_exec_code}")
         with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=True) as f:
@@ -114,7 +117,7 @@ except Exception as e:
         if not result_line:
             maxkb_logger.error("\n".join(lines))
             raise Exception("No result found.")
-        result = json.loads(base64.b64decode(result_line[-1].split(":", 1)[1]).decode())
+        result = json.loads(result_line[-1].split(":", 1)[1])
         if result.get('code') == 200:
             return result.get('data')
         raise Exception(result.get('msg'))
