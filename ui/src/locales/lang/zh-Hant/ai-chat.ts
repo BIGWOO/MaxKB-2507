@@ -87,6 +87,7 @@ export default {
   },
   executionDetails: {
     title: '執行詳細',
+    createTime: '執行時間',
     paramOutputTooltip: '每個文件僅支持預覽 500 字',
     audioFile: '語音文件',
     searchContent: '檢索內容',

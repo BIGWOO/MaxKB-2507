@@ -15,22 +15,21 @@
           style="width: 120px"
         >
           <el-option :label="$t('workflow.initiator')" value="user_name" />
+          <el-option :label="$t('common.status.label')" value="state" />
         </el-select>
-        <!-- <el-select
-          v-if="filter_type === 'status'"
-          v-model="filter_status"
-          @change="changeStatusHandle"
+        <el-select
+          v-if="filter_type === 'state'"
+          v-model="query.status"
+          @change="getList"
           style="width: 220px"
           clearable
         >
-          <el-option
-            v-for="item in statusOptions"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          />
-        </el-select> -->
+          <el-option :label="$t('common.status.success')" value="SUCCESS" />
+          <el-option :label="$t('common.status.fail')" value="FAILURE" />
+          <el-option :label="$t('common.status.padding')" value="PADDING" />
+        </el-select>
         <el-input
+          v-else
           v-model="query.user_name"
           @change="getList"
           :placeholder="$t('common.search')"
@@ -75,6 +74,16 @@
           {{ row.run_time != undefined ? row.run_time + 's' : '-' }}
         </template>
       </el-table-column>
+      <el-table-column
+        prop="create_time"
+        :label="$t('chat.executionDetails.createTime')"
+        width="180"
+      >
+        <template #default="{ row }">
+          {{ datetimeFormat(row.create_time) }}
+        </template>
+      </el-table-column>
+
       <el-table-column :label="$t('common.operation')" width="80">
         <template #default="{ row }">
           <el-tooltip effect="dark" :content="$t('chat.executionDetails.title')" placement="top">
@@ -85,16 +94,18 @@
         </template>
       </el-table-column>
     </app-table-infinite-scroll>
+    <ExecutionDetailDrawer ref="ExecutionDetailDrawerRef" />
   </el-drawer>
 </template>
 <script setup lang="ts">
 import { loadSharedApi } from '@/utils/dynamics-api/shared-api'
 import AppTableInfiniteScroll from '@/components/app-table-infinite-scroll/index.vue'
+import ExecutionDetailDrawer from './ExecutionDetailDrawer.vue'
 import { computed, ref, reactive } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { datetimeFormat } from '@/utils/time'
 const drawer = ref<boolean>(false)
 const route = useRoute()
-const toDetails = (row: any) => {}
 
 const apiType = computed(() => {
   if (route.path.includes('shared')) {
@@ -112,17 +123,23 @@ const paginationConfig = reactive({
 })
 const query = ref<any>({
   user_name: '',
+  status: '',
 })
 const loading = ref(false)
 const filter_type = ref<string>('user_name')
 const active_knowledge_id = ref<string>('')
 const data = ref<Array<any>>([])
+const ExecutionDetailDrawerRef = ref<any>()
+
+const toDetails = (row: any) => {
+  ExecutionDetailDrawerRef.value.open(row)
+}
+
 const changeFilterHandle = () => {
-  query.value = { user_name: '' }
+  query.value = { user_name: '', status: '' }
 }
 const changePage = () => {
   paginationConfig.current_page += 1
-  console.log(paginationConfig.current_page)
   getList()
 }
 

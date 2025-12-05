@@ -89,6 +89,7 @@ export default {
   },
   executionDetails: {
     title: 'Execution Details',
+    createTime: 'Execution Time',
     paramOutputTooltip: 'Each document supports previewing up to 500 characters',
     audioFile: 'Audio File',
     searchContent: 'Search Query',
