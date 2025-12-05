@@ -27,6 +27,9 @@
     border: 1px solid var(--el-card-border-color);
     box-shadow: none !important;
   }
+  .el-card__body {
+    overflow: inherit;
+  }
 }
 
 // tree
@@ -386,5 +389,5 @@
 
 // el-upload
 .el-upload {
-    --el-upload-dragger-padding-horizontal: 32px;
+  --el-upload-dragger-padding-horizontal: 32px;
 }

@@ -38,6 +38,7 @@
           <el-select
             v-model="form_data.split_strategy"
             :placeholder="$t('workflow.nodes.documentSplitNode.splitStrategy.placeholder')"
+            :teleported="false"
           >
             <el-option :label="$t('views.document.setRules.intelligent.label')" value="auto" />
             <el-option :label="$t('views.document.setRules.advanced.label')" value="custom" />
@@ -58,7 +59,12 @@
                   <AppIcon iconName="app-warning" class="app-warning-icon"></AppIcon>
                 </el-tooltip>
               </span>
-              <el-select v-model="form_data.chunk_size_type" size="small" style="width: 85px">
+              <el-select
+                v-model="form_data.chunk_size_type"
+                size="small"
+                style="width: 85px"
+                :teleported="false"
+              >
                 <el-option :label="$t('workflow.variable.Referencing')" value="referencing" />
                 <el-option :label="$t('common.custom')" value="custom" />
               </el-select>
@@ -112,6 +118,7 @@
             </div>
           </template>
           <el-select
+            :teleported="false"
             v-if="form_data.patterns_type === 'custom'"
             v-model="form_data.patterns"
             multiple
@@ -144,7 +151,12 @@
               <span>
                 {{ $t('views.document.setRules.limit.label') }}
               </span>
-              <el-select v-model="form_data.limit_type" size="small" style="width: 85px">
+              <el-select
+                v-model="form_data.limit_type"
+                size="small"
+                style="width: 85px"
+                :teleported="false"
+              >
                 <el-option :label="$t('workflow.variable.Referencing')" value="referencing" />
                 <el-option :label="$t('common.custom')" value="custom" />
               </el-select>
@@ -185,7 +197,12 @@
                   <AppIcon iconName="app-warning" class="app-warning-icon"></AppIcon>
                 </el-tooltip>
               </div>
-              <el-select v-model="form_data.with_filter_type" size="small" style="width: 85px">
+              <el-select
+                v-model="form_data.with_filter_type"
+                size="small"
+                style="width: 85px"
+                :teleported="false"
+              >
                 <el-option :label="$t('workflow.variable.Referencing')" value="referencing" />
                 <el-option :label="$t('common.custom')" value="custom" />
               </el-select>
@@ -213,6 +230,7 @@
                 v-model="form_data.paragraph_title_relate_problem_type"
                 size="small"
                 style="width: 85px"
+                :teleported="false"
               >
                 <el-option :label="$t('workflow.variable.Referencing')" value="referencing" />
                 <el-option :label="$t('common.custom')" value="custom" />
@@ -241,6 +259,7 @@
                 v-model="form_data.document_name_relate_problem_type"
                 size="small"
                 style="width: 85px"
+                :teleported="false"
               >
                 <el-option :label="$t('workflow.variable.Referencing')" value="referencing" />
                 <el-option :label="$t('common.custom')" value="custom" />

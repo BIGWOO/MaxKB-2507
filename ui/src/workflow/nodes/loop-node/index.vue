@@ -19,19 +19,10 @@
             required: true,
           }"
         >
-          <el-select v-model="form_data.loop_type" type="small">
-            <el-option
-              :label="$t('workflow.nodes.loopNode.loopType.arrayLoop')"
-              value="ARRAY"
-            />
-            <el-option
-              :label="$t('workflow.nodes.loopNode.loopType.numberLoop')"
-              value="NUMBER"
-            />
-            <el-option
-              :label="$t('workflow.nodes.loopNode.loopType.infiniteLoop')"
-              value="LOOP"
-            />
+          <el-select v-model="form_data.loop_type" type="small" :teleported="false">
+            <el-option :label="$t('workflow.nodes.loopNode.loopType.arrayLoop')" value="ARRAY" />
+            <el-option :label="$t('workflow.nodes.loopNode.loopType.numberLoop')" value="NUMBER" />
+            <el-option :label="$t('workflow.nodes.loopNode.loopType.infiniteLoop')" value="LOOP" />
           </el-select>
         </el-form-item>
         <el-form-item

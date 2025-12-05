@@ -49,11 +49,11 @@
           <template #dropdown>
             <el-dropdown-menu>
               <el-dropdown-item @click="toImportDoc">
-                <AppIcon iconName="app-import-doc" class="color-secondary"></AppIcon>
+                <AppIcon iconName="app-to-import-doc" class="color-secondary"></AppIcon>
                 {{ $t('workflow.operation.toImportDoc') }}
               </el-dropdown-item>
-              <el-dropdown-item @click="openListAction">
-                <AppIcon iconName="app-history-outlined" class="color-secondary"></AppIcon>
+              <el-dropdown-item @click="openListAction" divided>
+                <AppIcon iconName="app-execution-record" class="color-secondary"></AppIcon>
                 {{ $t('workflow.ExecutionRecord') }}
               </el-dropdown-item>
               <el-dropdown-item @click="openHistory">

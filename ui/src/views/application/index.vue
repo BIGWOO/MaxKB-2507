@@ -155,33 +155,6 @@
         >
           <el-row v-if="applicationList.length > 0" :gutter="15" class="w-full">
             <template v-for="(item, index) in applicationList" :key="index">
-              <!-- <el-col
-                v-if="item.resource_type === 'folder'"
-                :xs="24"
-                :sm="12"
-                :md="12"
-                :lg="8"
-                :xl="6"
-                class="mb-16"
-              >
-                <CardBox
-                  :title="item.name"
-                  :description="item.desc || $t('components.noDesc')"
-                  class="cursor"
-                  @click="clickFolder(item)"
-                >
-                  <template #icon>
-                    <el-avatar shape="square" :size="32" style="background: none">
-                      <AppIcon iconName="app-folder" style="font-size: 32px"></AppIcon>
-                    </el-avatar>
-                  </template>
-                  <template #subTitle>
-                    <el-text class="color-secondary lighter" size="small">
-                      {{ $t('common.creator') }}: {{ i18n_name(item.nick_name) }}
-                    </el-text>
-                  </template>
-                </CardBox>
-              </el-col> -->
               <el-col :xs="24" :sm="12" :md="12" :lg="8" :xl="6" class="mb-16">
                 <CardBox
                   :title="item.name"

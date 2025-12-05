@@ -24,10 +24,7 @@
                 size="small"
                 style="width: 85px"
               >
-                <el-option
-                  :label="$t('workflow.nodes.mcpNode.reference')"
-                  value="referencing"
-                />
+                <el-option :label="$t('workflow.nodes.mcpNode.reference')" value="referencing" />
                 <el-option :label="$t('common.custom')" value="custom" />
               </el-select>
             </div>
@@ -42,6 +39,7 @@
             :placeholder="mcpServerJson"
           />
           <el-select
+            :teleported="false"
             v-else
             v-model="form_data.mcp_tool_id"
             filterable
@@ -82,7 +80,12 @@
               </el-button>
             </div>
           </template>
-          <el-select v-model="form_data.mcp_tool" @change="changeTool" filterable>
+          <el-select
+            v-model="form_data.mcp_tool"
+            @change="changeTool"
+            filterable
+            :teleported="false"
+          >
             <el-option
               v-for="item in form_data.mcp_tools"
               :key="item.value"
@@ -145,10 +148,7 @@
                   style="width: 85px"
                   @change="form_data.tool_params[form_data.params_nested][item.label.label] = ''"
                 >
-                  <el-option
-                    :label="$t('workflow.variable.Referencing')"
-                    value="referencing"
-                  />
+                  <el-option :label="$t('workflow.variable.Referencing')" value="referencing" />
                   <el-option :label="$t('common.custom')" value="custom" />
                 </el-select>
               </div>
@@ -219,10 +219,7 @@
                   style="width: 85px"
                   @change="form_data.tool_params[item.label.label] = ''"
                 >
-                  <el-option
-                    :label="$t('workflow.variable.Referencing')"
-                    value="referencing"
-                  />
+                  <el-option :label="$t('workflow.variable.Referencing')" value="referencing" />
                   <el-option :label="$t('common.custom')" value="custom" />
                 </el-select>
               </div>
@@ -281,7 +278,7 @@ const {
   params: { id },
 } = route as any
 const getResourceDetail = inject('getResourceDetail') as any
-const workflow_mode:WorkflowMode = inject('workflowMode') || WorkflowMode.Application
+const workflow_mode: WorkflowMode = inject('workflowMode') || WorkflowMode.Application
 const resource = getResourceDetail()
 
 const apiType = computed(() => {
@@ -368,7 +365,12 @@ function getTools() {
 }
 
 function _getTools(mcp_servers: any) {
-  loadSharedApi({ type: [WorkflowMode.Application,WorkflowMode.ApplicationLoop].includes(workflow_mode)?'application':'knowledge', systemType: apiType.value })
+  loadSharedApi({
+    type: [WorkflowMode.Application, WorkflowMode.ApplicationLoop].includes(workflow_mode)
+      ? 'application'
+      : 'knowledge',
+    systemType: apiType.value,
+  })
     .getMcpTools(id, mcp_servers, loading)
     .then((res: any) => {
       form_data.value.mcp_tools = res.data

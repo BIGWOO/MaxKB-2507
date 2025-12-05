@@ -135,7 +135,7 @@
       >
         <el-row v-if="tool.toolList.length > 0" :gutter="15" class="w-full">
           <template v-for="(item, index) in tool.toolList" :key="index">
-            <el-col
+            <!-- <el-col
               v-if="item.resource_type === 'folder'"
               :xs="24"
               :sm="12"
@@ -161,8 +161,8 @@
                   </el-text>
                 </template>
               </CardBox>
-            </el-col>
-            <el-col v-else :xs="24" :sm="12" :md="12" :lg="8" :xl="6" class="mb-16">
+            </el-col> -->
+            <el-col :xs="24" :sm="12" :md="12" :lg="8" :xl="6" class="mb-16">
               <CardBox
                 :title="item.name"
                 :description="item.desc"
@@ -176,15 +176,16 @@
                     shape="square"
                     :size="32"
                     style="background: none"
-                    class="mr-8"
                   >
                     <img :src="resetUrl(item?.icon)" alt="" />
                   </el-avatar>
                   <ToolIcon v-else :size="32" :type="item?.tool_type" />
                 </template>
                 <template #title>
-                  <div>
-                    {{ item.name }}
+                  <div class="flex align-center">
+                    <span class="ellipsis-1 mb-4" :title="item.name">
+                      {{ item.name }}
+                    </span>
                     <el-tag v-if="item.version" class="ml-4" type="info" effect="plain">
                       {{ item.version }}
                     </el-tag>
@@ -270,10 +271,7 @@
                             {{ $t('common.edit') }}
                           </el-dropdown-item>
                           <el-dropdown-item
-                            v-if="
-                              !item.template_id &&
-                              permissionPrecise.copy(item.id)
-                            "
+                            v-if="!item.template_id && permissionPrecise.copy(item.id)"
                             @click.stop="copyTool(item)"
                           >
                             <AppIcon iconName="app-copy" class="color-secondary"></AppIcon>
@@ -313,10 +311,7 @@
                             {{ $t('views.shared.authorized_workspace') }}
                           </el-dropdown-item>
                           <el-dropdown-item
-                            v-if="
-                              !item.template_id &&
-                              permissionPrecise.export(item.id)
-                            "
+                            v-if="!item.template_id && permissionPrecise.export(item.id)"
                             @click.stop="exportTool(item)"
                           >
                             <AppIcon iconName="app-export" class="color-secondary"></AppIcon>

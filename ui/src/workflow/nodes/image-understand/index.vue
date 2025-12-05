@@ -118,7 +118,12 @@
           <template #label>
             <div class="flex-between">
               <div>{{ $t('views.application.form.historyRecord.label') }}</div>
-              <el-select v-model="form_data.dialogue_type" type="small" style="width: 100px">
+              <el-select
+                v-model="form_data.dialogue_type"
+                type="small"
+                style="width: 100px"
+                :teleported="false"
+              >
                 <el-option :label="$t('workflow.node')" value="NODE" />
                 <el-option :label="$t('workflow.workflow')" value="WORKFLOW" />
               </el-select>

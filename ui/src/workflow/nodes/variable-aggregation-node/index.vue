@@ -27,7 +27,7 @@
             </div>
           </div>
         </template>
-        <el-select v-model="form_data.strategy">
+        <el-select v-model="form_data.strategy" :teleported="false">
           <el-option
             :label="t('workflow.nodes.variableAggregationNode.placeholder')"
             value="first_non_null"
