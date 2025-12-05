@@ -1202,7 +1202,7 @@ async function saveUrl() {
     uploadAudioList.value.length +
     uploadVideoList.value.length +
     uploadOtherList.value.length
-  if (file_limit_once >= maxFiles) {
+  if (file_limit_once + urls.length >= maxFiles) {
     MsgWarning(t('chat.uploadFile.limitMessage1') + maxFiles + t('chat.uploadFile.limitMessage2'))
     return
   }
