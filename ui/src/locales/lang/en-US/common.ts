@@ -74,6 +74,7 @@ export default {
     success: 'Successful',
     fail: 'Failed',
     all: 'All',
+    padding: 'Padding',
   },
   param: {
     outputParam: 'Output Parameters',

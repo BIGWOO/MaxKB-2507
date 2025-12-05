@@ -46,26 +46,42 @@
       class="w-full"
       v-loading="loading"
       @changePage="changePage"
-      :maxTableHeight="200"
+      :maxTableHeight="150"
+      :paginationConfig="paginationConfig"
     >
       <el-table-column prop="user_name" :label="$t('workflow.initiator')">
         <template #default="{ row }">
-          {{ row.user_name }}
+          {{ row.meta.user_name }}
         </template>
       </el-table-column>
-      <el-table-column prop="state" label="状态" width="180">
+      <el-table-column prop="state" :label="$t('common.status.label')" width="180">
         <template #default="{ row }">
-          {{ row.state }}
+          <el-text class="color-text-primary" v-if="row.state === 'SUCCESS'">
+            <el-icon class="color-success"><SuccessFilled /></el-icon>
+            {{ $t('common.status.success') }}
+          </el-text>
+          <el-text class="color-text-primary" v-else-if="row.state === 'FAILURE'">
+            <el-icon class="color-danger"><CircleCloseFilled /></el-icon>
+            {{ $t('common.status.fail') }}
+          </el-text>
+          <el-text class="color-text-primary" v-else>
+            <el-icon class="is-loading color-primary"><Loading /></el-icon>
+            {{ $t('common.status.padding') }}
+          </el-text>
         </template>
       </el-table-column>
-      <el-table-column prop="run_time" label="运行时间">
+      <el-table-column prop="run_time" :label="$t('chat.KnowledgeSource.consumeTime')">
         <template #default="{ row }">
-          {{ row.run_time }}
+          {{ row.run_time != undefined ? row.run_time + 's' : '-' }}
         </template>
       </el-table-column>
-      <el-table-column label="操作">
+      <el-table-column :label="$t('common.operation')" width="80">
         <template #default="{ row }">
-          <span @click="toDetails(row)">执行详情</span>
+          <el-tooltip effect="dark" :content="$t('chat.executionDetails.title')" placement="top">
+            <el-button type="primary" text @click.stop="toDetails(row)">
+              <AppIcon iconName="app-operate-log"></AppIcon>
+            </el-button>
+          </el-tooltip>
         </template>
       </el-table-column>
     </app-table-infinite-scroll>
@@ -106,6 +122,7 @@ const changeFilterHandle = () => {
 }
 const changePage = () => {
   paginationConfig.current_page += 1
+  console.log(paginationConfig.current_page)
   getList()
 }
 
@@ -114,15 +131,18 @@ const getList = () => {
     .getWorkflowActionPage(active_knowledge_id.value, paginationConfig, query.value, loading)
     .then((ok: any) => {
       paginationConfig.total = ok.data?.total
-      data.value = ok.data.records
+      data.value = data.value.concat(ok.data.records)
     })
 }
 const open = (knowledge_id: string) => {
-  drawer.value = true
   active_knowledge_id.value = knowledge_id
   getList()
+  drawer.value = true
 }
 const close = () => {
+  paginationConfig.current_page = 1
+  paginationConfig.total = 0
+  data.value = []
   drawer.value = false
 }
 defineExpose({ open, close })

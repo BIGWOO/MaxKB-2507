@@ -81,8 +81,8 @@ export default {
   },
   nodes: {
     knowledgeWriteNode: {
-      text: '知識庫寫入',
-      label: '將輸入的分段列表寫入當前知識庫，並完成向量化處理',
+      label: '知識庫寫入',
+      text: '將輸入的分段列表寫入當前知識庫，並完成向量化處理',
     },
     dataSourceWebNode: {
       label: 'Web網站',
@@ -140,6 +140,9 @@ export default {
           uploadMethod: '上傳方式',
         },
       },
+    },
+    KnowledgeBaseNode: {
+      DocumentSetting: '文檔處理設置',
     },
     aiChatNode: {
       label: 'AI 對話',

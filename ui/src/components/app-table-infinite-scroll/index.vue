@@ -41,11 +41,17 @@ const load = () => {
   if (disabled.value) return
 
   // props.paginationConfig.current_page++;
-  if (props.paginationConfig.current_page <= props.paginationConfig.total) {
+  if (
+    props.paginationConfig.current_page * props.paginationConfig.page_size <=
+    props.paginationConfig.total
+  ) {
     emit('changePage')
   }
 
-  if (props.paginationConfig.current_page === props.paginationConfig.total) {
+  if (
+    props.paginationConfig.current_page * props.paginationConfig.page_size ===
+    props.paginationConfig.total
+  ) {
     disabled.value = true
   }
 }

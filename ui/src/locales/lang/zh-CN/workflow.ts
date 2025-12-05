@@ -85,8 +85,8 @@ export default {
   },
   nodes: {
     knowledgeWriteNode: {
-      text: '知识库写入',
-      label: '将输入的分段列表写入当前知识库，并完成向量化处理',
+      label: '知识库写入',
+      text: '将输入的分段列表写入当前知识库，并完成向量化处理',
     },
     dataSourceWebNode: {
       label: 'Web站点',
@@ -145,6 +145,9 @@ export default {
           uploadMethod: '上传方式',
         },
       },
+    },
+    KnowledgeBaseNode: {
+      DocumentSetting: '文档处理设置',
     },
     aiChatNode: {
       label: 'AI 对话',

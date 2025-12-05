@@ -105,6 +105,7 @@
           @sizeChange="handleSizeChange"
           @changePage="getList"
           v-loading="loading"
+          show-overflow-tooltip
         >
           <el-table-column prop="menu" :label="$t('views.operateLog.table.menu')" width="160">
             <template #header>
@@ -158,23 +159,15 @@
             prop="operate"
             :label="$t('views.operateLog.table.detail')"
             width="160"
+            :tooltip-formatter="
+              ({ row }: any) =>
+                row.operate + (row.operation_object?.name ? `【${row.operation_object.name}】` : '')
+            "
           >
             <template #default="{ row }">
-              <el-tooltip
-                :content="
-                  row.operate +
-                  (row.operation_object?.name ? `【${row.operation_object.name}】` : '')
-                "
-                effect="dark"
-                placement="top"
-              >
-                <span class="text-ellipsis">
-                  {{
-                    row.operate +
-                    (row.operation_object?.name ? `【${row.operation_object.name}】` : '')
-                  }}
-                </span>
-              </el-tooltip>
+              {{
+                row.operate + (row.operation_object?.name ? `【${row.operation_object.name}】` : '')
+              }}
             </template>
           </el-table-column>
           <el-table-column
@@ -253,17 +246,13 @@
           </el-table-column>
           <el-table-column :label="$t('common.operation')" width="60" align="left" fixed="right">
             <template #default="{ row }">
-              <span class="mr-4">
-                <el-tooltip
-                  effect="dark"
-                  :content="$t('views.operateLog.table.opt')"
-                  placement="top"
-                >
-                  <el-button type="primary" text @click.stop="showDetails(row)" class="text-button">
-                    <AppIcon iconName="app-operate-log"></AppIcon>
-                  </el-button>
-                </el-tooltip>
-              </span>
+              <!-- <span class="mr-4"> -->
+              <el-tooltip effect="dark" :content="$t('views.operateLog.table.opt')" placement="top">
+                <el-button type="primary" text @click.stop="showDetails(row)">
+                  <AppIcon iconName="app-operate-log"></AppIcon>
+                </el-button>
+              </el-tooltip>
+              <!-- </span> -->
             </template>
           </el-table-column>
         </app-table>
@@ -517,16 +506,4 @@ onMounted(() => {
   changeDayHandle(history_day.value)
 })
 </script>
-<style lang="scss" scoped>
-.text-button {
-  font-size: 14px;
-}
-
-.text-ellipsis {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-  display: block;
-}
-</style>
+<style lang="scss" scoped></style>

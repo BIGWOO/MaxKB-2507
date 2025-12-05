@@ -786,21 +786,15 @@ export const knowledgeTemplate: any = {
     nodes: [
       {
         x: 120,
-        y: 114.94150000000002,
+        y: 115.05849999999998,
         id: 'knowledge-base-node',
         type: 'knowledge-base-node',
         properties: {
           config: {
-            globalFields: [
-              {
-                label: 'a',
-                value: 'a',
-                globeLabel: '{{global.a}}',
-                globeValue: "{{context['global'].a}}",
-              },
-            ],
+            fields: [],
+            globalFields: [],
           },
-          height: 384.266,
+          height: 394.383,
           showNode: true,
           stepName: '\u57fa\u672c\u4fe1\u606f',
           node_data: {
@@ -812,32 +806,9 @@ export const knowledgeTemplate: any = {
           },
           input_field_list: [],
           user_input_config: {
-            title: '\u7528\u6237\u8f93\u5165',
+            title: '\u6587\u6863\u5904\u7406\u8bbe\u7f6e',
           },
-          user_input_field_list: [
-            {
-              attrs: {
-                maxlength: 200,
-                minlength: 1,
-                'show-word-limit': true,
-              },
-              field: 'a',
-              label: 'a',
-              required: false,
-              input_type: 'TextInput',
-              props_info: {
-                rules: [
-                  {
-                    max: 200,
-                    min: 1,
-                    message: 'a\u957f\u5ea6\u5728 1 \u5230 200 \u4e2a\u5b57\u7b26',
-                    trigger: 'blur',
-                  },
-                ],
-              },
-              show_default_value: true,
-            },
-          ],
+          user_input_field_list: [],
         },
       },
       {

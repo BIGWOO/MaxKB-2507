@@ -76,6 +76,7 @@ export default {
     success: '成功',
     fail: '失败',
     all: '全部',
+    padding: '执行中',
   },
   param: {
     outputParam: '输出参数',

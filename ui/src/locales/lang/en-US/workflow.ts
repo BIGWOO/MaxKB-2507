@@ -81,9 +81,8 @@ export default {
   },
   nodes: {
     knowledgeWriteNode: {
-      text: 'Knowledge write',
-      label:
-        'Write the input paragraph list into the current knowledge base and complete vectorization processing',
+      label: 'Knowledge write',
+      text: 'Write the input paragraph list into the current knowledge base and complete vectorization processing',
     },
     dataSourceWebNode: {
       label: 'Web Site',
@@ -141,6 +140,9 @@ export default {
           uploadMethod: 'Upload Method',
         },
       },
+    },
+    KnowledgeBaseNode: {
+      DocumentSetting: 'Document Processing Setting',
     },
     aiChatNode: {
       label: 'AI Chat',
