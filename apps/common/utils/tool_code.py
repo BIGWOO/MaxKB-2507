@@ -76,8 +76,6 @@ class ToolExecutor:
 
     def exec_code(self, code_str, keywords, function_name=None):
         _id = str(uuid.uuid7())
-        success = '{"code":200,"msg":"成功","data":exec_result}'
-        err = '{"code":500,"msg":str(e),"data":None}'
         action_function = f'({function_name !a}, locals_v.get({function_name !a}))' if function_name else 'locals_v.popitem()'
         python_paths = CONFIG.get_sandbox_python_package_paths().split(',')
         set_run_user = f'os.setgid({pwd.getpwnam(_run_user).pw_gid});os.setuid({pwd.getpwnam(_run_user).pw_uid});' if _enable_sandbox else ''
@@ -87,9 +85,9 @@ try:
     path_to_exclude = ['/opt/py3/lib/python3.11/site-packages', '/opt/maxkb-app/apps']
     sys.path = [p for p in sys.path if p not in path_to_exclude]
     sys.path += {python_paths}
-    locals_v={'{}'}
+    locals_v={{}}
     keywords={keywords}
-    globals_v={'{}'}
+    globals_v={{}}
     {set_run_user}
     os.environ.clear()
     exec({dedent(code_str)!a}, globals_v, locals_v)
@@ -98,11 +96,11 @@ try:
         globals_v[local] = locals_v[local]
     exec_result=f(**keywords)
     sys.stdout.write("\\n{_id}:")
-    json.dump({success}, sys.stdout, default=str)
+    json.dump({{'code':200,'msg':'success','data':exec_result}}, sys.stdout, default=str)
 except Exception as e:
     if isinstance(e, MemoryError): e = Exception("Cannot allocate more memory: exceeded the limit of {_process_limit_mem_mb} MB.")
     sys.stdout.write("\\n{_id}:")
-    json.dump({err}, sys.stdout, default=str)
+    json.dump({{'code':500,'msg':str(e),'data':None}}, sys.stdout, default=str)
 sys.stdout.flush()    
 """
         maxkb_logger.debug(f"Sandbox execute code: {_exec_code}")
