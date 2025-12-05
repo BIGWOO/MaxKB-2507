@@ -40,7 +40,8 @@ class XlsxParseTableHandle(BaseParseTableHandle):
                         if cell.coordinate in merged_range:
                             cell_value = sheet[merged_range.min_row][merged_range.min_col - 1].value
                             break
-
+                if cell_value is None:
+                    cell_value = ''
                 image = image_dict.get(cell_value, None)
                 if image is not None:
                     cell_value = f'![](./oss/file/{image.id})'
