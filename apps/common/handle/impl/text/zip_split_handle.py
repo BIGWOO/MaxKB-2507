@@ -213,6 +213,19 @@ class ZipSplitHandle(BaseSplitHandle):
                             # 回到文件头
                             inner_file.seek(0)
                             md_text = split_handle.get_content(inner_file, save_image)
+                            image_list = parse_md_image(md_text)
+                            for image in image_list:
+                                search = re.search("\(.*\)", image)
+                                if search:
+                                    source_image_path = search.group().replace('(', '').replace(')', '')
+                                    source_image_path = source_image_path.strip().split(" ")[0]
+                                    image_path = urljoin(
+                                        real_name, '.' + source_image_path if source_image_path.startswith(
+                                            '/') else source_image_path
+                                    )
+                                    for img_model in image_mode_list:
+                                        if img_model.file_name == os.path.basename(image_path):
+                                            md_text = md_text.replace(source_image_path, f'./oss/file/{img_model.id}')
                             break
 
                     # 如果没有任何 split_handle 处理，按文本解码作为后备
