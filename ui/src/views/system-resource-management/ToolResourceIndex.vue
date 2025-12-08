@@ -18,6 +18,7 @@
             <el-option :label="$t('common.creator')" value="create_user" />
             <el-option :label="$t('common.name')" value="name" />
             <el-option :label="$t('common.type')" value="tool_type"/>
+            <el-option :label="$t('views.tool.form.source.label')" value="source"/>
           </el-select>
           <el-input
             v-if="search_type === 'name'"
@@ -46,6 +47,16 @@
             style="width: 220px"
           >
             <el-option v-for="u in type_options" :key="u.id"  :value="u.value" :label="u.label"/>
+          </el-select>
+          <el-select
+            v-else-if="search_type === 'source'"
+            v-model="search_form.source"
+            @change="getList"
+            clearable
+            filterable
+            style="width: 220px"
+          >
+            <el-option v-for="u in source_options" :key="u.id"  :value="u.value" :label="u.label"/>
           </el-select>
         </div>
       </div>
@@ -377,6 +388,7 @@ const search_form = ref<any>({
   name: '',
   create_user: '',
   tool_type: '',
+  source: '',
 })
 const user_options = ref<any[]>([])
 const type_options = ref<any[]>([
@@ -385,12 +397,18 @@ const type_options = ref<any[]>([
     value: 'MCP',
   },
   {
-    label: t('views.tool.toolStore.title'),
-    value: 'TOOL_STORE',
+    label: t('views.tool.dataSource.title'),
+    value: 'DATA_SOURCE',
   },
   {
-    label: t('views.tool.toolStore.internal'),
-    value: 'INTERNAL',
+    label: t('views.tool.title'),
+    value: 'CUSTOM',
+  },
+])
+const source_options = ref<any[]>([
+  {
+    label: t('views.tool.toolStore.title'),
+    value: 'TOOL_STORE',
   },
   {
     label: t('common.custom'),
