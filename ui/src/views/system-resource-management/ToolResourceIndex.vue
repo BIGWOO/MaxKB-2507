@@ -94,7 +94,7 @@
           <template #default="scope">
             <span v-if="scope.row.tool_type === 'MCP'"> MCP </span>
             <span v-else-if="scope.row.tool_type === 'DATA_SOURCE'"> {{ $t('views.tool.dataSource.title') }} </span>
-            <span v-else-if="scope.row.version">{{ $t('views.tool.toolStore.title') }}</span>
+            <span v-else-if="scope.row.template_id">{{ $t('views.tool.toolStore.title') }}</span>
             <span v-else>
               {{
                 $t(
