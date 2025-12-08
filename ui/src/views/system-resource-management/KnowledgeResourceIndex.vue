@@ -344,6 +344,10 @@ const type_options = ref<any[]>([
     label: t('views.knowledge.knowledgeType.larkKnowledge'),
     value: '2',
   },
+  {
+    label: t('views.knowledge.knowledgeType.workflowKnowledge'),
+    value: '4',
+  },
 ])
 const loading = ref(false)
 const knowledgeList = ref<any[]>([])
