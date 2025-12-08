@@ -18,12 +18,20 @@
       />
     </template>
     <template #title>
-      <div>
-        {{ props.tool?.name }}
+      <div class="flex align-center">
+        <span :title="props.tool?.name" class="ellipsis"> {{ props.tool?.name }}</span>
         <el-tag v-if="props.tool?.version" class="ml-4" type="info" effect="plain">
           {{ props.tool?.version }}
         </el-tag>
       </div>
+    </template>
+    <template #tag>
+      <el-tag type="info" v-if="props.tool?.label === 'data_source'" class="info-tag">
+        {{ $t('views.tool.dataSource.title') }}
+      </el-tag>
+      <el-tag type="info" class="info-tag">
+        {{ $t('views.tool.title') }}
+      </el-tag>
     </template>
     <template #subTitle>
       <el-text class="color-secondary" size="small">
@@ -31,7 +39,7 @@
       </el-text>
     </template>
     <template #footer>
-      <span class="card-footer-left color-secondary" v-if="props.tool?.downloads!= undefined">
+      <span class="card-footer-left color-secondary" v-if="props.tool?.downloads != undefined">
         {{ `${$t('views.document.upload.download')}: ${numberFormat(props.tool.downloads || 0)} ` }}
       </span>
       <div class="card-footer-operation mb-8" @click.stop>

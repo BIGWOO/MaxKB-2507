@@ -28,7 +28,7 @@
       </div>
     </template>
 
-    <LayoutContainer v-loading="loading"  :minLeftWidth="204">
+    <LayoutContainer v-loading="loading" :minLeftWidth="204">
       <template #left>
         <el-anchor
           direction="vertical"
@@ -63,7 +63,8 @@
                   :get-sub-title="getSubTitle"
                   @handleAdd="handleOpenAdd(tool)"
                   @handleDetail="handleDetail(tool)"
-                />
+                >
+                </ToolCard>
               </el-col>
             </el-row>
           </div>
@@ -151,17 +152,14 @@ function open(id: string) {
 
 async function getList() {
   filterList.value = null
-  const [v1, v2] = await Promise.all([
-    getInternalToolList(),
-    getStoreToolList()
-  ])
+  const [v1, v2] = await Promise.all([getInternalToolList(), getStoreToolList()])
 
   const merged = [...v1, ...v2].reduce((acc, category) => {
     const existing = acc.find((item: any) => item.id === category.id)
     if (existing) {
       existing.tools = [...existing.tools, ...category.tools]
     } else {
-      acc.push({...category})
+      acc.push({ ...category })
     }
     return acc
   }, [] as ToolCategory[])
@@ -174,7 +172,7 @@ async function getInternalToolList() {
     const categories = defaultCategories.value
     const res = await ToolStoreApi.getInternalToolList({ name: searchValue.value }, loading)
     if (searchValue.value.length) {
-      filterList.value = [...res.data, ...filterList.value || []]
+      filterList.value = [...res.data, ...(filterList.value || [])]
     } else {
       filterList.value = null
       categories.forEach((category) => {
@@ -203,7 +201,7 @@ async function getStoreToolList() {
       tool.desc = tool.description
     })
     if (searchValue.value.length) {
-      filterList.value = [...res.data.apps, ...filterList.value || []]
+      filterList.value = [...res.data.apps, ...(filterList.value || [])]
     } else {
       filterList.value = null
       categories = tags.map((tag: any) => ({
