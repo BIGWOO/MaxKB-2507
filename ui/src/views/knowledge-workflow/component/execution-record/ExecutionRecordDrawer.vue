@@ -190,6 +190,30 @@ const next_disable = computed(() => {
   const index = tableIndexMap.value[currentId.value] + 1
   return index >= data.value.length && index >= paginationConfig.total - 1
 })
+
+const setRowClass = ({ row }: any) => {
+  return currentId.value === row?.id ? 'highlight' : ''
+}
+
+/**
+ * 下一页
+ */
+const nextRecord = () => {
+  const index = tableIndexMap.value[currentId.value] + 1
+  if (index >= data.value.length) {
+    if (index >= paginationConfig.total - 1) {
+      return
+    }
+    paginationConfig.current_page = paginationConfig.current_page + 1
+    getList().then(() => {
+      currentId.value = data.value[index].id
+      currentContent.value = data.value[index]
+    })
+  } else {
+    currentId.value = data.value[index].id
+    currentContent.value = data.value[index]
+  }
+}
 /**
  * 上一页
  */
