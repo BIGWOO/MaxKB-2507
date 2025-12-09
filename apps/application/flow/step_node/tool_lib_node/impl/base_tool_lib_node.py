@@ -8,6 +8,7 @@
 """
 
 import ast
+import base64
 import io
 import json
 import mimetypes
@@ -207,9 +208,13 @@ class BaseToolLibNodeNode(IToolLibNode):
                                                          {**all_params, **self.workflow_params.get('data_source'),
                                                           'download_item': item},
                                                          function_name='download')
-                    file = bytes_to_uploaded_file(ast.literal_eval(result.get('file_bytes')), result.get('name'))
+                    file_bytes = result.get('file_bytes', [])
+                    chunks = []
+                    for chunk in file_bytes:
+                        chunks.append(base64.b64decode(chunk))
+                    file = bytes_to_uploaded_file(b''.join(chunks), result.get('name'))
                     file_url = self.upload_knowledge_file(file)
-                    download_file_list.append({'file_id': file_url, 'name': result.get('name')})
+                    download_file_list.append({'file_id': file_url.split('/')[-1], 'name': result.get('name')})
                 result = download_file_list
             else:
                 result = function_executor.exec_code(tool_lib.code, all_params)
