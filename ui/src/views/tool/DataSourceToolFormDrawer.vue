@@ -223,7 +223,7 @@
 
     <FieldFormDialog ref="FieldFormDialogRef" @refresh="refreshFieldList" />
     <UserFieldFormDialog ref="UserFieldFormDialogRef" @refresh="refreshInitFieldList" />
-    <EditAvatarDialog ref="EditAvatarDialogRef" @refresh="refreshTool" />
+    <EditAvatarDialog ref="EditAvatarDialogRef" @refresh="refreshTool" iconType="DATA_SOURCE" />
   </el-drawer>
 </template>
 
@@ -283,11 +283,11 @@ const codeTemplate = `
 def get_form_list(node, **kwargs):
     """
     获取表单配置列表
-    
+
     Args:
         node: 节点对象
         **kwargs: 其他关键字参数
-        
+
     Returns:
         list: 包含表单字段配置的列表，用于构建文件树选择器
     """
@@ -307,13 +307,13 @@ def get_form_list(node, **kwargs):
 def get_file_list(app_id=None, app_secret=None, folder_token=None, **kwargs):
     """
     获取文件列表
-    
+
     Args:
         app_id (str, optional): 应用ID
         app_secret (str, optional): 应用密钥
         folder_token (str, optional): 文件夹token
         **kwargs: 其他关键字参数，包括current_node当前节点信息
-        
+
     Returns:
         list: 过滤后的文件列表，每个文件包含leaf标识和原始文件信息
     """
@@ -322,12 +322,12 @@ def get_file_list(app_id=None, app_secret=None, folder_token=None, **kwargs):
 def get_down_file_list(app_id=None, app_secret=None, **kwargs):
     """
     获取需要下载的文件列表（过滤掉文件夹）
-    
+
     Args:
         app_id (str, optional): 应用ID
         app_secret (str, optional): 应用密钥
         **kwargs: 其他关键字参数，包括file_list文件列表
-        
+
     Returns:
         list: 过滤后的文件列表，不包含文件夹类型
     """
@@ -337,20 +337,20 @@ def get_down_file_list(app_id=None, app_secret=None, **kwargs):
 def download(app_id=None, app_secret=None, **kwargs):
     """
     下载文件
-    
+
     支持下载文档(docx)、表格(sheet)和普通文件
     - 对于文档和表格，先创建导出任务，轮询等待导出完成后下载
     - 对于普通文件，直接下载
-    
+
     Args:
         app_id (str, optional): 应用ID
         app_secret (str, optional): 应用密钥
         **kwargs: 其他关键字参数，包括download_item下载项信息
-        
+
     Returns:
         dict: 包含文件字节数组(base64编码)和文件名的字典
               {'file_bytes': [base64_chunk1, base64_chunk2, ...], 'name': 'filename.ext'}
-              
+
     Raises:
         Exception: 当创建导出任务失败、查询任务失败或导出任务超时时抛出异常
     """

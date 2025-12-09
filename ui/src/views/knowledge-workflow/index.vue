@@ -6,30 +6,28 @@
         <h4 class="ellipsis" style="max-width: 300px" :title="detail?.name">{{ detail?.name }}</h4>
         <div v-if="showHistory && disablePublic">
           <el-text type="info" class="ml-16 color-secondary"
-          >{{ $t('workflow.info.previewVersion') }}
+            >{{ $t('workflow.info.previewVersion') }}
             {{ currentVersion.name || datetimeFormat(currentVersion.update_time) }}
-          </el-text
-          >
+          </el-text>
         </div>
         <el-text type="info" class="ml-16 color-secondary" v-else-if="saveTime"
-        >{{ $t('workflow.info.saveTime') }}{{ datetimeFormat(saveTime) }}
-        </el-text
-        >
+          >{{ $t('workflow.info.saveTime') }}{{ datetimeFormat(saveTime) }}
+        </el-text>
       </div>
       <div v-if="showHistory && disablePublic">
         <el-button type="primary" class="mr-8" @click="refreshVersion()">
           {{ $t('workflow.setting.restoreVersion') }}
         </el-button>
-        <el-divider direction="vertical"/>
+        <el-divider direction="vertical" />
         <el-button text @click="closeHistory">
           <el-icon>
-            <Close/>
+            <Close />
           </el-icon>
         </el-button>
       </div>
       <div v-else>
         <el-button @click="showPopover = !showPopover">
-          <AppIcon iconName="app-add-outlined" class="mr-4"/>
+          <AppIcon iconName="app-add-outlined" class="mr-4" />
           {{ $t('workflow.setting.addComponent') }}
         </el-button>
         <el-button @click="clickShowDebug" :disabled="showDebug" v-if="permissionPrecise.debug(id)">
@@ -66,7 +64,7 @@
                 <AppIcon iconName="app-save-outlined" class="color-secondary"></AppIcon>
                 {{ $t('workflow.setting.autoSave') }}
                 <div class="ml-4">
-                  <el-switch size="small" v-model="isSave" @change="changeSave"/>
+                  <el-switch size="small" v-model="isSave" @change="changeSave" />
                 </div>
               </el-dropdown-item>
             </el-dropdown-menu>
@@ -87,7 +85,7 @@
     </el-collapse-transition>
     <!-- 主画布 -->
     <div class="workflow-main" ref="workflowMainRef">
-      <workflow ref="workflowRef" v-if="detail" :data="detail?.work_flow"/>
+      <workflow ref="workflowRef" v-if="detail" :data="detail?.work_flow" />
     </div>
     <!-- 调试 -->
     <el-collapse-transition>
@@ -102,9 +100,9 @@
                   :size="32"
                   style="background: none"
                 >
-                  <img :src="resetUrl(detail?.icon)" alt=""/>
+                  <img :src="resetUrl(detail?.icon)" alt="" />
                 </el-avatar>
-                <LogoIcon v-else height="32px"/>
+                <LogoIcon v-else height="32px" />
               </div>
 
               <h4 class="ellipsis" style="max-width: 270px" :title="detail?.name">
@@ -122,7 +120,7 @@
               </el-button>
               <el-button link @click="showDebug = false">
                 <el-icon :size="20" class="color-secondary">
-                  <Close/>
+                  <Close />
                 </el-icon>
               </el-button>
             </div>
@@ -142,25 +140,24 @@
   </div>
 </template>
 <script setup lang="ts">
-import {ref, onBeforeMount, onBeforeUnmount, computed, nextTick, provide} from 'vue'
-import {useRouter, useRoute} from 'vue-router'
-import type {Action} from 'element-plus'
+import { ref, onBeforeMount, onBeforeUnmount, computed, nextTick, provide } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import type { Action } from 'element-plus'
 import Workflow from '@/workflow/index.vue'
 import DropdownMenu from '@/components/workflow-dropdown-menu/index.vue'
-import ExecutionRecord
-  from '@/views/knowledge-workflow/component/execution-record/ExecutionRecordDrawer.vue'
+import ExecutionRecord from '@/views/knowledge-workflow/component/execution-record/ExecutionRecordDrawer.vue'
 import PublishHistory from '@/views/knowledge-workflow/component/PublishHistory.vue'
-import {isAppIcon, resetUrl} from '@/utils/common'
-import {MsgSuccess, MsgError, MsgConfirm} from '@/utils/message'
-import {datetimeFormat} from '@/utils/time'
-import {mapToUrlParams} from '@/utils/application'
+import { isAppIcon, resetUrl } from '@/utils/common'
+import { MsgSuccess, MsgError, MsgConfirm } from '@/utils/message'
+import { datetimeFormat } from '@/utils/time'
+import { mapToUrlParams } from '@/utils/application'
 import useStore from '@/stores'
-import {KnowledgeWorkFlowInstance} from '@/workflow/common/validate'
-import {hasPermission} from '@/utils/permission'
+import { KnowledgeWorkFlowInstance } from '@/workflow/common/validate'
+import { hasPermission } from '@/utils/permission'
 import DebugVue from './component/DebugDrawer.vue'
-import {t} from '@/locales'
-import {ComplexPermission, Permission} from '@/utils/permission/type'
-import {EditionConst, PermissionConst, RoleConst} from '@/utils/permission/data'
+import { t } from '@/locales'
+import { ComplexPermission, Permission } from '@/utils/permission/type'
+import { EditionConst, PermissionConst, RoleConst } from '@/utils/permission/data'
 import permissionMap from '@/permission'
 import { WorkflowMode } from '@/enums/application'
 import { loadSharedApi } from '@/utils/dynamics-api/shared-api'
@@ -168,11 +165,11 @@ import { knowledgeBaseNode } from '@/workflow/common/data'
 provide('getResourceDetail', () => detail)
 provide('workflowMode', WorkflowMode.Knowledge)
 provide('loopWorkflowMode', WorkflowMode.KnowledgeLoop)
-const {theme} = useStore()
+const { theme } = useStore()
 const router = useRouter()
 const route = useRoute()
 const {
-  params: {id, folderId},
+  params: { id, folderId },
   /*
   folderId 可以区分 resource-management shared还是 workspace
   */
@@ -200,7 +197,6 @@ const DebugRef = ref<InstanceType<typeof DebugVue>>()
 const ListActionRef = ref<InstanceType<typeof ExecutionRecord>>()
 let interval: any
 const workflowRef = ref()
-const workflowMainRef = ref()
 const loading = ref(false)
 const detail = ref<any>(null)
 
@@ -215,10 +211,6 @@ const currentVersion = ref<any>({})
 const cloneWorkFlow = ref(null)
 
 const apiInputParams = ref([])
-
-const urlParams = computed(() =>
-  mapToUrlParams(apiInputParams.value) ? '?' + mapToUrlParams(apiInputParams.value) : '',
-)
 
 const isPublish = computed(() => detail.value?.is_publish)
 
@@ -326,18 +318,14 @@ const publish = () => {
         MsgError(e.toString())
         return
       }
-      loadSharedApi({type: 'knowledge', isShared: isShared.value, systemType: apiType.value})
-        .putKnowledgeWorkflow(id, {work_flow: workflow})
+      loadSharedApi({ type: 'knowledge', isShared: isShared.value, systemType: apiType.value })
+        .putKnowledgeWorkflow(id, { work_flow: workflow })
         .then(() => {
           return loadSharedApi({
             type: 'knowledge',
             isShared: isShared.value,
-            systemType: apiType.value
-          }).publish(
-            id,
-            {},
-            loading,
-          )
+            systemType: apiType.value,
+          }).publish(id, {}, loading)
         })
         .then((ok: any) => {
           detail.value.is_publish = true
@@ -349,15 +337,15 @@ const publish = () => {
           if (typeof err_message == 'string') {
             MsgError(
               res.node.properties?.stepName +
-              ` ${t('workflow.node').toLowerCase()} ` +
-              err_message.toLowerCase(),
+                ` ${t('workflow.node').toLowerCase()} ` +
+                err_message.toLowerCase(),
             )
           } else {
             const keys = Object.keys(err_message)
             MsgError(
               node.properties?.stepName +
-              ` ${t('workflow.node').toLowerCase()} ` +
-              err_message[keys[0]]?.[0]?.message.toLowerCase(),
+                ` ${t('workflow.node').toLowerCase()} ` +
+                err_message[keys[0]]?.[0]?.message.toLowerCase(),
             )
           }
         })
@@ -371,8 +359,8 @@ const publish = () => {
         const keys = Object.keys(err_message)
         MsgError(
           node.properties?.stepName +
-          ` ${t('workflow.node')}，` +
-          err_message[keys[0]]?.[0]?.message,
+            ` ${t('workflow.node')}，` +
+            err_message[keys[0]]?.[0]?.message,
         )
       }
     })
@@ -406,8 +394,8 @@ const clickShowDebug = () => {
         const keys = Object.keys(err_message)
         MsgError(
           node.properties?.stepName +
-          ` ${t('workflow.node')}，` +
-          err_message[keys[0]]?.[0]?.message,
+            ` ${t('workflow.node')}，` +
+            err_message[keys[0]]?.[0]?.message,
         )
       }
     })
@@ -422,7 +410,7 @@ const isShared = computed(() => {
 })
 
 function getDetail() {
-  loadSharedApi({type: 'knowledge', isShared: isShared.value, systemType: apiType.value})
+  loadSharedApi({ type: 'knowledge', isShared: isShared.value, systemType: apiType.value })
     .getKnowledgeDetail(id)
     .then((res: any) => {
       detail.value = res.data
@@ -431,27 +419,27 @@ function getDetail() {
       detail.value.tts_type = res.data.tts_type
       saveTime.value = res.data?.update_time
       if (!detail.value.work_flow || !('nodes' in detail.value.work_flow)) {
-        detail.value.work_flow = {nodes: [knowledgeBaseNode]}
+        detail.value.work_flow = { nodes: [knowledgeBaseNode] }
       }
       detail.value.work_flow?.nodes
         ?.filter((v: any) => v.id === 'knowledge-base-node')
         .map((v: any) => {
           apiInputParams.value = v.properties.api_input_field_list
             ? v.properties.api_input_field_list.map((v: any) => {
-              return {
-                name: v.variable,
-                value: v.default_value,
-              }
-            })
+                return {
+                  name: v.variable,
+                  value: v.default_value,
+                }
+              })
             : v.properties.input_field_list
               ? v.properties.input_field_list
-                .filter((v: any) => v.assignment_method === 'api_input')
-                .map((v: any) => {
-                  return {
-                    name: v.variable,
-                    value: v.default_value,
-                  }
-                })
+                  .filter((v: any) => v.assignment_method === 'api_input')
+                  .map((v: any) => {
+                    return {
+                      name: v.variable,
+                      value: v.default_value,
+                    }
+                  })
               : []
         })
 
@@ -468,7 +456,7 @@ function saveknowledge(bool?: boolean, back?: boolean) {
     work_flow: getGraphData(),
   }
   loading.value = back || false
-  loadSharedApi({type: 'knowledge', isShared: isShared.value, systemType: apiType.value})
+  loadSharedApi({ type: 'knowledge', isShared: isShared.value, systemType: apiType.value })
     .putKnowledgeWorkflow(id, obj)
     .then(() => {
       saveTime.value = new Date()
@@ -487,11 +475,11 @@ function saveknowledge(bool?: boolean, back?: boolean) {
 
 const go = () => {
   if (route.path.includes('resource-management')) {
-    return router.push({path: get_resource_management_route()})
+    return router.push({ path: get_resource_management_route() })
   } else if (route.path.includes('shared')) {
-    return router.push({path: get_shared_route()})
+    return router.push({ path: get_shared_route() })
   } else {
-    return router.push({path: get_route()})
+    return router.push({ path: get_route() })
   }
 }
 
@@ -585,10 +573,8 @@ const toImportDoc = () => {
       showConfirmButton: false,
       type: 'warning',
     })
-      .then(() => {
-      })
-      .catch(() => {
-      })
+      .then(() => {})
+      .catch(() => {})
   }
 }
 

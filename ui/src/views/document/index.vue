@@ -138,6 +138,12 @@
                   clearable
                 />
               </div>
+
+              <el-tooltip effect="dark" :content="$t('workflow.ExecutionRecord')" placement="top">
+                <el-button @click="openListAction" class="ml-12">
+                  <AppIcon iconName="app-execution-record" class="color-secondary"></AppIcon>
+                </el-button>
+              </el-tooltip>
               <el-button @click="openTagDrawer" class="ml-12" v-if="permissionPrecise.tag_read(id)">
                 {{ $t('views.document.tag.label') }}
               </el-button>
@@ -706,7 +712,6 @@
     <EmbeddingContentDialog ref="embeddingContentDialogRef"></EmbeddingContentDialog>
 
     <ImportDocumentDialog ref="ImportDocumentDialogRef" :title="title" @refresh="refresh" />
-    <SyncWebDialog ref="SyncWebDialogRef" @refresh="refresh" />
     <!-- 选择知识库 -->
     <SelectKnowledgeDialog
       ref="selectKnowledgeDialogRef"
@@ -717,6 +722,8 @@
     <TagDrawer ref="tagDrawerRef" />
     <TagSettingDrawer ref="tagSettingDrawerRef" />
     <AddTagDialog ref="addTagDialogRef" @addTags="addTags" :apiType="apiType" />
+    <!-- 执行详情 -->
+    <ExecutionRecord ref="ListActionRef"></ExecutionRecord>
   </div>
 </template>
 <script setup lang="ts">
@@ -724,7 +731,6 @@ import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import { useRouter, useRoute, onBeforeRouteLeave, onBeforeRouteUpdate } from 'vue-router'
 import type { ElTable } from 'element-plus'
 import ImportDocumentDialog from './component/ImportDocumentDialog.vue'
-import SyncWebDialog from '@/views/knowledge/component/SyncWebDialog.vue'
 import SelectKnowledgeDialog from './component/SelectKnowledgeDialog.vue'
 import { numberFormat } from '@/utils/common'
 import { datetimeFormat } from '@/utils/time'
@@ -741,6 +747,7 @@ import { loadSharedApi } from '@/utils/dynamics-api/shared-api'
 import TagDrawer from './tag/TagDrawer.vue'
 import TagSettingDrawer from './tag/TagSettingDrawer.vue'
 import AddTagDialog from '@/views/document/tag/MulAddTagDialog.vue'
+import ExecutionRecord from '@/views/knowledge-workflow/component/execution-record/ExecutionRecordDrawer.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -830,7 +837,7 @@ const search_form = ref<any>({
 const beforePagination = computed(() => common.paginationConfig[storeKey])
 const beforeSearch = computed(() => common.search[storeKey])
 const embeddingContentDialogRef = ref<InstanceType<typeof EmbeddingContentDialog>>()
-const SyncWebDialogRef = ref()
+const ListActionRef = ref<InstanceType<typeof ExecutionRecord>>()
 const loading = ref(false)
 let interval: any
 const filterText = ref('')
@@ -852,6 +859,10 @@ const multipleSelection = ref<any[]>([])
 const title = ref('')
 
 const selectKnowledgeDialogRef = ref()
+
+const openListAction = () => {
+  ListActionRef.value?.open(id)
+}
 
 const toImportWorkflow = () => {
   if (knowledgeDetail.value.is_publish) {

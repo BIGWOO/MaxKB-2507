@@ -98,7 +98,7 @@
                 <AppIcon iconName="app-warning" class="app-warning-icon"></AppIcon>
               </el-tooltip>
 
-              <el-button type="primary" link @click="router.push({ name: 'applicationChatUser' })">
+              <el-button v-if="form.authentication_value.type === 'login'" type="primary" link @click="router.push({ name: 'applicationChatUser' })">
                 {{ $t('views.applicationOverview.appInfo.LimitDialog.toSettingChatUser') }}
               </el-button>
             </p>
