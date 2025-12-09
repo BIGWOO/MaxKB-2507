@@ -76,7 +76,7 @@ const route = useRoute()
 const key = ref<number>(0)
 const {
   params: { folderId },
-  query: { id } ,
+  query: { id },
   /*
   id为knowledgeID
   folderId 可以区分 resource-management shared还是 workspace
@@ -153,10 +153,7 @@ const continueImporting = () => {
   })
 }
 const goDocument = () => {
-  const newUrl = router.resolve({
-    path: `/knowledge/${id}/${folderId}/4/document`,
-  }).href
-  window.open(newUrl)
+  router.push({ path: `/knowledge/${id}/${folderId}/4/document` })
 }
 
 const back = () => {

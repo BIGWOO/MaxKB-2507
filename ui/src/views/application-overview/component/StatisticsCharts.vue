@@ -109,7 +109,6 @@ const props = defineProps({
   },
 })
 
-
 const statisticsType = computed(() => [
   {
     id: 'customerCharts',
@@ -199,7 +198,12 @@ const statisticsType = computed(() => [
   },
 ])
 
-const topOptions = [{ label: 'TOP 10', value: 10 }, { label: 'TOP 20', value: 20}, { label: 'TOP 50', value: 50}, { label: 'TOP 100', value: 100}]
+const topOptions = [
+  { label: 'TOP 10', value: 10 },
+  { label: 'TOP 20', value: 20 },
+  { label: 'TOP 50', value: 50 },
+  { label: 'TOP 100', value: 100 },
+]
 const tokenUsageCount = ref(10)
 const topQuestionsCount = ref(10)
 const tokenUsageOption = computed(() => {
@@ -211,6 +215,7 @@ const tokenUsageOption = computed(() => {
         data: getAttrsArray(props.tokenUsage?.slice(0, tokenUsageCount.value), 'token_usage'),
       },
     ],
+    dataZoom: props.tokenUsage.length > 0,
   }
 })
 const topQuestionsOption = computed(() => {
@@ -219,9 +224,13 @@ const topQuestionsOption = computed(() => {
     xData: getAttrsArray(props.topQuestions?.slice(0, topQuestionsCount.value), 'username'),
     yData: [
       {
-        data: getAttrsArray(props.topQuestions?.slice(0, topQuestionsCount.value), 'chat_record_count'),
+        data: getAttrsArray(
+          props.topQuestions?.slice(0, topQuestionsCount.value),
+          'chat_record_count',
+        ),
       },
     ],
+    dataZoom: props.topQuestions.length > 0,
   }
 })
 </script>

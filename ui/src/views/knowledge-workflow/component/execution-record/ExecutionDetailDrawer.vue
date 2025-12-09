@@ -58,7 +58,7 @@
               <p>
                 {{
                   props.currentContent?.run_time != undefined
-                    ? props.currentContent?.run_time + 's'
+                    ? props.currentContent?.run_time?.toFixed(2) + 's'
                     : '-'
                 }}
               </p>

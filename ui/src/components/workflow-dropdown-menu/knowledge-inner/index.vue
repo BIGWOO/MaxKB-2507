@@ -2,7 +2,7 @@
   <div
     v-show="show"
     class="workflow-dropdown-menu border border-r-6 white-bg"
-    :style="{ width: activeName === 'base' ? '400px' : '640px' }"
+    :style="{ width: activeName === 'base' || route.path.includes('shared') ? '400px' : '640px' }"
   >
     <el-tabs v-model="activeName" class="workflow-dropdown-tabs" @tab-change="handleClick">
       <div
@@ -73,7 +73,7 @@
       </el-tab-pane>
       <!-- 工具 -->
       <el-tab-pane :label="$t('views.tool.title')" name="CUSTOM_TOOL">
-        <LayoutContainer>
+        <LayoutContainer :showLeft="!route.path.includes('shared')">
           <template #left>
             <folder-tree
               :source="SourceTypeEnum.TOOL"

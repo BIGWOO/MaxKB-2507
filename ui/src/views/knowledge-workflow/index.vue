@@ -14,7 +14,7 @@
           >{{ $t('workflow.info.saveTime') }}{{ datetimeFormat(saveTime) }}
         </el-text>
       </div>
-      <div v-if="showHistory && disablePublic">
+      <div v-if="showHistory && disablePublic && !route.path.includes('share/')">
         <el-button type="primary" class="mr-8" @click="refreshVersion()">
           {{ $t('workflow.setting.restoreVersion') }}
         </el-button>
@@ -25,7 +25,7 @@
           </el-icon>
         </el-button>
       </div>
-      <div v-else>
+      <div v-else-if="!route.path.includes('share/')">
         <el-button @click="showPopover = !showPopover">
           <AppIcon iconName="app-add-outlined" class="mr-4" />
           {{ $t('workflow.setting.addComponent') }}

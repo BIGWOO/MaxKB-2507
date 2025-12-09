@@ -72,7 +72,7 @@
       </el-table-column>
       <el-table-column prop="run_time" :label="$t('chat.KnowledgeSource.consumeTime')">
         <template #default="{ row }">
-          {{ row.run_time != undefined ? row.run_time + 's' : '-' }}
+          {{ row.run_time != undefined ? row.run_time?.toFixed(2) + 's' : '-' }}
         </template>
       </el-table-column>
       <el-table-column
@@ -128,7 +128,7 @@ const apiType = computed(() => {
 })
 const paginationConfig = reactive({
   current_page: 1,
-  page_size: 10,
+  page_size: 50,
   total: 0,
 })
 const query = ref<any>({
@@ -168,16 +168,13 @@ const changePage = () => {
 const getList = (clear?: boolean) => {
   if (clear) {
     paginationConfig.current_page = 1
+    data.value = []
   }
   return loadSharedApi({ type: 'knowledge', systemType: apiType.value })
     .getWorkflowActionPage(active_knowledge_id.value, paginationConfig, query.value, loading)
     .then((ok: any) => {
       paginationConfig.total = ok.data?.total
-      if (clear) {
-        data.value = ok.data.records
-      } else {
-        data.value = data.value.concat(ok.data.records)
-      }
+      data.value = data.value.concat(ok.data.records)
     })
 }
 

@@ -19,9 +19,7 @@
           :model="form_data"
           require-asterisk-position="right"
         >
-          <el-form-item
-            :label="$t('workflow.nodes.baseNode.FileUploadSetting.maxFiles')"
-          >
+          <el-form-item :label="$t('workflow.nodes.baseNode.FileUploadSetting.maxFiles')">
             <el-slider
               v-model="form_data.maxFiles"
               show-input
@@ -30,9 +28,7 @@
               :max="100"
             />
           </el-form-item>
-          <el-form-item
-            :label="$t('workflow.nodes.baseNode.FileUploadSetting.fileLimit')"
-          >
+          <el-form-item :label="$t('workflow.nodes.baseNode.FileUploadSetting.fileLimit')">
             <el-slider
               v-model="form_data.fileLimit"
               show-input
@@ -42,9 +38,7 @@
             />
           </el-form-item>
           <el-form-item
-            :label="
-              $t('workflow.nodes.baseNode.FileUploadSetting.fileUploadType.label')
-            "
+            :label="$t('workflow.nodes.baseNode.FileUploadSetting.fileUploadType.label')"
           >
             <el-card
               shadow="hover"
@@ -55,12 +49,12 @@
             >
               <div class="flex-between">
                 <div class="flex align-center">
-                  <img class="mr-12" src="@/assets/workflow/icon_file-doc.svg" alt=""/>
+                  <img class="mr-12" src="@/assets/workflow/icon_file-doc.svg" alt="" />
                   <div>
                     <p class="line-height-22 mt-4">
                       {{ $t('common.fileUpload.document') }}
                       <el-text class="color-secondary"
-                      >{{
+                        >{{
                           $t(
                             'workflow.nodes.baseNode.FileUploadSetting.fileUploadType.documentText',
                           )
@@ -85,15 +79,13 @@
             >
               <div class="flex-between">
                 <div class="flex align-center">
-                  <img class="mr-12" src="@/assets/workflow/icon_file-image.svg" alt=""/>
+                  <img class="mr-12" src="@/assets/workflow/icon_file-image.svg" alt="" />
                   <div>
                     <p class="line-height-22 mt-4">
                       {{ $t('common.fileUpload.image') }}
                       <el-text class="color-secondary"
-                      >{{
-                          $t(
-                            'workflow.nodes.baseNode.FileUploadSetting.fileUploadType.imageText',
-                          )
+                        >{{
+                          $t('workflow.nodes.baseNode.FileUploadSetting.fileUploadType.imageText')
                         }}
                       </el-text>
                     </p>
@@ -116,15 +108,13 @@
             >
               <div class="flex-between">
                 <div class="flex align-center">
-                  <img class="mr-12" src="@/assets/workflow/icon_file-audio.svg" alt=""/>
+                  <img class="mr-12" src="@/assets/workflow/icon_file-audio.svg" alt="" />
                   <div>
                     <p class="line-height-22 mt-4">
                       {{ $t('common.fileUpload.audio') }}
                       <el-text class="color-secondary"
-                      >{{
-                          $t(
-                            'workflow.nodes.baseNode.FileUploadSetting.fileUploadType.audioText',
-                          )
+                        >{{
+                          $t('workflow.nodes.baseNode.FileUploadSetting.fileUploadType.audioText')
                         }}
                       </el-text>
                     </p>
@@ -156,10 +146,8 @@
                     <p class="line-height-22 mt-4">
                       {{ $t('common.fileUpload.video') }}
                       <el-text class="color-secondary"
-                      >{{
-                          $t(
-                            'workflow.nodes.baseNode.FileUploadSetting.fileUploadType.videoText',
-                          )
+                        >{{
+                          $t('workflow.nodes.baseNode.FileUploadSetting.fileUploadType.videoText')
                         }}
                       </el-text>
                     </p>
@@ -181,15 +169,13 @@
             >
               <div class="flex-between">
                 <div class="flex align-center">
-                  <img class="mr-12" :width="32" src="@/assets/fileType/unknown-icon.svg" alt=""/>
+                  <img class="mr-12" :width="32" src="@/assets/fileType/unknown-icon.svg" alt="" />
                   <div>
                     <p class="line-height-22 mt-4">
                       {{ $t('common.fileUpload.other') }}
                       <el-text class="color-secondary"
-                      >{{
-                          $t(
-                            'workflow.nodes.baseNode.FileUploadSetting.fileUploadType.otherText',
-                          )
+                        >{{
+                          $t('workflow.nodes.baseNode.FileUploadSetting.fileUploadType.otherText')
                         }}
                       </el-text>
                     </p>
@@ -231,19 +217,19 @@
               </div>
             </el-card>
             <el-form-item
-              :label="
-              $t('workflow.nodes.baseNode.FileUploadSetting.fileUploadType.uploadMethod')
-            ">
+              :label="$t('workflow.nodes.baseNode.FileUploadSetting.fileUploadType.uploadMethod')"
+            >
+              <template #label>
+                <span>
+                  {{ $t('workflow.nodes.baseNode.FileUploadSetting.fileUploadType.uploadMethod')
+                  }}<span class="color-danger">*</span>
+                </span>
+              </template>
               <div class="flex align-center">
-                <el-checkbox
-                  v-model="form_data.local_upload"
-                  class="mr-16"
-                >
+                <el-checkbox v-model="form_data.local_upload" class="mr-16">
                   {{ $t('common.fileUpload.localUpload') }}
                 </el-checkbox>
-                <el-checkbox
-                  v-model="form_data.url_upload"
-                >
+                <el-checkbox v-model="form_data.url_upload">
                   {{ $t('common.fileUpload.urlUpload') }}
                 </el-checkbox>
               </div>
@@ -264,11 +250,11 @@
 </template>
 
 <script setup lang="ts">
-import {nextTick, ref} from 'vue'
-import type {InputInstance} from 'element-plus'
-import {cloneDeep} from 'lodash'
-import {MsgWarning} from '@/utils/message'
-import {t} from '@/locales'
+import { nextTick, ref } from 'vue'
+import type { InputInstance } from 'element-plus'
+import { cloneDeep } from 'lodash'
+import { MsgWarning } from '@/utils/message'
+import { t } from '@/locales'
 
 const emit = defineEmits(['refresh'])
 const props = defineProps<{ nodeModel: any }>()
@@ -301,7 +287,7 @@ const form_data = ref({
 function open(data: any) {
   dialogVisible.value = true
   nextTick(() => {
-    form_data.value = {...form_data.value, ...data}
+    form_data.value = { ...form_data.value, ...data }
   })
 }
 

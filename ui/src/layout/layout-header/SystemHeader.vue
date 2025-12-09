@@ -43,10 +43,7 @@ import { hasPermission } from '@/utils/permission'
 
 const router = useRouter()
 const goHome = () => {
-  const newUrl = router.resolve({
-    path: `/`,
-  }).href
-  window.open(newUrl)
+  router.push('/')
 }
 </script>
 <style lang="scss" scoped>
