@@ -120,7 +120,7 @@ class BaseSearchDocumentNode(ISearchDocumentStepNode):
                 field_value = self.workflow_manage.generate_prompt(condition['value'])
                 compare_type = condition['compare']
 
-                if field_value:
+                if not field_value:
                     continue
 
                 # 构建查询条件
@@ -159,7 +159,7 @@ class BaseSearchDocumentNode(ISearchDocumentStepNode):
                 field_value = self.workflow_manage.generate_prompt(condition['value'])
                 compare_type = condition['compare']
 
-                if field_value:
+                if not field_value:
                     continue
 
                 if compare_type == 'not_contain':
