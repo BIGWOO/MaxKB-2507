@@ -119,7 +119,7 @@ sys.stdout.flush()
         result = json.loads(result_line[-1].split(":", 1)[1])
         if result.get('code') == 200:
             return result.get('data')
-        raise Exception(result.get('msg'))
+        raise Exception(result.get('msg') + (f'\n{subprocess_result.stderr}' if subprocess_result.stderr else ''))
 
     def _generate_mcp_server_code(self, _code, params):
         # 解析代码，提取导入语句和函数定义

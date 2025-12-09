@@ -166,7 +166,7 @@ int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen) {
 
     if (is_sandbox_user() && banned_hosts && *banned_hosts) {
         if (ip[0] && match_banned_ip(ip, banned_hosts)) {
-            fprintf(stderr, "[sandbox] 🚫 Access to IP %s is banned\n", ip);
+            fprintf(stderr, "Permission denied to access %s.\n", ip);
             errno = EACCES;  // Permission denied
             return -1;
         }
@@ -188,8 +188,9 @@ int getaddrinfo(const char *node, const char *service,
         if (!is_ip) {
             // 仅对域名进行阻塞
             if (match_banned_domain(node, banned_hosts)) {
-                fprintf(stderr, "[sandbox] 🚫 Access to host %s is banned (DNS blocked)\n", node);
-                return EAI_FAIL;
+                fprintf(stderr, "Permission denied to access %s.\n", node);
+                errno = EACCES;
+                return EAI_SYSTEM;
             }
         }
     }
