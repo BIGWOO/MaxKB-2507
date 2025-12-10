@@ -98,11 +98,6 @@
               {{ $t('common.save') }}
             </el-button>
           </span>
-          <span>
-            <el-button @click="submit(authFormRef, 'test')" :disabled="loading">
-              {{ $t('views.system.test') }}</el-button
-            >
-          </span>
         </div>
       </div>
     </el-scrollbar>
