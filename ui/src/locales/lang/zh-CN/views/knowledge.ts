@@ -20,7 +20,7 @@ export default {
   knowledgeType: {
     label: '知识库类型',
     generalKnowledge: '通用知识库',
-    webKnowledge: 'web知识库',
+    webKnowledge: 'Web 知识库',
     larkKnowledge: '飞书知识库',
     workflowKnowledge: '工作流知识库',
     yuqueKnowledge: '语雀知识库',
@@ -29,7 +29,7 @@ export default {
     larkInfo: '通过飞书文档构建知识库',
     yuqueInfo: '通过语雀文档构建知识库',
     createGeneralKnowledge: '创建通用知识库',
-    createWebKnowledge: '创建 web 知识库',
+    createWebKnowledge: '创建 Web 知识库',
     createLarkKnowledge: '创建飞书知识库',
     createYuqueKnowledge: '创建语雀知识库',
     createWorkflowKnowledge: '创建工作流知识库',
@@ -81,7 +81,7 @@ export default {
       },
       basic: {
         title: '基础模板',
-        description: '支持本地文件、飞书文档、Web站点数据源的基础工作流模板',
+        description: '支持本地文件、飞书文档、Web 站点数据源的基础工作流模板',
       },
     },
   },

@@ -25,7 +25,7 @@ export default {
     workflowKnowledge: '工作流知識庫',
     yuqueKnowledge: '語雀知識庫',
     generalInfo: '上傳本地檔案',
-    webInfo: '同步Web網站文字資料',
+    webInfo: '同步 Web 網站文字資料',
     larkInfo: '通過飛書文檔構建知識庫',
     yuqueInfo: '通過語雀文檔構建知識庫',
     createWorkflowKnowledge: '建立工作流知識庫',
@@ -71,7 +71,7 @@ export default {
       },
       basic: {
         title: '基礎模板',
-        description: '支持本地文件、飛書文檔、Web站點數據源的基礎工作流模板',
+        description: '支持本地文件、飛書文檔、Web 站點數據源的基礎工作流模板',
       },
     },
   },
