@@ -299,7 +299,6 @@ function folderClickHandle(row: any) {
 }
 
 async function handleClick(val: string) {
-  console.log(val)
   if (val === 'tool') {
     await getToolFolder()
     getToolList()

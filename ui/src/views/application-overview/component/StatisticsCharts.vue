@@ -61,7 +61,18 @@
           />
         </el-select>
         <div class="p-8">
-          <AppCharts height="316px" id="tokenUsageCharts" type="bar" :option="tokenUsageOption" />
+          <AppCharts
+            v-if="tokenUsage.length > 0"
+            height="316px"
+            id="tokenUsageCharts"
+            type="bar"
+            :option="tokenUsageOption"
+          />
+
+          <div v-else>
+            <h4 class="ml-4">{{ tokenUsageOption.title }}</h4>
+            <el-empty :description="$t('common.noData')" style="height: 316px" />
+          </div>
         </div>
       </el-card>
     </el-col>
@@ -77,11 +88,16 @@
         </el-select>
         <div class="p-8">
           <AppCharts
+            v-if="topQuestions.length > 0"
             height="316px"
             id="topQuestionsCharts"
             type="bar"
             :option="topQuestionsOption"
           />
+          <div v-else>
+            <h4 class="ml-4">{{ topQuestionsOption.title }}</h4>
+            <el-empty :description="$t('common.noData')" style="height: 316px" />
+          </div>
         </div>
       </el-card>
     </el-col>
@@ -215,7 +231,7 @@ const tokenUsageOption = computed(() => {
         data: getAttrsArray(props.tokenUsage?.slice(0, tokenUsageCount.value), 'token_usage'),
       },
     ],
-    dataZoom: props.tokenUsage.length > 0,
+    dataZoom: props.tokenUsage.length > 20,
   }
 })
 const topQuestionsOption = computed(() => {
@@ -230,7 +246,7 @@ const topQuestionsOption = computed(() => {
         ),
       },
     ],
-    dataZoom: props.topQuestions.length > 0,
+    dataZoom: props.topQuestions.length > 20,
   }
 })
 </script>

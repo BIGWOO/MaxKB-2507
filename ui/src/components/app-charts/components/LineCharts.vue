@@ -55,6 +55,7 @@ function initChart() {
       text: props.option?.title,
       textStyle: {
         fontSize: '16px',
+        color: '#1f2329',
       },
     },
     tooltip: {
