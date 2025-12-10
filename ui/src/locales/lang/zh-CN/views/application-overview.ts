@@ -22,8 +22,8 @@ export default {
 
     APIKeyDialog: {
       saveSettings: '保存设置',
-      msgConfirm1: '是否删除API Key',
-      msgConfirm2: '删除API Key后将无法恢复，请确认是否删除？',
+      msgConfirm1: '是否删除 API Key',
+      msgConfirm2: '删除 API Key 后将无法恢复，请确认是否删除？',
     },
     EmbedDialog: {
       fullscreenModeTitle: '全屏模式',

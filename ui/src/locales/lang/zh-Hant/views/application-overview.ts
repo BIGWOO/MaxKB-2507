@@ -21,8 +21,8 @@ export default {
     },
     APIKeyDialog: {
       saveSettings: '儲存設定',
-      msgConfirm1: '是否刪除API Key',
-      msgConfirm2: '刪除API Key後將無法恢復，請確認是否刪除？',
+      msgConfirm1: '是否刪除 API Key',
+      msgConfirm2: '刪除 API Key 後將無法恢復，請確認是否刪除？',
     },
     EmbedDialog: {
       fullscreenModeTitle: '全螢幕模式',

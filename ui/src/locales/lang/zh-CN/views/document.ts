@@ -190,7 +190,7 @@ export default {
   },
   feishu: {
     selectDocument: '选择文档',
-    tip1: '支持文档和表格类型，包含TXT、Markdown、PDF、DOCX、HTML、XLS、XLSX、CSV、ZIP格式；',
+    tip1: '支持文档和表格类型，包含 TXT、Markdown、PDF、DOCX、HTML、XLS、XLSX、CSV、ZIP 格式；',
     tip2: '导入文档前，建议规范文档的分段标识。',
     errorMessage1: '请选择文档',
   },

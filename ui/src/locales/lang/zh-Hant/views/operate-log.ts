@@ -4,8 +4,8 @@ export default {
     menu: '操作菜單',
     detail: '操作詳情',
     user: '操作用戶',
-    ip_address: 'IP地址',
-    opt: 'API詳情',
+    ip_address: 'IP 地址',
+    opt: 'API 詳情',
     operateTime: '操作時間',
   },
 }

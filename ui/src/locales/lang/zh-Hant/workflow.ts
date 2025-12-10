@@ -77,7 +77,7 @@ export default {
     needConnect1: '節點的',
     needConnect2: '分支需要連接',
     cannotEndNode: '節點不能當做結束節點',
-    loopNodeBreakNodeRequired: '無限循環必須存在Break節點',
+    loopNodeBreakNodeRequired: '無限循環必須存在 Break 節點',
   },
   nodes: {
     knowledgeWriteNode: {
@@ -241,7 +241,7 @@ export default {
         requiredMessage: '請選擇重排內容',
       },
       higher: '高於',
-      ScoreTooltip: 'Score越高相關性越強。',
+      ScoreTooltip: 'Score 越高相關性越強。',
       max_paragraph_char_number: '最大引用字符數',
       reranker_model: {
         label: '重排模型',
@@ -333,13 +333,13 @@ export default {
     },
     mcpNode: {
       label: 'MCP 調用',
-      text: '通過SSE/Streamable HTTP方式執行MCP服務中的工具',
+      text: '通過 SSE/Streamable HTTP 方式執行 MCP 服務中的工具',
       getToolsSuccess: '獲取工具成功',
       getTool: '獲取工具',
       toolParam: '工具參數',
-      mcpServerTip: '請輸入JSON格式的MCP服務器配置',
+      mcpServerTip: '請輸入 JSON 格式的 MCP 服務器配置',
       mcpToolTip: '請選擇工具',
-      configLabel: 'MCP Server Config (僅支持SSE/Streamable HTTP調用方式)',
+      configLabel: 'MCP Server Config (僅支持SSE/Streamable HTTP 調用方式)',
       reference: '引用MCP',
     },
     imageGenerateNode: {
@@ -491,7 +491,7 @@ export default {
       expression: {
         label: '表達式',
         placeholder: '請輸入表達式',
-        tooltip: '請使用JSON Path 表達式拆分變量，例如：$.store.book',
+        tooltip: '請使用 JSON Path 表達式拆分變量，例如：$.store.book',
       },
     },
     parameterExtractionNode: {

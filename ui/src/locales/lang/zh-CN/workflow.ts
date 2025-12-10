@@ -1,5 +1,5 @@
 import tool from '@/api/tool/tool'
-import type { title } from 'process'
+import type {title} from 'process'
 
 export default {
   node: '节点',
@@ -250,7 +250,7 @@ export default {
         requiredMessage: '请选择重排内容',
       },
       higher: '高于',
-      ScoreTooltip: 'Score越高相关性越强。',
+      ScoreTooltip: 'Score 越高相关性越强。',
       max_paragraph_char_number: '最大引用字符数',
       reranker_model: {
         label: '重排模型',
@@ -329,13 +329,13 @@ export default {
     },
     mcpNode: {
       label: 'MCP 调用',
-      text: '通过SSE/Streamable HTTP方式执行MCP服务中的工具',
+      text: '通过 SSE/Streamable HTTP 方式执行MCP服务中的工具',
       getToolsSuccess: '获取工具成功',
       getTool: '获取工具',
       toolParam: '工具参数',
-      mcpServerTip: '请输入JSON格式的MCP服务器配置',
+      mcpServerTip: '请输入 JSON 格式的MCP服务器配置',
       mcpToolTip: '请选择工具',
-      configLabel: 'MCP Server Config (仅支持SSE/Streamable HTTP调用方式)',
+      configLabel: 'MCP Server Config (仅支持 SSE/Streamable HTTP 调用方式)',
       reference: '引用MCP',
     },
     imageGenerateNode: {

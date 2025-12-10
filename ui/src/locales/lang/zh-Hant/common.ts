@@ -98,7 +98,7 @@ export default {
     title: '應用頭像',
     customizeUpload: '自訂上傳',
     upload: '上傳',
-    default: '預設logo',
+    default: '預設 logo',
     sizeTip: '建議尺寸 32*32，支援 JPG、PNG、GIF，大小不超過 10 MB',
     fileSizeExceeded: '檔案大小超過 10 MB',
     uploadImagePrompt: '請上傳一張圖片',

@@ -9,11 +9,11 @@ export default {
     ldap: {
       title: 'LDAP',
       address: 'LDAP 位址',
-      serverPlaceholder: '請輸入LDAP 位址',
-      bindDN: '綁定DN',
+      serverPlaceholder: '請輸入 LDAP 位址',
+      bindDN: '綁定 DN',
       bindDNPlaceholder: '請輸入綁定 DN',
 
-      ou: '使用者OU',
+      ou: '使用者 OU',
       ouPlaceholder: '請輸入使用者 OU',
       ldap_filter: '使用者過濾器',
       ldap_filterPlaceholder: '請輸入使用者過濾器',
@@ -24,7 +24,7 @@ export default {
     cas: {
       title: 'CAS',
       ldpUri: 'ldpUri',
-      ldpUriPlaceholder: '請輸入ldpUri',
+      ldpUriPlaceholder: '請輸入 ldpUri',
       validateUrl: '驗證位址',
       validateUrlPlaceholder: '請輸入驗證位址',
       redirectUrl: '回呼位址',
@@ -35,7 +35,7 @@ export default {
       title: 'OIDC',
       authEndpoint: '授權端位址',
       authEndpointPlaceholder: '請輸入授權端位址',
-      tokenEndpoint: 'Token端位址',
+      tokenEndpoint: 'Token 端位址',
       tokenEndpointPlaceholder: '請輸入 Token 端位址',
       userInfoEndpoint: '使用者資訊端位址',
       userInfoEndpointPlaceholder: '請輸入使用者資訊端位址',

@@ -59,10 +59,10 @@ export default {
       requiredMessage: ' 请输入 Web 根地址',
     },
     user_id: {
-      requiredMessage: '请输入User ID',
+      requiredMessage: '请输入 User ID',
     },
     token: {
-      requiredMessage: '请输入Token',
+      requiredMessage: '请输入 Token',
     },
     selector: {
       label: '选择器',

@@ -79,7 +79,7 @@ export default {
     fileMessage: '請解析文件內容',
     errorMessage: '上傳失敗',
     fileRepeat: '文件已存在',
-    invalidUrl: '无效的URL',
+    invalidUrl: '无效的 URL',
     localUpload: '本地上傳',
     urlPlaceholder: '請輸入 URL 地址，每行一個地址',
     urlTitle: 'URL 地址',
@@ -112,7 +112,7 @@ export default {
   KnowledgeSource: {
     title: '知識來源',
     referenceParagraph: '引用段落',
-    consume: '消耗tokens',
+    consume: '消耗 tokens',
     consumeTime: '耗時',
     noSource: '沒有检索到知識來源',
   },
