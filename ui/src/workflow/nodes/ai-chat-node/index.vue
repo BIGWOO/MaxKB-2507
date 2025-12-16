@@ -252,7 +252,49 @@
             </div>
           </template>
         </div>
-        <el-form-item @click.prevent v-if="chat_data.mcp_enable || chat_data.tool_enable">
+        <!-- 应用       -->
+        <div class="flex-between mb-16">
+          <div class="lighter">{{ $t('views.application.title') }}</div>
+          <div>
+            <el-button
+              type="primary"
+              class="mr-4"
+              link
+              @click="openApplicationDialog"
+              @refreshForm="refreshParam"
+              v-if="chat_data.application_enable"
+            >
+              <AppIcon iconName="app-setting"></AppIcon>
+            </el-button>
+            <el-switch size="small" v-model="chat_data.application_enable" />
+          </div>
+        </div>
+        <div class="w-full mb-16" v-if="chat_data.application_ids?.length > 0">
+          <template v-for="(item, index) in chat_data.application_ids" :key="index">
+            <div class="flex-between border border-r-6 white-bg mb-4" style="padding: 5px 8px">
+              <div class="flex align-center" style="line-height: 20px">
+                <el-avatar
+                  v-if="relatedObject(applicationSelectOptions, item, 'id')?.icon"
+                  shape="square"
+                  :size="20"
+                  style="background: none"
+                  class="mr-8"
+                >
+                  <img :src="resetUrl(relatedObject(applicationSelectOptions, item, 'id')?.icon)" alt="" />
+                </el-avatar>
+                <AppIcon v-else class="mr-8" :size="20" />
+
+                <div class="ellipsis" :title="relatedObject(applicationSelectOptions, item, 'id')?.name">
+                  {{ relatedObject(applicationSelectOptions, item, 'id')?.name }}
+                </div>
+              </div>
+              <el-button text @click="removeApplication(item)">
+                <el-icon><Close /></el-icon>
+              </el-button>
+            </div>
+          </template>
+        </div>
+        <el-form-item @click.prevent v-if="chat_data.mcp_enable || chat_data.tool_enable || chat_data.application_enable">
           <template #label>
             <div class="flex-between">
               <span class="mr-4">
@@ -319,6 +361,7 @@
     />
     <McpServersDialog ref="mcpServersDialogRef" @refresh="submitMcpServersDialog" />
     <ToolDialog ref="toolDialogRef" @refresh="submitToolDialog" />
+    <ApplicationDialog ref="applicationDialogRef" @refresh="submitApplicationDialog" />
   </NodeContainer>
 </template>
 <script setup lang="ts">
@@ -339,6 +382,7 @@ import { useRoute } from 'vue-router'
 import { resetUrl } from '@/utils/common'
 import { relatedObject } from '@/utils/array.ts'
 import { WorkflowMode } from '@/enums/application'
+import ApplicationDialog from "@/views/application/component/ApplicationDialog.vue";
 const workflowMode = (inject('workflowMode') as WorkflowMode) || WorkflowMode.Application
 const getResourceDetail = inject('getResourceDetail') as any
 const route = useRoute()
@@ -566,6 +610,33 @@ function getMcpToolSelectOptions() {
     })
 }
 
+const applicationSelectOptions = ref<any[]>([])
+function getApplicationSelectOptions() {
+  loadSharedApi({ type: 'application', systemType: apiType.value })
+    .getAllApplication({folder_id: resource.value?.workspace_id})
+    .then((res: any) => {
+      applicationSelectOptions.value = res.data.filter(
+        (item: any) => item.is_publish,
+      )
+    })
+}
+
+const applicationDialogRef = ref()
+function openApplicationDialog() {
+  applicationDialogRef.value.open(props.nodeModel.properties.node_data.application_ids)
+}
+
+function submitApplicationDialog(config: any) {
+  set(props.nodeModel.properties.node_data, 'application_ids', config.application_ids)
+}
+function removeApplication(id: any) {
+  if (chat_data.value.application_ids) {
+    chat_data.value.application_ids = chat_data.value.application_ids.filter(
+      (v: any) => v !== id,
+    )
+  }
+}
+
 onMounted(() => {
   getSelectModel()
   if (typeof props.nodeModel.properties.node_data?.is_result === 'undefined') {
@@ -590,6 +661,7 @@ onMounted(() => {
 
   getToolSelectOptions()
   getMcpToolSelectOptions()
+  getApplicationSelectOptions()
 })
 </script>
 <style lang="scss" scoped></style>

@@ -1,32 +1,39 @@
 # coding=utf-8
 import ast
 import base64
+import getpass
 import gzip
 import json
 import os
+import pwd
+import random
+import resource
 import socket
 import subprocess
 import sys
 import tempfile
-import pwd
-import resource
-import getpass
-import random
 import time
-import uuid_utils.compat as uuid
 from contextlib import contextmanager
-from common.utils.logger import maxkb_logger
+from textwrap import dedent
+
+import uuid_utils.compat as uuid
 from django.utils.translation import gettext_lazy as _
+
+from common.utils.logger import maxkb_logger
 from maxkb.const import BASE_DIR, CONFIG
 from maxkb.const import PROJECT_DIR
-from textwrap import dedent
 
 _enable_sandbox = bool(CONFIG.get('SANDBOX', 0))
 _run_user = 'sandbox' if _enable_sandbox else getpass.getuser()
-_sandbox_path = CONFIG.get("SANDBOX_HOME", '/opt/maxkb-app/sandbox') if _enable_sandbox else os.path.join(PROJECT_DIR, 'data', 'sandbox')
+_sandbox_path = CONFIG.get("SANDBOX_HOME", '/opt/maxkb-app/sandbox') if _enable_sandbox else os.path.join(PROJECT_DIR,
+                                                                                                          'data',
+                                                                                                          'sandbox')
 _process_limit_timeout_seconds = int(CONFIG.get("SANDBOX_PYTHON_PROCESS_LIMIT_TIMEOUT_SECONDS", '3600'))
-_process_limit_cpu_cores = min(max(int(CONFIG.get("SANDBOX_PYTHON_PROCESS_LIMIT_CPU_CORES", '1')), 1), len(os.sched_getaffinity(0))) if sys.platform.startswith("linux") else os.cpu_count() # 只支持linux，window和mac不支持
+_process_limit_cpu_cores = min(max(int(CONFIG.get("SANDBOX_PYTHON_PROCESS_LIMIT_CPU_CORES", '1')), 1),
+                               len(os.sched_getaffinity(0))) if sys.platform.startswith(
+    "linux") else os.cpu_count()  # 只支持linux，window和mac不支持
 _process_limit_mem_mb = int(CONFIG.get("SANDBOX_PYTHON_PROCESS_LIMIT_MEM_MB", '256'))
+
 
 class ToolExecutor:
 
@@ -124,7 +131,7 @@ sys.stdout.flush()
             return result.get('data')
         raise Exception(result.get('msg') + (f'\n{subprocess_result.stderr}' if subprocess_result.stderr else ''))
 
-    def _generate_mcp_server_code(self, _code, params):
+    def _generate_mcp_server_code(self, _code, params, name=None, description=None):
         # 解析代码，提取导入语句和函数定义
         try:
             tree = ast.parse(_code)
@@ -139,6 +146,9 @@ sys.stdout.flush()
             if isinstance(node, ast.Import) or isinstance(node, ast.ImportFrom):
                 imports.append(ast.unparse(node))
             elif isinstance(node, ast.FunctionDef):
+                if node.name.startswith('_'):
+                    other_code.append(ast.unparse(node))
+                    continue
                 # 修改函数参数以包含 params 中的默认值
                 arg_names = [arg.arg for arg in node.args.args]
 
@@ -173,7 +183,7 @@ sys.stdout.flush()
                     node.args.defaults = defaults
 
                 func_code = ast.unparse(node)
-                functions.append(f"@mcp.tool()\n{func_code}\n")
+                functions.append(f"@mcp.tool(name='{name}', description='{description}')\n{func_code}\n")
             else:
                 other_code.append(ast.unparse(node))
 
@@ -187,9 +197,9 @@ sys.stdout.flush()
 
         return "\n".join(code_parts)
 
-    def generate_mcp_server_code(self, code_str, params):
+    def generate_mcp_server_code(self, code_str, params, name, description):
         python_paths = CONFIG.get_sandbox_python_package_paths().split(',')
-        code = self._generate_mcp_server_code(code_str, params)
+        code = self._generate_mcp_server_code(code_str, params, name, description)
         set_run_user = f'os.setgid({pwd.getpwnam(_run_user).pw_gid});os.setuid({pwd.getpwnam(_run_user).pw_uid});' if _enable_sandbox else ''
         return f"""
 import os, sys, logging
@@ -204,8 +214,8 @@ os.environ.clear()
 exec({dedent(code)!a})
 """
 
-    def get_tool_mcp_config(self, code, params):
-        _code = self.generate_mcp_server_code(code, params)
+    def get_tool_mcp_config(self, code, params, name, description):
+        _code = self.generate_mcp_server_code(code, params, name, description)
         maxkb_logger.debug(f"Python code of mcp tool: {_code}")
         compressed_and_base64_encoded_code_str = base64.b64encode(gzip.compress(_code.encode())).decode()
         tool_config = {
@@ -221,6 +231,66 @@ exec({dedent(code)!a})
             'transport': 'stdio',
         }
         return tool_config
+
+    def get_app_mcp_config(self, api_key, name, description):
+        chat_path = CONFIG.get_chat_path()
+        _code = f'''
+import requests
+from typing import Optional
+
+def _get_chat_id() -> Optional[str]:
+    url = f"http://127.0.0.1:8080/{chat_path}/api/open"
+    headers = {{
+        'accept': '*/*',
+        'Authorization': f'Bearer {api_key}'
+    }}
+    try:
+        resp = requests.get(url, headers=headers, timeout=10)
+        resp.raise_for_status()
+        return resp.json().get("data")
+    except Exception as e:
+        raise e
+
+
+def _chat_with_ai(chat_id: str, message: str) -> Optional[str]:
+    url = f"http://127.0.0.1:8080/{chat_path}/api/chat_message/{{chat_id}}"
+    headers = {{"Content-Type": "application/json", "Authorization": f'Bearer {api_key}'}}
+    payload = {{
+        "message": message,
+        "re_chat": False,
+        "stream": False
+    }}
+    try:
+        resp = requests.post(url, json=payload, headers=headers, timeout=600)
+        resp.raise_for_status()
+        data = resp.json()
+        return str(data.get("data", {{}}).get("content") or data.get("response"))
+    except Exception as e:
+        raise e
+
+def ai_chat(message: str) -> str:
+    chat_id = _get_chat_id()
+    reply = _chat_with_ai(chat_id, message)
+    return reply or "AI 未能生成回复"
+
+        '''
+        _code = self.generate_mcp_server_code(_code, {}, name, description)
+        # print(_code)
+        maxkb_logger.debug(f"Python code of mcp app: {_code}")
+        compressed_and_base64_encoded_code_str = base64.b64encode(gzip.compress(_code.encode())).decode()
+        app_config = {
+            'command': sys.executable,
+            'args': [
+                '-c',
+                f'import base64,gzip; exec(gzip.decompress(base64.b64decode(\'{compressed_and_base64_encoded_code_str}\')).decode())',
+            ],
+            'cwd': _sandbox_path,
+            'env': {
+                'LD_PRELOAD': f'{_sandbox_path}/lib/sandbox.so',
+            },
+            'transport': 'stdio',
+        }
+        return app_config
 
     def _exec(self, execute_file):
         kwargs = {'cwd': BASE_DIR, 'env': {

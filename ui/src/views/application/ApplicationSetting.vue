@@ -433,9 +433,73 @@
                     </div>
                   </template>
                 </div>
+                <!-- 应用       -->
+                <el-form-item @click.prevent v-if="toolPermissionPrecise.read()">
+                  <template #label>
+                    <div class="flex-between">
+                      <span class="mr-4">
+                        {{ $t('views.application.title') }}
+                      </span>
+                      <div class="flex">
+                        <el-button
+                          type="primary"
+                          link
+                          @click="openApplicationDialog"
+                          @refreshForm="refreshParam"
+                          v-if="applicationForm.application_enable"
+                        >
+                          <AppIcon iconName="app-setting"></AppIcon>
+                        </el-button>
+                        <el-switch
+                          class="ml-8"
+                          size="small"
+                          v-model="applicationForm.application_enable"
+                        />
+                      </div>
+                    </div>
+                  </template>
+                </el-form-item>
+                <div
+                  class="w-full mb-16"
+                  v-if="applicationForm.application_ids && applicationForm.application_ids.length > 0 && toolPermissionPrecise.read()"
+                >
+                  <template v-for="(item, index) in applicationForm.application_ids" :key="index">
+                    <div
+                      v-if="relatedObject(applicationSelectOptions, item, 'id')"
+                      class="flex-between border border-r-6 white-bg mb-4"
+                      style="padding: 5px 8px"
+                    >
+                      <div class="flex align-center" style="line-height: 20px">
+                        <el-avatar
+                          v-if="relatedObject(applicationSelectOptions, item, 'id')?.icon"
+                          shape="square"
+                          :size="20"
+                          style="background: none"
+                          class="mr-8"
+                        >
+                          <img
+                            :src="resetUrl(relatedObject(applicationSelectOptions, item, 'id')?.icon)"
+                            alt=""
+                          />
+                        </el-avatar>
+                        <AppIcon v-else class="mr-8" :size="20" />
+
+                        <div
+                          class="ellipsis"
+                          :title="relatedObject(applicationSelectOptions, item, 'id')?.name"
+                        >
+                          {{ relatedObject(applicationSelectOptions, item, 'id')?.name }}
+                        </div>
+                      </div>
+                      <el-button text @click="removeApplication(item)">
+                        <el-icon><Close /></el-icon>
+                      </el-button>
+                    </div>
+                  </template>
+                </div>
                 <el-form-item
                   @click.prevent
-                  v-if="(applicationForm.mcp_enable || applicationForm.tool_enable) && toolPermissionPrecise.read()"
+                  v-if="(applicationForm.mcp_enable || applicationForm.tool_enable || applicationForm.application_enable) && toolPermissionPrecise.read()"
                 >
                   <template #label>
                     <div class="flex-between">
@@ -633,6 +697,7 @@
     />
     <McpServersDialog ref="mcpServersDialogRef" @refresh="submitMcpServersDialog" />
     <ToolDialog ref="toolDialogRef" @refresh="submitToolDialog" />
+    <ApplicationDialog ref="applicationDialogRef" @refresh="submitApplicationDialog" />
   </div>
 </template>
 <script setup lang="ts">
@@ -658,11 +723,14 @@ import { loadSharedApi } from '@/utils/dynamics-api/shared-api'
 import { resetUrl } from '@/utils/common.ts'
 import McpServersDialog from '@/views/application/component/McpServersDialog.vue'
 import ToolDialog from '@/views/application/component/ToolDialog.vue'
+import ApplicationDialog from "@/views/application/component/ApplicationDialog.vue";
+import useStore from "@/stores";
 const route = useRoute()
 const router = useRouter()
 const {
   params: { id },
 } = route as any
+const { user, folder } = useStore()
 
 const apiType = computed(() => {
   if (route.path.includes('resource-management')) {
@@ -736,6 +804,8 @@ const applicationForm = ref<ApplicationFormType>({
   tts_model_enable: false,
   tts_type: 'BROWSER',
   type: 'SIMPLE',
+  application_enable: false,
+  application_ids: [],
   mcp_enable: false,
   mcp_tool_ids: [],
   mcp_servers: '',
@@ -877,6 +947,14 @@ function removeMcpTool(id: any) {
   }
 }
 
+function removeApplication(id: any) {
+  if (applicationForm.value.application_ids) {
+    applicationForm.value.application_ids = applicationForm.value.application_ids.filter(
+      (v: any) => v !== id,
+    )
+  }
+}
+
 const mcpServersDialogRef = ref()
 function openMcpServersDialog() {
   const config = {
@@ -900,6 +978,26 @@ function openToolDialog() {
 
 function submitToolDialog(config: any) {
   applicationForm.value.tool_ids = config.tool_ids
+}
+
+const applicationDialogRef = ref()
+function openApplicationDialog() {
+  applicationDialogRef.value.open(applicationForm.value.application_ids)
+}
+
+function submitApplicationDialog(config: any) {
+  applicationForm.value.application_ids = config.application_ids
+}
+
+const applicationSelectOptions = ref<any[]>([])
+function getApplicationSelectOptions() {
+  loadSharedApi({ type: 'application', systemType: apiType.value })
+    .getAllApplication({folder_id: folder.currentFolder?.id || user.getWorkspaceId()})
+    .then((res: any) => {
+      applicationSelectOptions.value = res.data.filter(
+        (item: any) => item.is_publish,
+      )
+    })
 }
 
 const toolSelectOptions = ref<any[]>([])
@@ -1118,6 +1216,7 @@ onMounted(() => {
   if (toolPermissionPrecise.value.read()) {
     getToolSelectOptions();
     getMcpToolSelectOptions()
+    getApplicationSelectOptions()
   }
 })
 </script>

@@ -7,7 +7,6 @@
     @desc:
 """
 import json
-import os
 import re
 import time
 from functools import reduce
@@ -20,9 +19,9 @@ from langchain_core.messages import BaseMessage, AIMessage
 from application.flow.i_step_node import NodeResult, INode
 from application.flow.step_node.ai_chat_step_node.i_chat_node import IChatNode
 from application.flow.tools import Reasoning, mcp_response_generator
+from application.models import Application
 from common.utils.rsa_util import rsa_long_decrypt
 from common.utils.tool_code import ToolExecutor
-from maxkb.const import CONFIG
 from models_provider.models import Model
 from models_provider.tools import get_model_credential, get_model_instance_by_model_workspace_id
 from tools.models import Tool
@@ -160,6 +159,8 @@ class BaseChatNode(IChatNode):
                 mcp_source=None,
                 tool_enable=False,
                 tool_ids=None,
+                application_enable=False,
+                application_ids=None,
                 mcp_output_enable=True,
                 **kwargs) -> NodeResult:
         if dialogue_type is None:
@@ -186,7 +187,8 @@ class BaseChatNode(IChatNode):
 
         # 处理 MCP 请求
         mcp_result = self._handle_mcp_request(
-            mcp_enable, tool_enable, mcp_source, mcp_servers, mcp_tool_id, mcp_tool_ids, tool_ids, mcp_output_enable,
+            mcp_enable, tool_enable, mcp_source, mcp_servers, mcp_tool_id, mcp_tool_ids, tool_ids, application_enable,
+            application_ids, mcp_output_enable,
             chat_model, message_list, history_message, question
         )
         if mcp_result:
@@ -208,8 +210,9 @@ class BaseChatNode(IChatNode):
                               _write_context=write_context)
 
     def _handle_mcp_request(self, mcp_enable, tool_enable, mcp_source, mcp_servers, mcp_tool_id, mcp_tool_ids, tool_ids,
+                            application_enable, application_ids,
                             mcp_output_enable, chat_model, message_list, history_message, question):
-        if not mcp_enable and not tool_enable:
+        if not mcp_enable and not tool_enable and not application_enable:
             return None
 
         mcp_servers_config = {}
@@ -245,9 +248,18 @@ class BaseChatNode(IChatNode):
                         params = json.loads(rsa_long_decrypt(tool.init_params))
                     else:
                         params = {}
-                    tool_config = executor.get_tool_mcp_config(tool.code, params)
+                    tool_config = executor.get_tool_mcp_config(tool.code, params, tool.name, tool.desc)
 
                     mcp_servers_config[str(tool.id)] = tool_config
+
+        if application_enable:
+            if application_ids and len(application_ids) > 0:
+                self.context['application_ids'] = application_ids
+                for application_id in application_ids:
+                    app = QuerySet(Application).filter(id=application_id).first()
+                    executor = ToolExecutor()
+                    app_config = executor.get_app_mcp_config(app.id, app.name, app.desc)
+                    mcp_servers_config[str(app.id)] = app_config
 
         if len(mcp_servers_config) > 0:
             r = mcp_response_generator(chat_model, message_list, json.dumps(mcp_servers_config), mcp_output_enable)
