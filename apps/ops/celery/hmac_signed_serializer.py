@@ -33,6 +33,6 @@ def register_hmac_signed_serializer():
         'hmac_signed_serializer',
         secure_dumps,
         secure_loads,
-        content_type='application/x-spickle',
+        content_type='application/x-python-hmac-signed-serialize',
         content_encoding='binary'
     )
