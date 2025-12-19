@@ -160,4 +160,5 @@ export default {
   display_codeTip: '值为-1时，不显示验证码',
   time: '次',
   setting: '登录设置',
+  third_party_user_default_role: '第三方用户默认角色分配',
 }

@@ -160,4 +160,5 @@ export default {
   minute: '分鐘',
   time: '次',
   setting: '登录設置',
+  third_party_user_default_role: '第三方用戶預設角色分配',
 }

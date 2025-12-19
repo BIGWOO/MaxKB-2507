@@ -8866,3 +8866,12 @@ msgstr ""
 
 msgid "Super-humanoid: Lingyuyan Pro"
 msgstr ""
+
+msgid "Login failed %s times, account will be locked, you have %s more chances !"
+msgstr ""
+
+msgid "This account has been locked for %s minutes, please try again later"
+msgstr ""
+
+msgid "User does not have permission to use API Key"
+msgstr ""

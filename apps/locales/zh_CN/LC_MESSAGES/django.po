@@ -8992,3 +8992,12 @@ msgstr "聆飞博"
 
 msgid "Super-humanoid: Lingyuyan Pro"
 msgstr "聆玉言"
+
+msgid "Login failed %s times, account will be locked, you have %s more chances !"
+msgstr "登录失败 %s 次，账号将被锁定，您还有 %s 次机会！"
+
+msgid "This account has been locked for %s minutes, please try again later"
+msgstr "该账号已被锁定 %s 分钟，请稍后再试"
+
+msgid "User does not have permission to use API Key"
+msgstr "用户没有使用 API Key 的权限"
