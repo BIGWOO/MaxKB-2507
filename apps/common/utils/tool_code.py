@@ -184,7 +184,7 @@ sys.stdout.flush()
 
                 func_code = ast.unparse(node)
                 # 有些模型不支持name是中文，例如: deepseek, 其他模型未知
-                functions.append(f"@mcp.tool(name='', description='{description}')\n{func_code}\n")
+                functions.append(f"@mcp.tool(description='{description}')\n{func_code}\n")
             else:
                 other_code.append(ast.unparse(node))
 
