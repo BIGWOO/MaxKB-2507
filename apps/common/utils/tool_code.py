@@ -184,7 +184,7 @@ sys.stdout.flush()
 
                 func_code = ast.unparse(node)
                 # 有些模型不支持name是中文，例如: deepseek, 其他模型未知
-                functions.append(f"@mcp.tool(description='{description}')\n{func_code}\n")
+                functions.append(f"@mcp.tool(description='{name} {description}')\n{func_code}\n")
             else:
                 other_code.append(ast.unparse(node))
 
@@ -240,7 +240,7 @@ import requests
 from typing import Optional
 
 def _get_chat_id() -> Optional[str]:
-    url = f"http://127.0.0.1:8080/{chat_path}/api/open"
+    url = f"http://127.0.0.1:8080{chat_path}/api/open"
     headers = {{
         'accept': '*/*',
         'Authorization': f'Bearer {api_key}'
@@ -254,7 +254,7 @@ def _get_chat_id() -> Optional[str]:
 
 
 def _chat_with_ai(chat_id: str, message: str) -> Optional[str]:
-    url = f"http://127.0.0.1:8080/{chat_path}/api/chat_message/{{chat_id}}"
+    url = f"http://127.0.0.1:8080{chat_path}/api/chat_message/{{chat_id}}"
     headers = {{"Content-Type": "application/json", "Authorization": f'Bearer {api_key}'}}
     payload = {{
         "message": message,
