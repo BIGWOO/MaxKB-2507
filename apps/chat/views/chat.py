@@ -22,7 +22,6 @@ from chat.serializers.chat import OpenChatSerializers, ChatSerializers, SpeechTo
 from chat.serializers.chat_authentication import AnonymousAuthenticationSerializer, ApplicationProfileSerializer, \
     AuthProfileSerializer
 from common.auth import TokenAuth
-from common.auth.mcp_auth_token import mcp_token_required
 from common.constants.permission_constants import ChatAuth
 from common.exception.app_exception import AppAuthenticationFailed
 from common.result import result
@@ -155,7 +154,6 @@ class ChatView(APIView):
         responses=None,
         tags=[_('Chat')]  # type: ignore
     )
-    @mcp_token_required  # 添加MCP令牌验证
     def post(self, request: Request, chat_id: str):
         return ChatSerializers(data={'chat_id': chat_id,
                                      'chat_user_id': request.auth.chat_user_id,
@@ -177,7 +175,6 @@ class OpenView(APIView):
         responses=None,
         tags=[_('Chat')]  # type: ignore
     )
-    @mcp_token_required  # 添加MCP令牌验证
     def get(self, request: Request):
         return result.success(OpenChatSerializers(
             data={'application_id': request.auth.application_id,
