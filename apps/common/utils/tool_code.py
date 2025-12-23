@@ -3,6 +3,8 @@ import ast
 import base64
 import getpass
 import gzip
+import hashlib
+import hmac
 import json
 import os
 import pwd
@@ -235,6 +237,15 @@ exec({dedent(code)!a})
 
     def get_app_mcp_config(self, api_key, name, description):
         chat_path = CONFIG.get_chat_path()
+        # 生成内部令牌(基于时间戳+密钥+api_key)
+        timestamp = int(time.time())
+        secret = CONFIG.get('MCP_INTERNAL_SECRET', 'your-secret-key')
+        token_data = f"{api_key}:{timestamp}"
+        internal_token = hmac.new(
+            secret.encode(),
+            token_data.encode(),
+            hashlib.sha256
+        ).hexdigest()
         _code = f'''
 from typing import Optional
 
@@ -244,7 +255,9 @@ def _get_chat_id() -> Optional[str]:
     url = f"http://127.0.0.1:8080{chat_path}/api/open"
     headers = {{
         'accept': '*/*',
-        'Authorization': f'Bearer {api_key}'
+        'Authorization': f'Bearer {api_key}',
+        'X-MCP-Token': '{internal_token}',  # 添加内部令牌
+        'X-MCP-Timestamp': '{timestamp}'
     }}
     try:
         resp = requests.get(url, headers=headers, timeout=10)
@@ -258,7 +271,12 @@ def _chat_with_ai(chat_id: str, message: str) -> Optional[str]:
     import requests
     
     url = f"http://127.0.0.1:8080{chat_path}/api/chat_message/{{chat_id}}"
-    headers = {{"Content-Type": "application/json", "Authorization": f'Bearer {api_key}'}}
+    headers = {{
+        'Content-Type': 'application/json',
+        'Authorization': f'Bearer {api_key}',
+        'X-MCP-Token': '{internal_token}',  # 添加内部令牌
+        'X-MCP-Timestamp': '{timestamp}'
+    }}
     payload = {{
         "message": message,
         "re_chat": False,
