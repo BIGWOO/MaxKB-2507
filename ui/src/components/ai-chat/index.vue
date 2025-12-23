@@ -695,7 +695,7 @@ onMounted(() => {
     // 2. 解析当前变换状态
     const currentTransform = target.style.transform
     const transformValues = parseTransform(currentTransform)
-    let { scale, translateX, translateY } = transformValues
+    const { scale, translateX, translateY } = transformValues
     // 确保scale是数值类型
     const currentScale = Array.isArray(scale) ? scale[0] : scale
 

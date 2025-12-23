@@ -224,7 +224,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick, computed, watch } from 'vue'
+import { ref, onMounted, nextTick, computed, watch, provide } from 'vue'
 import { marked } from 'marked'
 import { saveAs } from 'file-saver'
 import chatAPI from '@/api/chat/chat'
@@ -244,6 +244,9 @@ import { getFileUrl } from '@/utils/common'
 import PdfExport from '@/components/pdf-export/index.vue'
 
 useResize()
+
+provide('scrollData', loadInfiniteScroll)
+provide('chatLogPagination', () => chatLogPagination)
 const pdfExportRef = ref<InstanceType<typeof PdfExport>>()
 const { common, chatUser } = useStore()
 const router = useRouter()
@@ -348,6 +351,8 @@ function clearChat() {
     paginationConfig.value.current_page = 1
     paginationConfig.value.total = 0
     currentRecordList.value = []
+    chatLogPagination.value.current_page = 1
+    chatLogData.value = []
     getChatLog()
   })
 }
@@ -385,24 +390,31 @@ function newChat() {
   }
 }
 
+const chatLogPagination = ref({
+  total: 0,
+  page_size: 20,
+  current_page: 1,
+})
 function getChatLog(refresh?: boolean) {
-  const page = {
-    current_page: 1,
-    page_size: 20,
-  }
+  chatAPI
+    .pageChat(chatLogPagination.value.current_page, chatLogPagination.value.page_size, left_loading)
+    .then((res: any) => {
+      chatLogPagination.value.total = res.data.total
+      chatLogData.value = [...chatLogData.value, ...res.data.records]
+      if (refresh) {
+        currentChatName.value = chatLogData.value?.[0]?.abstract
+      } else {
+        paginationConfig.value.current_page = 1
+        paginationConfig.value.total = 0
+        currentRecordList.value = []
+        currentChatId.value = 'new'
+        currentChatName.value = t('chat.createChat')
+      }
+    })
+}
 
-  chatAPI.pageChat(page.current_page, page.page_size, left_loading).then((res: any) => {
-    chatLogData.value = res.data.records
-    if (refresh) {
-      currentChatName.value = chatLogData.value?.[0]?.abstract
-    } else {
-      paginationConfig.value.current_page = 1
-      paginationConfig.value.total = 0
-      currentRecordList.value = []
-      currentChatId.value = 'new'
-      currentChatName.value = t('chat.createChat')
-    }
-  })
+function loadInfiniteScroll() {
+  getChatLog(true)
 }
 
 function getChatRecord() {
@@ -459,6 +471,8 @@ const clickListHandle = (item: any) => {
 
 function refresh(id: string) {
   currentChatId.value = id
+  chatLogPagination.value.current_page = 1
+  chatLogData.value = []
   getChatLog(true)
 }
 

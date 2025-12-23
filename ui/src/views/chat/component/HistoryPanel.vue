@@ -52,54 +52,63 @@
       </div>
       <div v-show="!isPcCollapse" class="left-height" v-if="showHistory">
         <el-scrollbar>
-          <div class="p-16 pt-0">
-            <common-list
-              :data="chatLogData"
-              class="mt-8"
-              v-loading="leftLoading"
-              :defaultActive="currentChatId"
-              @click="handleClickList"
-              @mouseenter="mouseenter"
-              @mouseleave="mouseId = ''"
-            >
-              <template #default="{ row }">
-                <div class="flex-between">
-                  <span :title="row.abstract" class="ellipsis" style="max-width: 180px">
-                    {{ row.abstract }}
-                  </span>
-                  <div @click.stop v-show="mouseId === row.id && row.id !== 'new'">
-                    <el-dropdown trigger="click" :teleported="false">
-                      <el-button text>
-                        <AppIcon iconName="app-more"></AppIcon>
-                      </el-button>
+          <InfiniteScroll
+            :size="chatLogData.length"
+            :total="_chatLogPagination?.total || 0"
+            :page_size="_chatLogPagination?.page_size || 20"
+            v-model:current_page="_chatLogPagination.current_page"
+            @load="scrollData"
+            :loading="leftLoading"
+          >
+            <div class="p-16 pt-0">
+              <common-list
+                :data="chatLogData"
+                class="mt-8"
+                v-loading="leftLoading"
+                :defaultActive="currentChatId"
+                @click="handleClickList"
+                @mouseenter="mouseenter"
+                @mouseleave="mouseId = ''"
+              >
+                <template #default="{ row }">
+                  <div class="flex-between">
+                    <span :title="row.abstract" class="ellipsis" style="max-width: 180px">
+                      {{ row.abstract }}
+                    </span>
+                    <div @click.stop v-show="mouseId === row.id && row.id !== 'new'">
+                      <el-dropdown trigger="click" :teleported="false">
+                        <el-button text>
+                          <AppIcon iconName="app-more"></AppIcon>
+                        </el-button>
 
-                      <template #dropdown>
-                        <el-dropdown-menu>
-                          <el-dropdown-item @click.stop="editLogTitle(row)">
-                            <AppIcon iconName="app-edit" class="color-secondary"></AppIcon>
-                            {{ $t('common.edit') }}
-                          </el-dropdown-item>
-                          <el-dropdown-item @click.stop="deleteChatLog(row)">
-                            <AppIcon iconName="app-delete" class="color-secondary"></AppIcon>
-                            {{ $t('common.delete') }}
-                          </el-dropdown-item>
-                        </el-dropdown-menu>
-                      </template>
-                    </el-dropdown>
+                        <template #dropdown>
+                          <el-dropdown-menu>
+                            <el-dropdown-item @click.stop="editLogTitle(row)">
+                              <AppIcon iconName="app-edit" class="color-secondary"></AppIcon>
+                              {{ $t('common.edit') }}
+                            </el-dropdown-item>
+                            <el-dropdown-item @click.stop="deleteChatLog(row)">
+                              <AppIcon iconName="app-delete" class="color-secondary"></AppIcon>
+                              {{ $t('common.delete') }}
+                            </el-dropdown-item>
+                          </el-dropdown-menu>
+                        </template>
+                      </el-dropdown>
+                    </div>
                   </div>
-                </div>
-              </template>
+                </template>
 
-              <template #empty>
-                <div class="text-center">
-                  <el-text type="info">{{ $t('chat.noHistory') }}</el-text>
-                </div>
-              </template>
-            </common-list>
-          </div>
-          <div v-if="chatLogData?.length" class="text-center lighter color-secondary">
+                <template #empty>
+                  <div class="text-center">
+                    <el-text type="info">{{ $t('chat.noHistory') }}</el-text>
+                  </div>
+                </template>
+              </common-list>
+            </div>
+          </InfiniteScroll>
+          <!-- <div v-if="chatLogData?.length" class="text-center lighter color-secondary">
             <span>{{ $t('chat.only20history') }}</span>
-          </div>
+          </div> -->
         </el-scrollbar>
       </div>
       <el-menu-item index="1" v-show="isPcCollapse" @click="newChat">
@@ -164,12 +173,15 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, inject, type Ref } from 'vue'
 import { isAppIcon } from '@/utils/common'
 import EditTitleDialog from './EditTitleDialog.vue'
-import useStore from '@/stores'
 
-const { user } = useStore()
+const scrollData = inject('scrollData') as any
+// 子组件
+const chatLogPagination = inject('chatLogPagination') as any
+const _chatLogPagination = chatLogPagination()
+
 const props = defineProps<{
   applicationDetail: any
   chatLogData: any[]
@@ -180,11 +192,17 @@ const props = defineProps<{
 const emit = defineEmits(['newChat', 'clickLog', 'deleteLog', 'refreshFieldTitle', 'clearChat'])
 
 const showHistory = computed(() => {
-  console.log(props.applicationDetail?.show_history)
   return props.applicationDetail?.show_history != null || undefined
     ? props.applicationDetail?.show_history
     : true
 })
+
+// 更新页码的方法
+const updateCurrentPage = (page: number) => {
+  if (chatLogPagination) {
+    chatLogPagination.current_page = page
+  }
+}
 
 const EditTitleDialogRef = ref()
 
@@ -193,6 +211,7 @@ const mouseId = ref('')
 function mouseenter(row: any) {
   mouseId.value = row.id
 }
+
 const newChat = () => {
   emit('newChat')
 }

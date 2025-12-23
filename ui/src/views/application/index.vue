@@ -662,12 +662,6 @@ function getFolder(bool?: boolean) {
     })
 }
 
-function clickFolder(item: any) {
-  folder.setCurrentFolder(item)
-  paginationConfig.current_page = 1
-  applicationList.value = []
-  getList()
-}
 
 function folderClickHandle(row: any) {
   if (row.id === folder.currentFolder?.id) {
