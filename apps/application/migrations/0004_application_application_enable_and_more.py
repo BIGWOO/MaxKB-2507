@@ -20,4 +20,14 @@ class Migration(migrations.Migration):
             name='application_ids',
             field=models.JSONField(default=list, verbose_name='应用ID列表'),
         ),
+        migrations.AddField(
+            model_name='applicationversion',
+            name='application_enable',
+            field=models.BooleanField(default=False, verbose_name='应用是否启用'),
+        ),
+        migrations.AddField(
+            model_name='applicationversion',
+            name='application_ids',
+            field=models.JSONField(default=list, verbose_name='应用ID列表'),
+        ),
     ]
