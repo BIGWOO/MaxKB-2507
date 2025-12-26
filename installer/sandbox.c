@@ -278,9 +278,7 @@ int execv(const char *path, char *const argv[]) {
     return real_execv(path, argv);
 }
 int __execv(const char *path, char *const argv[]) {
-    RESOLVE_REAL(__execv);
-    if (!allow_create_subprocess()) return deny();
-    return real___execv(path, argv);
+    return execv(path, argv);
 }
 int execve(const char *filename, char *const argv[], char *const envp[]) {
     RESOLVE_REAL(execve);
@@ -288,9 +286,7 @@ int execve(const char *filename, char *const argv[], char *const envp[]) {
     return real_execve(filename, argv, envp);
 }
 int __execve(const char *filename, char *const argv[], char *const envp[]) {
-    RESOLVE_REAL(__execve);
-    if (!allow_create_subprocess()) return deny();
-    return real___execve(filename, argv, envp);
+    return execve(filename, argv, envp);
 }
 int execveat(int dirfd, const char *pathname,
              char *const argv[], char *const envp[], int flags) {
@@ -304,9 +300,7 @@ int execvpe(const char *file, char *const argv[], char *const envp[]) {
     return real_execvpe(file, argv, envp);
 }
 int __execvpe(const char *file, char *const argv[], char *const envp[]) {
-    RESOLVE_REAL(__execvpe);
-    if (!allow_create_subprocess()) return deny();
-    return real___execvpe(file, argv, envp);
+    return execvpe(file, argv, envp);
 }
 int execvp(const char *file, char *const argv[]) {
     RESOLVE_REAL(execvp);
@@ -314,9 +308,7 @@ int execvp(const char *file, char *const argv[]) {
     return real_execvp(file, argv);
 }
 int __execvp(const char *file, char *const argv[]) {
-    RESOLVE_REAL(__execvp);
-    if (!allow_create_subprocess()) return deny();
-    return real___execvp(file, argv);
+    return execvp(file, argv);
 }
 int execl(const char *path, const char *arg, ...) {
     return not_supported("execl");
@@ -339,9 +331,7 @@ pid_t fork(void) {
     return real_fork();
 }
 pid_t __fork(void) {
-    RESOLVE_REAL(__fork);
-    if (!allow_create_subprocess()) return deny();
-    return real___fork();
+    return fork();
 }
 pid_t vfork(void) {
     RESOLVE_REAL(vfork);
@@ -349,9 +339,7 @@ pid_t vfork(void) {
     return real_vfork();
 }
 pid_t __vfork(void) {
-    RESOLVE_REAL(__vfork);
-    if (!allow_create_subprocess()) return deny();
-    return real___vfork();
+    return vfork();
 }
 int clone(int (*fn)(void *), void *child_stack, int flags, void *arg, ...) {
     RESOLVE_REAL(clone);
@@ -376,6 +364,12 @@ int posix_spawn(pid_t *pid, const char *path,
     if (!allow_create_subprocess()) return deny();
     return real_posix_spawn(pid, path, file_actions, attrp, argv, envp);
 }
+int __posix_spawn(pid_t *pid, const char *path,
+                  const posix_spawn_file_actions_t *file_actions,
+                  const posix_spawnattr_t *attrp,
+                  char *const argv[], char *const envp[]) {
+    return posix_spawn(pid, path, file_actions, attrp, argv, envp);
+}
 int posix_spawnp(pid_t *pid, const char *file,
                  const posix_spawn_file_actions_t *file_actions,
                  const posix_spawnattr_t *attrp,
@@ -384,21 +378,11 @@ int posix_spawnp(pid_t *pid, const char *file,
     if (!allow_create_subprocess()) return deny();
     return real_posix_spawnp(pid, file, file_actions, attrp, argv, envp);
 }
-int __posix_spawn(pid_t *pid, const char *path,
-                  const posix_spawn_file_actions_t *file_actions,
-                  const posix_spawnattr_t *attrp,
-                  char *const argv[], char *const envp[]) {
-    RESOLVE_REAL(__posix_spawn);
-    if (!allow_create_subprocess()) return deny();
-    return real___posix_spawn(pid, path, file_actions, attrp, argv, envp);
-}
 int __posix_spawnp(pid_t *pid, const char *file,
                    const posix_spawn_file_actions_t *file_actions,
                    const posix_spawnattr_t *attrp,
                    char *const argv[], char *const envp[]) {
-    RESOLVE_REAL(__posix_spawnp);
-    if (!allow_create_subprocess()) return deny();
-    return real___posix_spawnp(pid, file, file_actions, attrp, argv, envp);
+    return posix_spawnp(pid, file, file_actions, attrp, argv, envp);
 }
 FILE *popen(const char *command, const char *type) {
     RESOLVE_REAL(popen);
@@ -410,13 +394,7 @@ FILE *popen(const char *command, const char *type) {
     return real_popen(command, type);
 }
 FILE *__popen(const char *command, const char *type) {
-    RESOLVE_REAL(__popen);
-    if (!allow_create_subprocess()) {
-        fprintf(stderr, "Permission denied to create subprocess.\n");
-        errno = EACCES;
-        return NULL;
-    }
-    return real___popen(command, type);
+    return popen(command, type);
 }
 int system(const char *command) {
     RESOLVE_REAL(system);
@@ -445,9 +423,7 @@ pid_t forkpty(int *amaster, char *name, const struct termios *termp, const struc
     return real_forkpty(amaster, name, termp, winp);
 }
 pid_t __forkpty(int *amaster, char *name, const struct termios *termp, const struct winsize *winp) {
-    RESOLVE_REAL(__forkpty);
-    if (!allow_create_subprocess()) return deny();
-    return real___forkpty(amaster, name, termp, winp);
+    return forkpty(amaster, name, termp, winp);
 }
 /* syscall wrapper to intercept syscalls that directly create processes */
 long (*real_syscall)(long, ...) = NULL;
@@ -563,6 +539,18 @@ void *dlopen(const char *filename, int flag) {
 }
 void *__dlopen(const char *filename, int flag) {
     return dlopen(filename, flag);
+}
+void *dlmopen(Lmid_t lmid, const char *filename, int flags) {
+    RESOLVE_REAL(dlmopen);
+    if (is_sandbox_user() && !dl_path_allowed(filename)) {
+        fprintf(stderr, "Permission denied to access file %s.\n", filename);
+        errno = EACCES;
+        _exit(126);
+    }
+    return real_dlmopen(lmid, filename, flags);
+}
+void *__dlmopen(Lmid_t lmid, const char *filename, int flags) {
+    return dlmopen(lmid, filename, flags);
 }
 void* mmap(void *addr, size_t len, int prot, int flags, int fd, off_t off) {
     RESOLVE_REAL(mmap);
