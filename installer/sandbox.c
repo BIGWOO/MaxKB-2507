@@ -496,11 +496,17 @@ long syscall(long number, ...) {
         case SYS_setgid:
         case SYS_reboot:
         case SYS_mount:
+#ifdef SYS_chown
         case SYS_chown:
+#endif
+#ifdef SYS_chmod
         case SYS_chmod:
+#endif
         case SYS_fchmodat:
         case SYS_mprotect:
+#ifdef SYS_open
         case SYS_open:
+#endif
         case SYS_openat:
         case SYS_swapon:
         case SYS_swapoff:
@@ -525,6 +531,7 @@ long syscall(long number, ...) {
  * 限制加载动态链接库
  */
 static int dl_path_allowed(const char *filename) {
+    if (!filename || !*filename) return 1;
     if (!dl_path_containment || !*dl_path_containment) return 0;
     char *rules = strdup(dl_path_containment);
     if (!rules) return 0;
@@ -544,7 +551,7 @@ static int dl_path_allowed(const char *filename) {
 void *dlopen(const char *filename, int flag) {
     RESOLVE_REAL(dlopen);
     ensure_config_loaded();
-    if (is_sandbox_user() && filename && !dl_path_allowed(filename)) {
+    if (is_sandbox_user() && !dl_path_allowed(filename)) {
         fprintf(stderr, "Permission denied to access file %s.\n", filename);
         errno = EACCES;
         _exit(126);
