@@ -28,6 +28,7 @@ _run_user = 'sandbox' if _enable_sandbox else getpass.getuser()
 _sandbox_path = CONFIG.get("SANDBOX_HOME", '/opt/maxkb-app/sandbox') if _enable_sandbox else os.path.join(PROJECT_DIR,
                                                                                                           'data',
                                                                                                           'sandbox')
+_sandbox_python_sys_path = CONFIG.get_sandbox_python_package_paths().split(',')
 _process_limit_timeout_seconds = int(CONFIG.get("SANDBOX_PYTHON_PROCESS_LIMIT_TIMEOUT_SECONDS", '3600'))
 _process_limit_cpu_cores = min(max(int(CONFIG.get("SANDBOX_PYTHON_PROCESS_LIMIT_CPU_CORES", '1')), 1),
                                len(os.sched_getaffinity(0))) if sys.platform.startswith(
@@ -69,15 +70,14 @@ class ToolExecutor:
             os.remove(sandbox_conf_file_path)
         allow_subprocess = CONFIG.get("SANDBOX_PYTHON_ALLOW_SUBPROCESS", '0')
         banned_hosts = CONFIG.get("SANDBOX_PYTHON_BANNED_HOSTS", '').strip()
-        allow_dl_paths = CONFIG.get("SANDBOX_PYTHON_ALLOW_DL_PATHS",
-                                               '/usr/local/lib/python3.11,/opt/py3/lib/python3.11,/opt/maxkb-app/sandbox/python-packages,/opt/maxkb/python-packages').strip()
+        allow_dl_paths = CONFIG.get("SANDBOX_PYTHON_ALLOW_DL_PATHS",'').strip()
         if banned_hosts:
             hostname = socket.gethostname()
             local_ip = socket.gethostbyname(hostname)
             banned_hosts = f"{banned_hosts},{hostname},{local_ip}"
         with open(sandbox_conf_file_path, "w") as f:
             f.write(f"SANDBOX_PYTHON_BANNED_HOSTS={banned_hosts}\n")
-            f.write(f"SANDBOX_PYTHON_ALLOW_DL_PATHS={allow_dl_paths}\n")
+            f.write(f"SANDBOX_PYTHON_ALLOW_DL_PATHS={','.join(sorted(set(filter(None, sys.path + _sandbox_python_sys_path + allow_dl_paths.split(',')))))}\n")
             f.write(f"SANDBOX_PYTHON_ALLOW_SUBPROCESS={allow_subprocess}\n")
         os.system(f"chmod -R 550 {_sandbox_path}")
 
@@ -89,7 +89,6 @@ class ToolExecutor:
     def exec_code(self, code_str, keywords, function_name=None):
         _id = str(uuid.uuid7())
         action_function = f'({function_name !a}, locals_v.get({function_name !a}))' if function_name else 'locals_v.popitem()'
-        python_paths = CONFIG.get_sandbox_python_package_paths().split(',')
         set_run_user = f'os.setgid({pwd.getpwnam(_run_user).pw_gid});os.setuid({pwd.getpwnam(_run_user).pw_uid});' if _enable_sandbox else ''
         _exec_code = f"""
 try:
@@ -97,7 +96,7 @@ try:
     from contextlib import redirect_stdout
     path_to_exclude = ['/opt/py3/lib/python3.11/site-packages', '/opt/maxkb-app/apps']
     sys.path = [p for p in sys.path if p not in path_to_exclude]
-    sys.path += {python_paths}
+    sys.path += {_sandbox_python_sys_path}
     locals_v={{}}
     keywords={keywords}
     globals_v={{}}
@@ -194,7 +193,6 @@ sys.stdout.flush()
         return "\n".join(code_parts)
 
     def generate_mcp_server_code(self, code_str, params, name, description):
-        python_paths = CONFIG.get_sandbox_python_package_paths().split(',')
         code = self._generate_mcp_server_code(code_str, params, name, description)
         set_run_user = f'os.setgid({pwd.getpwnam(_run_user).pw_gid});os.setuid({pwd.getpwnam(_run_user).pw_uid});' if _enable_sandbox else ''
         return f"""
@@ -204,7 +202,7 @@ logging.getLogger("mcp").setLevel(logging.ERROR)
 logging.getLogger("mcp.server").setLevel(logging.ERROR)
 path_to_exclude = ['/opt/py3/lib/python3.11/site-packages', '/opt/maxkb-app/apps']
 sys.path = [p for p in sys.path if p not in path_to_exclude]
-sys.path += {python_paths}
+sys.path += {_sandbox_python_sys_path}
 {set_run_user}
 os.environ.clear()
 exec({dedent(code)!a})
