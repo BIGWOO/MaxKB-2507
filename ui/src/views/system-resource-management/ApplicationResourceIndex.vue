@@ -402,7 +402,7 @@ function mapToUrlParams(map: any[]) {
 function deleteApplication(row: any) {
   MsgConfirm(
     `${t('views.application.delete.confirmTitle')}${row.name} ?`,
-    t('views.application.delete.confirmMessage'),
+    row.resource_count > 0 ? t('views.application.delete.resourceCountMessage', row.resource_count) : '',
     {
       confirmButtonText: t('common.confirm'),
       cancelButtonText: t('common.cancel'),

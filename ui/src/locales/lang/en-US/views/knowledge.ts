@@ -18,6 +18,7 @@ export default {
     confirmTitle: 'Confirm deletion of knowledge:',
     confirmMessage1: 'This knowledge is related with',
     confirmMessage2: 'APP. Deleting it will be irreversible, please proceed with caution.',
+    resourceCountMessage: 'This knowledge is associated with {count} resources, and will be unavailable after deletion. Please proceed with caution.',
   },
   knowledgeType: {
     label: 'Type',

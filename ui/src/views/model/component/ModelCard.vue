@@ -10,7 +10,7 @@
         </span>
         <span v-if="currentModel.status === 'ERROR'">
           <el-tooltip effect="dark" :content="errMessage" placement="top">
-            <el-icon class="color-danger ml-4" size="18"><WarningFilled /></el-icon>
+            <el-icon class="color-danger ml-4" size="18"><WarningFilled/></el-icon>
           </el-tooltip>
         </span>
         <span v-if="currentModel.status === 'PAUSE_DOWNLOAD'">
@@ -19,7 +19,7 @@
             :content="`${$t('views.model.modelForm.base_model.label')}: ${props.model.model_name} ${$t('views.model.tip.downloadError')}`"
             placement="top"
           >
-            <el-icon class="color-danger ml-4" size="18"><WarningFilled /></el-icon>
+            <el-icon class="color-danger ml-4" size="18"><WarningFilled/></el-icon>
           </el-tooltip>
         </span>
       </div>
@@ -37,7 +37,7 @@
     <ul>
       <li class="flex mb-4">
         <el-text type="info" class="color-secondary"
-          >{{ $t('views.model.modelForm.model_type.label') }}
+        >{{ $t('views.model.modelForm.model_type.label') }}
         </el-text>
         <span class="ellipsis ml-16">
           {{ $t(modelType[model.model_type as keyof typeof modelType]) }}</span
@@ -45,7 +45,7 @@
       </li>
       <li class="flex">
         <el-text type="info" class="color-secondary"
-          >{{ $t('views.model.modelForm.base_model.label') }}
+        >{{ $t('views.model.modelForm.base_model.label') }}
         </el-text>
         <span class="ellipsis-1 ml-16" style="height: 20px; width: 70%">
           {{ model.model_name }}</span
@@ -54,12 +54,12 @@
     </ul>
     <!-- progress -->
     <div class="progress-mask" v-if="currentModel.status === 'DOWNLOAD'">
-      <DownloadLoading class="percentage" />
+      <DownloadLoading class="percentage"/>
 
       <div class="percentage-label flex-center">
         {{ $t('views.model.download.downloading') }} <span class="dotting"></span>
         <el-button link type="primary" class="ml-16" @click.stop="cancelDownload"
-          >{{ $t('views.model.download.cancelDownload') }}
+        >{{ $t('views.model.download.cancelDownload') }}
         </el-button>
       </div>
     </div>
@@ -133,7 +133,7 @@
       </el-dropdown>
     </template>
     <EditModel ref="editModelRef" @submit="emit('change')"></EditModel>
-    <ParamSettingDialog ref="paramSettingRef" />
+    <ParamSettingDialog ref="paramSettingRef"/>
     <AuthorizedWorkspace
       ref="AuthorizedWorkspaceDialogRef"
       v-if="isSystemShare"
@@ -147,22 +147,23 @@
   </card-box>
 </template>
 <script setup lang="ts">
-import type { Provider, Model } from '@/api/type/model'
-import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
+import type {Provider, Model} from '@/api/type/model'
+import {computed, ref, onMounted, onBeforeUnmount} from 'vue'
 import EditModel from '@/views/model/component/EditModel.vue'
 import DownloadLoading from '@/components/loading/DownloadLoading.vue'
-import { MsgConfirm, MsgSuccess } from '@/utils/message'
-import { modelType } from '@/enums/model'
+import {MsgConfirm, MsgSuccess} from '@/utils/message'
+import {modelType} from '@/enums/model'
 import ParamSettingDialog from './ParamSettingDialog.vue'
 import AuthorizedWorkspace from '@/views/system-shared/AuthorizedWorkspaceDialog.vue'
 import ResourceAuthorizationDrawer from '@/components/resource-authorization-drawer/index.vue'
 import ResourceMappingDrawer from '@/components/resource_mapping/index.vue'
-import { SourceTypeEnum } from '@/enums/common'
-import { t } from '@/locales'
-import { i18n_name } from '@/utils/common'
+import {SourceTypeEnum} from '@/enums/common'
+import {t} from '@/locales'
+import {i18n_name} from '@/utils/common'
 import permissionMap from '@/permission'
-import { useRoute } from 'vue-router'
-import { loadSharedApi } from '@/utils/dynamics-api/shared-api'
+import {useRoute} from 'vue-router'
+import {loadSharedApi} from '@/utils/dynamics-api/shared-api'
+
 const resourceMappingDrawerRef = ref<InstanceType<typeof ResourceMappingDrawer>>()
 const route = useRoute()
 
@@ -196,6 +197,7 @@ const MoreFilledPermission = (id: any) => {
 }
 
 const ResourceAuthorizationDrawerRef = ref()
+
 function openAuthorization(item: any) {
   ResourceAuthorizationDrawerRef.value.open(item.id)
 }
@@ -225,25 +227,26 @@ let interval: any
 const deleteModel = () => {
   MsgConfirm(
     `${t('views.model.delete.confirmTitle')}${props.model.name} ?`,
-    t('views.model.delete.confirmMessage'),
+    props.model.resource_count > 0 ? t('views.model.delete.resourceCountMessage', {count: props.model.resource_count}) : '',
     {
       confirmButtonText: t('common.confirm'),
       confirmButtonClass: 'danger',
     },
   )
     .then(() => {
-      loadSharedApi({ type: 'model', systemType: props.apiType })
+      loadSharedApi({type: 'model', systemType: props.apiType})
         .deleteModel(props.model.id)
         .then(() => {
           emit('change')
           MsgSuccess(t('common.deleteSuccess'))
         })
     })
-    .catch(() => {})
+    .catch(() => {
+    })
 }
 
 const cancelDownload = () => {
-  loadSharedApi({ type: 'model', systemType: props.apiType })
+  loadSharedApi({type: 'model', systemType: props.apiType})
     .pauseDownload(props.model.id)
     .then(() => {
       downModel.value = undefined
@@ -266,7 +269,7 @@ const icon = computed(() => {
 const initInterval = () => {
   interval = setInterval(() => {
     if (currentModel.value.status === 'DOWNLOAD') {
-      loadSharedApi({ type: 'model', systemType: props.apiType })
+      loadSharedApi({type: 'model', systemType: props.apiType})
         .getModelMetaById(props.model.id)
         .then((ok: any) => {
           downModel.value = ok.data

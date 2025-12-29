@@ -495,7 +495,7 @@ const exportZipKnowledge = (item: any) => {
 function deleteKnowledge(row: any) {
   MsgConfirm(
     `${t('views.knowledge.delete.confirmTitle')}${row.name} ?`,
-    `${t('views.knowledge.delete.confirmMessage1')} ${row.application_mapping_count} ${t('views.knowledge.delete.confirmMessage2')}`,
+    row.resource_count > 0 ? t('views.knowledge.delete.resourceCountMessage', row.resource_count) : '',
     {
       confirmButtonText: t('common.confirm'),
       confirmButtonClass: 'danger',

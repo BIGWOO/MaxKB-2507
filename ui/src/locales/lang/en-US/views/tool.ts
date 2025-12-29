@@ -40,6 +40,7 @@ export default {
     confirmTitle: 'Confirm deletion of tool:',
     confirmMessage:
       'Deleting this tool will cause errors in APP that reference it when they are queried. Please proceed with caution.',
+    resourceCountMessage: 'This tool is associated with {count} resources, and will be unavailable after deletion. Please proceed with caution.',
   },
   disabled: {
     confirmTitle: 'Confirm disable tool:',

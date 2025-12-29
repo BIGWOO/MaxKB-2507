@@ -6,6 +6,7 @@ export default {
   delete: {
     confirmTitle: '是否删除：',
     confirmMessage: '模型删除后将影响正在使用该模型的资源，请谨慎操作。',
+    resourceCountMessage: '此模型关联 {count} 个资源，删除后无法使用，请谨慎操作。',
   },
   tip: {
     createSuccessMessage: '创建模型成功',

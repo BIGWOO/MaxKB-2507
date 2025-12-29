@@ -15,9 +15,9 @@
             style="width: 120px"
             @change="search_type_change"
           >
-            <el-option :label="$t('common.creator')" value="create_user" />
-            <el-option :label="$t('common.name')" value="name" />
-            <el-option :label="$t('common.type')" value="type" />
+            <el-option :label="$t('common.creator')" value="create_user"/>
+            <el-option :label="$t('common.name')" value="name"/>
+            <el-option :label="$t('common.type')" value="type"/>
           </el-select>
           <el-input
             v-if="search_type === 'name'"
@@ -35,7 +35,7 @@
             clearable
             style="width: 220px"
           >
-            <el-option v-for="u in user_options" :key="u.id" :value="u.id" :label="u.nick_name" />
+            <el-option v-for="u in user_options" :key="u.id" :value="u.id" :label="u.nick_name"/>
           </el-select>
           <el-select
             v-else-if="search_type === 'type'"
@@ -45,7 +45,7 @@
             filterable
             style="width: 220px"
           >
-            <el-option v-for="u in type_options" :key="u.id" :value="u.value" :label="u.label" />
+            <el-option v-for="u in type_options" :key="u.id" :value="u.value" :label="u.label"/>
           </el-select>
         </div>
       </div>
@@ -61,7 +61,7 @@
         <el-table-column width="220" :label="$t('common.name')" show-overflow-tooltip>
           <template #default="{ row }">
             <div class="flex align-center">
-              <KnowledgeIcon :type="row.type" :size="24" />
+              <KnowledgeIcon :type="row.type" :size="24"/>
               <span class="ml-8">
                 {{ row.name }}
               </span>
@@ -76,14 +76,14 @@
         >
           <template #default="{ row }">
             <span v-if="row.type === 1">{{
-              $t('views.knowledge.knowledgeType.webKnowledge')
-            }}</span>
+                $t('views.knowledge.knowledgeType.webKnowledge')
+              }}</span>
             <span v-else-if="row.type === 2">{{
-              $t('views.knowledge.knowledgeType.larkKnowledge')
-            }}</span>
+                $t('views.knowledge.knowledgeType.larkKnowledge')
+              }}</span>
             <span v-else-if="row.type === 4">{{
-              $t('views.knowledge.knowledgeType.workflowKnowledge')
-            }}</span>
+                $t('views.knowledge.knowledgeType.workflowKnowledge')
+              }}</span>
             <span v-else>{{ $t('views.knowledge.knowledgeType.generalKnowledge') }}</span>
           </template>
         </el-table-column>
@@ -106,7 +106,7 @@
                     @click="workspaceVisible = !workspaceVisible"
                   >
                     <el-icon>
-                      <Filter />
+                      <Filter/>
                     </el-icon>
                   </el-button>
                 </template>
@@ -132,23 +132,23 @@
                           />
                         </el-checkbox-group>
                       </el-scrollbar>
-                      <el-empty v-else :description="$t('common.noData')" />
+                      <el-empty v-else :description="$t('common.noData')"/>
                     </div>
                   </div>
                 </div>
                 <div class="text-right">
                   <el-button size="small" @click="filterWorkspaceChange('clear')"
-                    >{{ $t('common.clear') }}
+                  >{{ $t('common.clear') }}
                   </el-button>
                   <el-button type="primary" @click="filterWorkspaceChange" size="small"
-                    >{{ $t('common.confirm') }}
+                  >{{ $t('common.confirm') }}
                   </el-button>
                 </div>
               </el-popover>
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="nick_name" :label="$t('common.creator')" show-overflow-tooltip />
+        <el-table-column prop="nick_name" :label="$t('common.creator')" show-overflow-tooltip/>
         <el-table-column :label="$t('views.document.table.updateTime')" width="180">
           <template #default="{ row }">
             {{ datetimeFormat(row.update_time) }}
@@ -245,14 +245,17 @@
                     v-if="permissionPrecise.export()"
                   >
                     <AppIcon iconName="app-export" class="color-secondary"></AppIcon
-                    >{{ $t('views.document.setting.export') }} Excel
+                    >
+                    {{ $t('views.document.setting.export') }} Excel
                   </el-dropdown-item>
                   <el-dropdown-item
                     @click.stop="exportZipKnowledge(row)"
                     v-if="permissionPrecise.export()"
                   >
                     <AppIcon iconName="app-export" class="color-secondary"></AppIcon
-                    >{{ $t('views.document.setting.export') }} ZIP</el-dropdown-item
+                    >
+                    {{ $t('views.document.setting.export') }} ZIP
+                  </el-dropdown-item
                   >
                   <el-dropdown-item
                     type="danger"
@@ -260,7 +263,8 @@
                     v-if="permissionPrecise.delete()"
                   >
                     <AppIcon iconName="app-delete" class="color-secondary"></AppIcon>
-                    {{ $t('common.delete') }}</el-dropdown-item
+                    {{ $t('common.delete') }}
+                  </el-dropdown-item
                   >
                 </el-dropdown-menu>
               </template>
@@ -269,8 +273,8 @@
         </el-table-column>
       </app-table>
     </el-card>
-    <SyncWebDialog ref="SyncWebDialogRef" />
-    <GenerateRelatedDialog ref="GenerateRelatedDialogRef" apiType="systemManage" />
+    <SyncWebDialog ref="SyncWebDialogRef"/>
+    <GenerateRelatedDialog ref="GenerateRelatedDialogRef" apiType="systemManage"/>
     <ResourceAuthorizationDrawer
       :type="SourceTypeEnum.KNOWLEDGE"
       ref="ResourceAuthorizationDrawerRef"
@@ -279,24 +283,25 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref, reactive, computed, watch } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import {onMounted, ref, reactive, computed, watch} from 'vue'
+import {useRouter, useRoute} from 'vue-router'
 import KnowledgeResourceApi from '@/api/system-resource-management/knowledge'
 import UserApi from '@/api/user/user'
 import SyncWebDialog from '@/views/knowledge/component/SyncWebDialog.vue'
 import GenerateRelatedDialog from '@/components/generate-related-dialog/index.vue'
 import ResourceAuthorizationDrawer from '@/components/resource-authorization-drawer/index.vue'
-import { datetimeFormat } from '@/utils/time'
-import { loadPermissionApi } from '@/utils/dynamics-api/permission-api.ts'
+import {datetimeFormat} from '@/utils/time'
+import {loadPermissionApi} from '@/utils/dynamics-api/permission-api.ts'
 import permissionMap from '@/permission'
-import { MsgSuccess, MsgConfirm } from '@/utils/message'
-import { SourceTypeEnum } from '@/enums/common'
-import { t } from '@/locales'
+import {MsgSuccess, MsgConfirm} from '@/utils/message'
+import {SourceTypeEnum} from '@/enums/common'
+import {t} from '@/locales'
 import useStore from '@/stores'
-import { hasPermission } from '@/utils/permission'
-import { PermissionConst, RoleConst } from '@/utils/permission/data'
+import {hasPermission} from '@/utils/permission'
+import {PermissionConst, RoleConst} from '@/utils/permission/data'
+
 const router = useRouter()
-const { user } = useStore()
+const {user} = useStore()
 
 const permissionPrecise = computed(() => {
   return permissionMap['knowledge']['systemManage']
@@ -309,7 +314,7 @@ const ManagePermission = () => {
     permissionPrecise.value.edit() ||
     permissionPrecise.value.knowledge_chat_user_read() ||
     permissionPrecise.value.hit_test() ||
-    hasPermission([RoleConst.ADMIN, PermissionConst.RESOURCE_KNOWLEDGE_WORKFLOW_READ],'OR')
+    hasPermission([RoleConst.ADMIN, PermissionConst.RESOURCE_KNOWLEDGE_WORKFLOW_READ], 'OR')
   )
 }
 
@@ -358,6 +363,7 @@ const paginationConfig = reactive({
 })
 
 const ResourceAuthorizationDrawerRef = ref()
+
 function openAuthorization(item: any) {
   ResourceAuthorizationDrawerRef.value.open(item.id)
 }
@@ -376,7 +382,7 @@ const exportZipKnowledge = (item: any) => {
 function deleteKnowledge(row: any) {
   MsgConfirm(
     `${t('views.knowledge.delete.confirmTitle')}${row.name} ?`,
-    `${t('views.knowledge.delete.confirmMessage1')} ${row.application_mapping_count} ${t('views.knowledge.delete.confirmMessage2')}`,
+    row.resource_count > 0 ? t('views.knowledge.delete.resourceCountMessage', row.resource_count) : '',
     {
       confirmButtonText: t('common.confirm'),
       confirmButtonClass: 'danger',
@@ -388,10 +394,12 @@ function deleteKnowledge(row: any) {
         MsgSuccess(t('common.deleteSuccess'))
       })
     })
-    .catch(() => {})
+    .catch(() => {
+    })
 }
 
 const GenerateRelatedDialogRef = ref<InstanceType<typeof GenerateRelatedDialog>>()
+
 function openGenerateDialog(row: any) {
   if (GenerateRelatedDialogRef.value) {
     GenerateRelatedDialogRef.value.open([], 'knowledge', row)
@@ -399,6 +407,7 @@ function openGenerateDialog(row: any) {
 }
 
 const SyncWebDialogRef = ref()
+
 function syncKnowledge(row: any) {
   SyncWebDialogRef.value.open(row.id)
 }
@@ -426,7 +435,7 @@ watch(
       v.label.toLowerCase().includes(filterText.value.toLowerCase()),
     )
   },
-  { immediate: true },
+  {immediate: true},
 )
 
 function filterWorkspaceChange(val: string) {
@@ -437,6 +446,7 @@ function filterWorkspaceChange(val: string) {
   getList()
   workspaceVisible.value = false
 }
+
 async function getWorkspaceList() {
   if (user.isEE()) {
     const res = await loadPermissionApi('workspace').getSystemWorkspaceList(loading)
@@ -446,8 +456,9 @@ async function getWorkspaceList() {
     }))
   }
 }
+
 const search_type_change = () => {
-  search_form.value = { name: '', create_user: '' }
+  search_form.value = {name: '', create_user: ''}
 }
 
 function getList() {

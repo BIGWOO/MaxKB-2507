@@ -8,6 +8,7 @@ export default {
     confirmTitle: 'Delete Model：',
     confirmMessage:
       'Deleting the model will affect the resources currently using it. Please proceed with caution.',
+    resourceCountMessage: 'This model is associated with {count} resources, and will be unavailable after deletion. Please proceed with caution.',
   },
   tip: {
     createSuccessMessage: 'Model created successfully',

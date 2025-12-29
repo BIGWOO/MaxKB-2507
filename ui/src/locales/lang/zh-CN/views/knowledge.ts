@@ -16,6 +16,7 @@ export default {
     confirmTitle: '是否删除知识库：',
     confirmMessage1: '此知识库关联',
     confirmMessage2: '个应用，删除后无法恢复，请谨慎操作。',
+    resourceCountMessage: '此知识库关联 {count} 个资源，删除后无法使用，请谨慎操作。',
   },
   knowledgeType: {
     label: '知识库类型',

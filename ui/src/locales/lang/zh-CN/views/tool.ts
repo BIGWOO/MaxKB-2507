@@ -35,6 +35,7 @@ export default {
   delete: {
     confirmTitle: '是否刪除工具',
     confirmMessage: '删除后，引用了该工具的应用提问时会报错 ，请谨慎操作。',
+    resourceCountMessage: '此工具关联 {count} 个资源，删除后无法使用，请谨慎操作。',
   },
   disabled: {
     confirmTitle: '是否禁用工具：',

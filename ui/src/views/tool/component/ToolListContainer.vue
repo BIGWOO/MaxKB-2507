@@ -1,7 +1,7 @@
 <template>
   <ContentContainer>
     <template #header>
-      <slot name="header"> </slot>
+      <slot name="header"></slot>
     </template>
     <template #search>
       <div class="flex">
@@ -12,9 +12,9 @@
             style="width: 120px"
             @change="search_type_change"
           >
-            <el-option :label="$t('common.creator')" value="create_user" />
+            <el-option :label="$t('common.creator')" value="create_user"/>
 
-            <el-option :label="$t('common.name')" value="name" />
+            <el-option :label="$t('common.name')" value="name"/>
           </el-select>
           <el-input
             v-if="search_type === 'name'"
@@ -32,7 +32,7 @@
             clearable
             style="width: 220px"
           >
-            <el-option v-for="u in user_options" :key="u.id" :value="u.id" :label="u.nick_name" />
+            <el-option v-for="u in user_options" :key="u.id" :value="u.id" :label="u.nick_name"/>
           </el-select>
         </div>
         <el-button
@@ -46,7 +46,7 @@
           <el-button type="primary" class="ml-8" v-if="!isShared && permissionPrecise.create()">
             {{ $t('common.create') }}
             <el-icon class="el-icon--right">
-              <arrow-down />
+              <arrow-down/>
             </el-icon>
           </el-button>
           <template #dropdown>
@@ -54,7 +54,7 @@
               <el-dropdown-item @click="openCreateDialog()">
                 <div class="flex align-center">
                   <el-avatar class="avatar-green" shape="square" :size="32">
-                    <img src="@/assets/tool/icon_tool.svg" style="width: 58%" alt="" />
+                    <img src="@/assets/tool/icon_tool.svg" style="width: 58%" alt=""/>
                   </el-avatar>
                   <div class="pre-wrap ml-8">
                     <div class="lighter">{{ $t('views.tool.createTool') }}</div>
@@ -64,7 +64,7 @@
               <el-dropdown-item @click="openCreateMcpDialog()">
                 <div class="flex align-center">
                   <el-avatar shape="square" :size="32">
-                    <img src="@/assets/tool/icon_mcp.svg" style="width: 75%" alt="" />
+                    <img src="@/assets/tool/icon_mcp.svg" style="width: 75%" alt=""/>
                   </el-avatar>
                   <div class="pre-wrap ml-8">
                     <div class="lighter">{{ $t('views.tool.createMcpTool') }}</div>
@@ -75,7 +75,7 @@
               <el-dropdown-item @click="openCreateDataSourceDialog()">
                 <div class="flex align-center">
                   <el-avatar class="avatar-purple" shape="square" :size="32">
-                    <img src="@/assets/tool/icon_datasource.svg" style="width: 58%" alt="" />
+                    <img src="@/assets/tool/icon_datasource.svg" style="width: 58%" alt=""/>
                   </el-avatar>
                   <div class="pre-wrap ml-8">
                     <div class="lighter">{{ $t('views.tool.dataSource.createDataSource') }}</div>
@@ -96,7 +96,7 @@
                 <el-dropdown-item v-if="permissionPrecise.import()">
                   <div class="flex align-center w-full">
                     <el-avatar shape="square" :size="32" style="background: none">
-                      <img src="@/assets/icon_import.svg" alt="" />
+                      <img src="@/assets/icon_import.svg" alt=""/>
                     </el-avatar>
                     <div class="pre-wrap ml-8">
                       <div class="lighter">{{ $t('common.importCreate') }}</div>
@@ -172,9 +172,9 @@
               >
                 <template #icon>
                   <el-avatar v-if="item?.icon" shape="square" :size="32" style="background: none">
-                    <img :src="resetUrl(item?.icon)" alt="" />
+                    <img :src="resetUrl(item?.icon)" alt=""/>
                   </el-avatar>
-                  <ToolIcon v-else :size="32" :type="item?.tool_type" />
+                  <ToolIcon v-else :size="32" :type="item?.tool_type"/>
                 </template>
                 <template #title>
                   <div class="flex align-center">
@@ -205,7 +205,7 @@
                       @click="updateStoreTool(item)"
                     >
                       <el-icon v-if="hoverShow">
-                        <Refresh />
+                        <Refresh/>
                       </el-icon>
                       <div v-else class="dot-success"></div>
                     </el-button>
@@ -215,7 +215,7 @@
                 <template #footer>
                   <div v-if="item.is_active" class="flex align-center">
                     <el-icon class="color-success mr-8" style="font-size: 16px">
-                      <SuccessFilled />
+                      <SuccessFilled/>
                     </el-icon>
                     <span class="color-secondary">
                       {{ $t('common.status.enabled') }}
@@ -237,7 +237,7 @@
                       class="mr-4"
                       v-if="permissionPrecise.switch(item.id)"
                     />
-                    <el-divider direction="vertical" />
+                    <el-divider direction="vertical"/>
                     <el-dropdown trigger="click">
                       <el-button text @click.stop>
                         <AppIcon iconName="app-more"></AppIcon>
@@ -340,22 +340,22 @@
             </el-col>
           </template>
         </el-row>
-        <el-empty :description="$t('common.noData')" v-else />
+        <el-empty :description="$t('common.noData')" v-else/>
       </InfiniteScroll>
     </div>
   </ContentContainer>
-  <InitParamDrawer ref="InitParamDrawerRef" @refresh="refresh" />
-  <ToolFormDrawer ref="ToolFormDrawerRef" @refresh="refresh" :title="ToolDrawertitle" />
-  <McpToolFormDrawer ref="McpToolFormDrawerRef" @refresh="refresh" :title="McpToolDrawertitle" />
+  <InitParamDrawer ref="InitParamDrawerRef" @refresh="refresh"/>
+  <ToolFormDrawer ref="ToolFormDrawerRef" @refresh="refresh" :title="ToolDrawertitle"/>
+  <McpToolFormDrawer ref="McpToolFormDrawerRef" @refresh="refresh" :title="McpToolDrawertitle"/>
   <DataSourceToolFormDrawer
     ref="DataSourceToolFormDrawerRef"
     @refresh="refresh"
     :title="DataSourceToolDrawertitle"
   />
-  <CreateFolderDialog ref="CreateFolderDialogRef" v-if="!isShared" @refresh="refreshFolder" />
-  <ToolStoreDialog ref="toolStoreDialogRef" :api-type="apiType" @refresh="refresh" />
-  <AddInternalToolDialog ref="AddInternalToolDialogRef" @refresh="confirmAddInternalTool" />
-  <McpToolConfigDialog ref="McpToolConfigDialogRef" @refresh="refresh" />
+  <CreateFolderDialog ref="CreateFolderDialogRef" v-if="!isShared" @refresh="refreshFolder"/>
+  <ToolStoreDialog ref="toolStoreDialogRef" :api-type="apiType" @refresh="refresh"/>
+  <AddInternalToolDialog ref="AddInternalToolDialogRef" @refresh="confirmAddInternalTool"/>
+  <McpToolConfigDialog ref="McpToolConfigDialogRef" @refresh="refresh"/>
   <AuthorizedWorkspace
     ref="AuthorizedWorkspaceDialogRef"
     v-if="isSystemShare"
@@ -371,14 +371,14 @@
     ref="ResourceAuthorizationDrawerRef"
     v-if="apiType === 'workspace'"
   />
-  <ToolStoreDescDrawer ref="toolStoreDescDrawerRef" />
+  <ToolStoreDescDrawer ref="toolStoreDescDrawerRef"/>
   <ResourceMappingDrawer ref="resourceMappingDrawerRef"></ResourceMappingDrawer>
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref, reactive, computed, watch } from 'vue'
-import { cloneDeep } from 'lodash'
-import { useRoute, onBeforeRouteLeave } from 'vue-router'
+import {onMounted, ref, reactive, computed, watch} from 'vue'
+import {cloneDeep} from 'lodash'
+import {useRoute, onBeforeRouteLeave} from 'vue-router'
 import InitParamDrawer from '@/views/tool/component/InitParamDrawer.vue'
 import ToolFormDrawer from '@/views/tool/ToolFormDrawer.vue'
 import McpToolFormDrawer from '@/views/tool/McpToolFormDrawer.vue'
@@ -390,25 +390,26 @@ import AddInternalToolDialog from '@/views/tool/tool-store/AddInternalToolDialog
 import MoveToDialog from '@/components/folder-tree/MoveToDialog.vue'
 import ResourceAuthorizationDrawer from '@/components/resource-authorization-drawer/index.vue'
 import McpToolConfigDialog from '@/views/tool/component/McpToolConfigDialog.vue'
-import { resetUrl } from '@/utils/common'
-import { MsgSuccess, MsgConfirm, MsgError } from '@/utils/message'
-import { SourceTypeEnum } from '@/enums/common'
-import { loadSharedApi } from '@/utils/dynamics-api/shared-api'
+import {resetUrl} from '@/utils/common'
+import {MsgSuccess, MsgConfirm, MsgError} from '@/utils/message'
+import {SourceTypeEnum} from '@/enums/common'
+import {loadSharedApi} from '@/utils/dynamics-api/shared-api'
 import permissionMap from '@/permission'
 import useStore from '@/stores'
-import { t } from '@/locales'
-import { i18n_name } from '@/utils/common'
+import {t} from '@/locales'
+import {i18n_name} from '@/utils/common'
 import ToolStoreApi from '@/api/tool/store.ts'
 import ToolStoreDescDrawer from '@/views/tool/component/ToolStoreDescDrawer.vue'
 
 import bus from '@/bus'
 import ResourceMappingDrawer from '@/components/resource_mapping/index.vue'
+
 const resourceMappingDrawerRef = ref<InstanceType<typeof ResourceMappingDrawer>>()
 const route = useRoute()
 const openResourceMappingDrawer = (tool: any) => {
   resourceMappingDrawerRef.value?.open('TOOL', tool.id)
 }
-const { folder, user, tool } = useStore()
+const {folder, user, tool} = useStore()
 onBeforeRouteLeave((to, from) => {
   tool.setToolList([])
 })
@@ -447,6 +448,7 @@ const MoreFieldPermission = (id: any) => {
 }
 
 const ResourceAuthorizationDrawerRef = ref()
+
 function openAuthorization(item: any) {
   ResourceAuthorizationDrawerRef.value.open(item.id)
 }
@@ -468,7 +470,7 @@ const paginationConfig = reactive({
 })
 
 const search_type_change = () => {
-  search_form.value = { name: '', create_user: '' }
+  search_form.value = {name: '', create_user: ''}
 }
 const ToolFormDrawerRef = ref()
 const McpToolFormDrawerRef = ref()
@@ -478,6 +480,7 @@ const McpToolDrawertitle = ref('')
 const DataSourceToolDrawertitle = ref('')
 
 const MoveToDialogRef = ref()
+
 function openMoveToDialog(data: any) {
   const obj = {
     id: data.id,
@@ -497,6 +500,7 @@ function refreshToolList(row: any) {
 }
 
 const AuthorizedWorkspaceDialogRef = ref()
+
 function openAuthorizedWorkspaceDialog(row: any) {
   if (AuthorizedWorkspaceDialogRef.value) {
     AuthorizedWorkspaceDialogRef.value.open(row, 'Tool')
@@ -504,6 +508,7 @@ function openAuthorizedWorkspaceDialog(row: any) {
 }
 
 const toolStoreDescDrawerRef = ref<InstanceType<typeof ToolStoreDescDrawer>>()
+
 function openCreateDialog(data?: any) {
   // mcp工具
   if (data?.tool_type === 'MCP') {
@@ -539,7 +544,7 @@ function openCreateDialog(data?: any) {
   }
   ToolDrawertitle.value = data ? t('views.tool.editTool') : t('views.tool.createTool')
   if (data) {
-    loadSharedApi({ type: 'tool', systemType: apiType.value })
+    loadSharedApi({type: 'tool', systemType: apiType.value})
       .getToolById(data?.id, loading)
       .then((res: any) => {
         bus.emit('select_node', data.folder_id)
@@ -564,7 +569,7 @@ function openCreateMcpDialog(data?: any) {
   }
   McpToolDrawertitle.value = data ? t('views.tool.editMcpTool') : t('views.tool.createMcpTool')
   if (data) {
-    loadSharedApi({ type: 'tool', systemType: apiType.value })
+    loadSharedApi({type: 'tool', systemType: apiType.value})
       .getToolById(data?.id, loading)
       .then((res: any) => {
         McpToolFormDrawerRef.value.open(res.data)
@@ -587,7 +592,7 @@ function openCreateDataSourceDialog(data?: any) {
     ? t('views.tool.dataSource.editDataSource')
     : t('views.tool.dataSource.createDataSource')
   if (data) {
-    loadSharedApi({ type: 'tool', systemType: apiType.value })
+    loadSharedApi({type: 'tool', systemType: apiType.value})
       .getToolById(data?.id, loading)
       .then((res: any) => {
         DataSourceToolFormDrawerRef.value.open(res.data)
@@ -610,7 +615,7 @@ async function changeState(row: any) {
       const obj = {
         is_active: !row.is_active,
       }
-      loadSharedApi({ type: 'tool', systemType: apiType.value })
+      loadSharedApi({type: 'tool', systemType: apiType.value})
         .putTool(row.id, obj, changeStateloading)
         .then(() => {
           const list = cloneDeep(tool.toolList)
@@ -624,7 +629,7 @@ async function changeState(row: any) {
         })
     })
   } else {
-    const res = await loadSharedApi({ type: 'tool', systemType: apiType.value }).getToolById(
+    const res = await loadSharedApi({type: 'tool', systemType: apiType.value}).getToolById(
       row.id,
       changeStateloading,
     )
@@ -641,7 +646,7 @@ async function changeState(row: any) {
     const obj = {
       is_active: !row.is_active,
     }
-    loadSharedApi({ type: 'tool', systemType: apiType.value })
+    loadSharedApi({type: 'tool', systemType: apiType.value})
       .putTool(row.id, obj, changeStateloading)
       .then(() => {
         const list = cloneDeep(tool.toolList)
@@ -670,7 +675,7 @@ async function copyTool(row: any) {
     return
   }
   ToolDrawertitle.value = t('views.tool.copyTool')
-  const res = await loadSharedApi({ type: 'tool', systemType: apiType.value }).getToolById(
+  const res = await loadSharedApi({type: 'tool', systemType: apiType.value}).getToolById(
     row.id,
     changeStateloading,
   )
@@ -682,7 +687,7 @@ async function copyTool(row: any) {
 
 async function copyMcpTool(row: any) {
   McpToolDrawertitle.value = t('views.tool.copyMcpTool')
-  const res = await loadSharedApi({ type: 'tool', systemType: apiType.value }).getToolById(
+  const res = await loadSharedApi({type: 'tool', systemType: apiType.value}).getToolById(
     row.id,
     changeStateloading,
   )
@@ -694,7 +699,7 @@ async function copyMcpTool(row: any) {
 
 async function copyDataSource(row: any) {
   DataSourceToolDrawertitle.value = t('views.tool.dataSource.copyDataSource')
-  const res = await loadSharedApi({ type: 'tool', systemType: apiType.value }).getToolById(
+  const res = await loadSharedApi({type: 'tool', systemType: apiType.value}).getToolById(
     row.id,
     changeStateloading,
   )
@@ -705,7 +710,7 @@ async function copyDataSource(row: any) {
 }
 
 function exportTool(row: any) {
-  loadSharedApi({ type: 'tool', systemType: apiType.value })
+  loadSharedApi({type: 'tool', systemType: apiType.value})
     .exportTool(row.id, row.name, loading)
     .catch((e: any) => {
       if (e.response.status !== 403) {
@@ -719,7 +724,7 @@ function exportTool(row: any) {
 function deleteTool(row: any) {
   MsgConfirm(
     `${t('views.tool.delete.confirmTitle')}：${row.name} ?`,
-    t('views.tool.delete.confirmMessage'),
+    row.resource_count > 0 ? t('views.tool.delete.resourceCountMessage', row.resource_count) : '',
     {
       confirmButtonText: t('common.confirm'),
       cancelButtonText: t('common.cancel'),
@@ -727,7 +732,7 @@ function deleteTool(row: any) {
     },
   )
     .then(() => {
-      loadSharedApi({ type: 'tool', systemType: apiType.value })
+      loadSharedApi({type: 'tool', systemType: apiType.value})
         .delTool(row.id, loading)
         .then(() => {
           const list = cloneDeep(tool.toolList)
@@ -737,11 +742,12 @@ function deleteTool(row: any) {
           MsgSuccess(t('common.deleteSuccess'))
         })
     })
-    .catch(() => {})
+    .catch(() => {
+    })
 }
 
 function configInitParams(item: any) {
-  loadSharedApi({ type: 'tool', systemType: apiType.value })
+  loadSharedApi({type: 'tool', systemType: apiType.value})
     .getToolById(item?.id, changeStateloading)
     .then((res: any) => {
       InitParamDrawerRef.value.open(res.data)
@@ -749,19 +755,21 @@ function configInitParams(item: any) {
 }
 
 const toolStoreDialogRef = ref<InstanceType<typeof ToolStoreDialog>>()
+
 function openToolStoreDialog() {
   toolStoreDialogRef.value?.open(folder.currentFolder.id)
 }
 
 const AddInternalToolDialogRef = ref<InstanceType<typeof AddInternalToolDialog>>()
+
 function addInternalTool(data?: any, isEdit?: boolean) {
   AddInternalToolDialogRef.value?.open(data, isEdit)
 }
 
 function confirmAddInternalTool(data?: any, isEdit?: boolean) {
   if (isEdit) {
-    loadSharedApi({ type: 'tool', systemType: apiType.value })
-      .putTool(data?.id as string, { name: data.name }, loading)
+    loadSharedApi({type: 'tool', systemType: apiType.value})
+      .putTool(data?.id as string, {name: data.name}, loading)
       .then((res: any) => {
         MsgSuccess(t('common.saveSuccess'))
         refresh()
@@ -770,8 +778,9 @@ function confirmAddInternalTool(data?: any, isEdit?: boolean) {
 }
 
 const storeTools = ref<any[]>([])
+
 function getStoreToolList() {
-  ToolStoreApi.getStoreToolList({ name: '' }, loading).then((res: any) => {
+  ToolStoreApi.getStoreToolList({name: ''}, loading).then((res: any) => {
     storeTools.value = res.data.apps
   })
 }
@@ -806,7 +815,7 @@ function updateStoreTool(item: any) {
         versions: item.versions,
         label: item.label,
       }
-      loadSharedApi({ type: 'tool', systemType: apiType.value })
+      loadSharedApi({type: 'tool', systemType: apiType.value})
         .updateStoreTool(item.id, obj, loading)
         .then(async (res: any) => {
           if (res?.data) {
@@ -818,16 +827,18 @@ function updateStoreTool(item: any) {
           getList()
         })
     })
-    .catch(() => {})
+    .catch(() => {
+    })
 }
 
 const elUploadRef = ref()
+
 function importTool(file: any) {
   const formData = new FormData()
   formData.append('file', file.raw, file.name)
   formData.append('folder_id', folder.currentFolder.id || user.getWorkspaceId())
   elUploadRef.value.clearFiles()
-  loadSharedApi({ type: 'tool', systemType: apiType.value })
+  loadSharedApi({type: 'tool', systemType: apiType.value})
     .postImportTool(formData, loading)
     .then(async (res: any) => {
       if (res?.data) {
@@ -851,8 +862,9 @@ function importTool(file: any) {
 }
 
 const McpToolConfigDialogRef = ref()
+
 function showMcpConfig(item: any) {
-  loadSharedApi({ type: 'tool', systemType: apiType.value })
+  loadSharedApi({type: 'tool', systemType: apiType.value})
     .getToolById(item?.id, loading)
     .then((res: any) => {
       McpToolConfigDialogRef.value.open(res.data)
@@ -875,6 +887,7 @@ function refresh(data?: any) {
 
 // 文件夹相关
 const CreateFolderDialogRef = ref()
+
 function openCreateFolder() {
   CreateFolderDialogRef.value.open(SourceTypeEnum.TOOL, folder.currentFolder.id)
 }
@@ -888,7 +901,7 @@ watch(
       getList()
     }
   },
-  { deep: true, immediate: true },
+  {deep: true, immediate: true},
 )
 
 watch(
@@ -909,7 +922,7 @@ function getList() {
   if (search_form.value[search_type.value]) {
     params[search_type.value] = search_form.value[search_type.value]
   }
-  loadSharedApi({ type: 'tool', isShared: isShared.value, systemType: apiType.value })
+  loadSharedApi({type: 'tool', isShared: isShared.value, systemType: apiType.value})
     .getToolListPage(paginationConfig, params, loading)
     .then((res: any) => {
       paginationConfig.total = res.data?.total
@@ -935,7 +948,7 @@ onMounted(() => {
   if (apiType.value !== 'workspace') {
     getList()
   }
-  loadSharedApi({ type: 'workspace', isShared: isShared.value, systemType: apiType.value })
+  loadSharedApi({type: 'workspace', isShared: isShared.value, systemType: apiType.value})
     .getAllMemberList(user.getWorkspaceId(), loading)
     .then((res: any) => {
       user_options.value = res.data

@@ -16,6 +16,7 @@ export default {
     confirmTitle: '是否刪除知識庫：',
     confirmMessage1: '此知識庫關聯',
     confirmMessage2: '個應用，刪除後無法恢復，請謹慎操作。',
+    resourceCountMessage: '此知識庫關聯 {count} 個資源，刪除後無法使用，請謹慎操作。',
   },
   knowledgeType: {
     label: '知識庫類型',

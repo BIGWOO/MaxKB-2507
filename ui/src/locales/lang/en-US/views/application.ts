@@ -18,6 +18,7 @@ export default {
     confirmTitle: 'Are you sure you want to delete this APP: ',
     confirmMessage:
       'Deleting this APP will no longer provide its services. Please proceed with caution.',
+    resourceCountMessage: 'This application is associated with {count} resources, and will be unavailable after deletion. Please proceed with caution.',
   },
   tip: {
     publishSuccess: 'Published successfully',

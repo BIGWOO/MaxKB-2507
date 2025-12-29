@@ -19,6 +19,7 @@ export default {
   delete: {
     confirmTitle: '是否删除应用：',
     confirmMessage: '删除后该应用将不再提供服务，请谨慎操作。',
+    resourceCountMessage: '此应用关联 {count} 个资源，删除后无法使用，请谨慎操作。',
   },
   tip: {
     publishSuccess: '发布成功',

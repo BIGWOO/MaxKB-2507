@@ -16,6 +16,7 @@ export default {
   delete: {
     confirmTitle: '是否刪除應用：',
     confirmMessage: '刪除後該應用將不再提供服務，請謹慎操作。',
+    resourceCountMessage: '此應用關聯 {count} 個資源，刪除後無法使用，請謹慎操作。',
   },
   tip: {
     publishSuccess: '發布成功',
