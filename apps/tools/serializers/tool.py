@@ -31,6 +31,8 @@ from common.utils.common import get_file_content
 from common.utils.logger import maxkb_logger
 from common.utils.rsa_util import rsa_long_decrypt, rsa_long_encrypt
 from common.utils.tool_code import ToolExecutor
+from system_manage.models.resource_mapping import ResourceMapping
+from system_manage.serializers.resource_mapping_serializers import ResourceMappingSerializer
 from knowledge.models import File, FileSourceType
 from maxkb.const import CONFIG, PROJECT_DIR
 from system_manage.models import AuthTargetType, WorkspaceUserResourcePermission
@@ -523,6 +525,7 @@ class ToolSerializer(serializers.Serializer):
                 QuerySet(File).filter(id=tool.icon.split('/')[-1]).delete()
             QuerySet(WorkspaceUserResourcePermission).filter(target=tool.id).delete()
             QuerySet(Tool).filter(id=self.data.get('id')).delete()
+            ResourceMapping.objects.filter(target_id=self.data.get('id')).delete()
 
         def one(self):
             self.is_one_valid(raise_exception=True)
@@ -964,8 +967,7 @@ class ToolTreeSerializer(serializers.Serializer):
 
             workspace_manage = is_workspace_manage(self.data.get('user_id'), self.data.get('workspace_id'))
             is_x_pack_ee = self.is_x_pack_ee()
-
-            return native_page_search(
+            result = native_page_search(
                 current_page, page_size, self.get_query_set(workspace_manage, is_x_pack_ee),
                 get_file_content(
                     os.path.join(
@@ -982,6 +984,7 @@ class ToolTreeSerializer(serializers.Serializer):
                     'init_field_list': json.loads(record.get('init_field_list', '[]')),
                 },
             )
+            return ResourceMappingSerializer().get_resource_count(result)
 
         def get_tools(self):
             self.is_valid(raise_exception=True)

@@ -49,6 +49,8 @@ from maxkb.conf import PROJECT_DIR
 from models_provider.models import Model
 from models_provider.tools import get_model_instance_by_model_workspace_id
 from system_manage.models import WorkspaceUserResourcePermission, AuthTargetType
+from system_manage.models.resource_mapping import ResourceMapping
+from system_manage.serializers.resource_mapping_serializers import ResourceMappingSerializer
 from system_manage.serializers.user_resource_permission import UserResourcePermissionSerializer
 from tools.models import Tool, ToolScope
 from tools.serializers.tool import ToolExportModelSerializer
@@ -411,12 +413,15 @@ class Query(serializers.Serializer):
         user_id = self.data.get("user_id")
         workspace_manage = is_workspace_manage(user_id, workspace_id)
         is_x_pack_ee = self.is_x_pack_ee()
-        return native_page_search(current_page, page_size, self.get_query_set(instance, workspace_manage, is_x_pack_ee),
-                                  get_file_content(
-                                      os.path.join(PROJECT_DIR, "apps", "application", 'sql',
-                                                   'list_application.sql' if workspace_manage else (
-                                                       'list_application_user_ee.sql' if is_x_pack_ee else 'list_application_user.sql'))),
-                                  )
+        result = native_page_search(current_page, page_size,
+                                    self.get_query_set(instance, workspace_manage, is_x_pack_ee),
+                                    get_file_content(
+                                        os.path.join(PROJECT_DIR, "apps", "application", 'sql',
+                                                     'list_application.sql' if workspace_manage else (
+                                                         'list_application_user_ee.sql' if is_x_pack_ee else 'list_application_user.sql'))),
+                                    )
+
+        return ResourceMappingSerializer().get_resource_count(result)
 
 
 class ApplicationImportRequest(serializers.Serializer):
@@ -778,9 +783,13 @@ class ApplicationOperateSerializer(serializers.Serializer):
     def delete(self, with_valid=True):
         if with_valid:
             self.is_valid()
-        QuerySet(ApplicationVersion).filter(application_id=self.data.get('application_id')).delete()
-        QuerySet(ApplicationKnowledgeMapping).filter(application_id=self.data.get('application_id')).delete()
-        QuerySet(Application).filter(id=self.data.get('application_id')).delete()
+        application_id = self.data.get('application_id')
+        QuerySet(ApplicationVersion).filter(application_id=application_id).delete()
+        QuerySet(ApplicationKnowledgeMapping).filter(application_id=application_id).delete()
+        QuerySet(ResourceMapping).filter(
+            Q(target_id=application_id) | Q(source_id=application_id)
+        ).delete()
+        QuerySet(Application).filter(id=application_id).delete()
         return True
 
     def export(self, with_valid=True):

@@ -46,6 +46,8 @@ from knowledge.task.sync import sync_web_knowledge, sync_replace_web_knowledge
 from maxkb.conf import PROJECT_DIR
 from models_provider.models import Model
 from system_manage.models import WorkspaceUserResourcePermission, AuthTargetType
+from system_manage.models.resource_mapping import ResourceMapping
+from system_manage.serializers.resource_mapping_serializers import ResourceMappingSerializer
 from system_manage.serializers.user_resource_permission import UserResourcePermissionSerializer
 from users.serializers.user import is_workspace_manage
 
@@ -186,7 +188,7 @@ class KnowledgeSerializer(serializers.Serializer):
                 raise serializers.ValidationError(_('Folder not found'))
             workspace_manage = is_workspace_manage(self.data.get('user_id'), self.data.get('workspace_id'))
             is_x_pack_ee = self.is_x_pack_ee()
-            return native_page_search(
+            result = native_page_search(
                 current_page,
                 page_size,
                 self.get_query_set(workspace_manage, is_x_pack_ee),
@@ -202,6 +204,7 @@ class KnowledgeSerializer(serializers.Serializer):
                 ),
                 post_records_handler=lambda r: r
             )
+            return ResourceMappingSerializer().get_resource_count(result)
 
         def list(self):
             self.is_valid(raise_exception=True)
@@ -434,6 +437,9 @@ class KnowledgeSerializer(serializers.Serializer):
             knowledge.delete()
             File.objects.filter(
                 source_id=knowledge.id,
+            ).delete()
+            QuerySet(ResourceMapping).filter(
+                Q(target_id=knowledge) | Q(source_id=knowledge)
             ).delete()
             delete_embedding_by_knowledge(self.data.get('knowledge_id'))
             return True
