@@ -253,7 +253,11 @@ def generate_tool_message_complete(name, input_content, output_content):
 
     # 格式化输出
     if '```' not in output_content:
-        output_formatted = tool_message_json_template % output_content
+        try:
+            json.loads(output_content)
+            output_formatted = tool_message_json_template % output_content
+        except:
+            output_formatted = output_content
     else:
         output_formatted = output_content
 
