@@ -334,6 +334,14 @@
                     {{ $t('views.tool.mcpConfig') }}
                   </el-dropdown-item>
                   <el-dropdown-item
+                    text
+                    @click.stop="openResourceMappingDrawer(row)"
+                    v-if="permissionPrecise.relate_map()"
+                  >
+                    <AppIcon iconName="app-resource-mapping" class="color-secondary"></AppIcon>
+                    {{ $t('views.system.resourceMapping.title') }}
+                  </el-dropdown-item>
+                  <el-dropdown-item
                     v-if="permissionPrecise.delete()"
                     divided
                     @click.stop="deleteTool(row)"
@@ -357,6 +365,7 @@
     <AddInternalToolDialog ref="AddInternalToolDialogRef" @refresh="confirmAddInternalTool"/>
     <McpToolConfigDialog ref="McpToolConfigDialogRef" @refresh="refresh"/>
     <ResourceAuthorizationDrawer :type="SourceTypeEnum.TOOL" ref="ResourceAuthorizationDrawerRef"/>
+    <ResourceMappingDrawer ref="resourceMappingDrawerRef"></ResourceMappingDrawer>
   </div>
 </template>
 
@@ -381,6 +390,7 @@ import UserApi from '@/api/user/user.ts'
 import {MsgSuccess, MsgConfirm, MsgError} from '@/utils/message'
 import permissionMap from '@/permission'
 import McpToolConfigDialog from '@/views/tool/component/McpToolConfigDialog.vue'
+import ResourceMappingDrawer from "@/components/resource_mapping/index.vue";
 
 const {user} = useStore()
 
@@ -680,6 +690,11 @@ function refresh(data?: any) {
     paginationConfig.current_page = 1
     getList()
   }
+}
+
+const resourceMappingDrawerRef = ref<InstanceType<typeof ResourceMappingDrawer>>()
+const openResourceMappingDrawer = (tool: any) => {
+  resourceMappingDrawerRef.value?.open('TOOL', tool.id)
 }
 
 onMounted(() => {

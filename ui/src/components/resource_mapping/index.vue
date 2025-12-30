@@ -49,8 +49,8 @@
           collapse-tags-tooltip
           style="width: 220px"
         >
-          <el-option :label="$t('views.application.title')" value="APPLICATION" />
-          <el-option :label="$t('views.knowledge.title')" value="KNOWLEDGE" />
+          <el-option :label="$t('views.application.title')" value="APPLICATION"/>
+          <el-option :label="$t('views.knowledge.title')" value="KNOWLEDGE"/>
         </el-select>
       </div>
     </div>
@@ -66,20 +66,21 @@
       :row-key="(row: any) => row.id"
       v-loading="loading"
     >
-      <el-table-column prop="name" label="名称" min-width="120" show-overflow-tooltip />
-      <el-table-column prop="desc" min-width="120" show-overflow-tooltip label="描述" />
-      <el-table-column prop="source_type" min-width="120" show-overflow-tooltip label="资源类型" />
-      <el-table-column prop="username" min-width="120" show-overflow-tooltip label="创建者" />
+      <el-table-column prop="name" label="名称" min-width="120" show-overflow-tooltip/>
+      <el-table-column prop="desc" min-width="120" show-overflow-tooltip label="描述"/>
+      <el-table-column prop="source_type" min-width="120" show-overflow-tooltip label="资源类型"/>
+      <el-table-column prop="username" min-width="120" show-overflow-tooltip label="创建者"/>
     </app-table>
   </el-drawer>
 </template>
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue'
-import { useRoute } from 'vue-router'
-import { loadSharedApi } from '@/utils/dynamics-api/shared-api'
+import {ref, reactive, computed} from 'vue'
+import {useRoute} from 'vue-router'
+import {loadSharedApi} from '@/utils/dynamics-api/shared-api'
 import useStore from '@/stores'
+
 const route = useRoute()
-const { user } = useStore()
+const {user} = useStore()
 const searchType = ref<string>('resource_name')
 const query = ref<any>({
   resource_name: '',
@@ -97,6 +98,8 @@ const paginationConfig = reactive({
 const apiType = computed(() => {
   if (route.path.includes('resource-management')) {
     return 'systemManage'
+  } else if (route.path.includes('shared')) {
+    return 'systemShare'
   } else {
     return 'workspace'
   }
@@ -108,7 +111,7 @@ const pageResouceMapping = () => {
   if (query.value[searchType.value]) {
     params[searchType.value] = query.value[searchType.value]
   }
-  loadSharedApi({ type: 'resourceMapping', systemType: apiType.value })
+  loadSharedApi({type: 'resourceMapping', systemType: apiType.value})
     .getResourceMapping(
       workspaceId,
       currentSource.value,
@@ -122,10 +125,12 @@ const pageResouceMapping = () => {
       paginationConfig.total = res.data.total || 0
     })
 }
+
 function handleSizeChange() {
   paginationConfig.current_page = 1
   pageResouceMapping()
 }
+
 const currentSource = ref<string>()
 const currentSourceId = ref<string>()
 const open = (source: string, sourceId: string) => {

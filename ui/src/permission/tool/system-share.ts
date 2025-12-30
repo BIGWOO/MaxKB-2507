@@ -1,14 +1,15 @@
-import { hasPermission } from '@/utils/permission/index'
-import { ComplexPermission } from '@/utils/permission/type'
-import { EditionConst, PermissionConst, RoleConst } from '@/utils/permission/data'
+import {hasPermission} from '@/utils/permission/index'
+import {ComplexPermission} from '@/utils/permission/type'
+import {EditionConst, PermissionConst, RoleConst} from '@/utils/permission/data'
+
 const share = {
   read: () =>
     hasPermission(
-     [
-       RoleConst.ADMIN,
-       PermissionConst.SHARED_TOOL_READ,
-     ],
-     'OR',
+      [
+        RoleConst.ADMIN,
+        PermissionConst.SHARED_TOOL_READ,
+      ],
+      'OR',
     ),
   is_share: () => false,
   create: () =>
@@ -19,7 +20,7 @@ const share = {
       ],
       'OR',
     ),
-    import: () =>
+  import: () =>
     hasPermission(
       [
         RoleConst.ADMIN,
@@ -27,7 +28,7 @@ const share = {
       ],
       'OR',
     ),
-    delete: () =>
+  delete: () =>
     hasPermission(
       [
         RoleConst.ADMIN,
@@ -35,7 +36,7 @@ const share = {
       ],
       'OR',
     ),
-    switch: () =>
+  switch: () =>
     hasPermission(
       [
         RoleConst.ADMIN,
@@ -43,7 +44,7 @@ const share = {
       ],
       'OR',
     ),
-    edit: () =>
+  edit: () =>
     hasPermission(
       [
         RoleConst.ADMIN,
@@ -51,7 +52,7 @@ const share = {
       ],
       'OR',
     ),
-    copy: () =>
+  copy: () =>
     hasPermission(
       [
         RoleConst.ADMIN,
@@ -59,7 +60,7 @@ const share = {
       ],
       'OR',
     ),
-    export: () =>
+  export: () =>
     hasPermission(
       [
         RoleConst.ADMIN,
@@ -67,7 +68,7 @@ const share = {
       ],
       'OR',
     ),
-    debug: () =>
+  debug: () =>
     hasPermission(
       [
         RoleConst.ADMIN,
@@ -77,7 +78,14 @@ const share = {
     ),
 
   auth: () => false,
-  relate_map: () => false,
+  relate_map: () =>
+    hasPermission(
+      [
+        RoleConst.ADMIN,
+        PermissionConst.SHARED_TOOL_RELATE_RESOURCE_VIEW,
+      ],
+      'OR',
+    ),
 
   folderRead: () => false,
   folderManage: () => false,

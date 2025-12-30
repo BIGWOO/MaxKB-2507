@@ -33,8 +33,11 @@ import applicationResourceApi from '@/api/system-resource-management/application
 import applicationKeyResourceApi from '@/api/system-resource-management/application-key'
 import workflowVersionResourceApi from '@/api/system-resource-management/workflow-version'
 import chatLogResourceApi from '@/api/system-resource-management/chat-log'
-import resourceAuthorizationResourceApi from '@/api/system-resource-management/resource-authorization'
+import resourceAuthorizationResourceApi
+  from '@/api/system-resource-management/resource-authorization'
 import folderResourceApi from '@/api/system-resource-management/folder'
+import systemResourceMappingApi from '@/api/system-shared/resource-mapping'
+import resourceManageMappingApi from '@/api/system-resource-management/resource-mapping'
 
 // 普通 API
 const workspaceApiMap = {
@@ -65,6 +68,7 @@ const systemShareApiMap = {
   problem: problemSystemShareApi,
   chatUser: chatUserSystemShareApi,
   workspace: systemUserApi, // 共享的应该查全部人吧
+  resourceMapping: systemResourceMappingApi,
 } as any
 
 // 资源管理 API
@@ -82,6 +86,7 @@ const systemManageApiMap = {
   chatLog: chatLogResourceApi,
   resourceAuthorization: resourceAuthorizationResourceApi,
   folder: folderResourceApi,
+  resourceMapping: resourceManageMappingApi,
 } as any
 
 const data = {
@@ -90,14 +95,15 @@ const data = {
   systemManage: systemManageApiMap,
   workspaceShare: workspaceApiMap,
 }
+
 /** 动态导入 API 模块的函数
  *  loadSharedApi('knowledge', true,'systemShare')
  */
 export function loadSharedApi({
-  type,
-  isShared,
-  systemType,
-}: {
+                                type,
+                                isShared,
+                                systemType,
+                              }: {
   type: string
   isShared?: boolean | undefined
   systemType?: 'systemShare' | 'workspace' | 'systemManage' | 'workspaceShare'

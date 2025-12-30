@@ -229,6 +229,14 @@
                     {{ $t('views.model.modelForm.title.paramSetting') }}
                   </el-dropdown-item>
                   <el-dropdown-item
+                    text
+                    @click.stop="openResourceMappingDrawer(row)"
+                    v-if="permissionPrecise.relate_map()"
+                  >
+                    <AppIcon iconName="app-resource-mapping" class="color-secondary"></AppIcon>
+                    {{ $t('views.system.resourceMapping.title') }}
+                  </el-dropdown-item>
+                  <el-dropdown-item
                     @click.stop="deleteModel(row)"
                     v-if="permissionPrecise.delete()"
                   >
@@ -248,6 +256,7 @@
       :type="SourceTypeEnum.MODEL"
       ref="ResourceAuthorizationDrawerRef"
     />
+    <ResourceMappingDrawer ref="resourceMappingDrawerRef"></ResourceMappingDrawer>
   </div>
 </template>
 
@@ -268,6 +277,7 @@ import {loadPermissionApi} from '@/utils/dynamics-api/permission-api.ts'
 import UserApi from '@/api/user/user.ts'
 import permissionMap from '@/permission'
 import {MsgConfirm, MsgSuccess} from '@/utils/message'
+import ResourceMappingDrawer from "@/components/resource_mapping/index.vue";
 
 const {user, model} = useStore()
 
@@ -413,6 +423,11 @@ function getProvider() {
     provider_list.value = res?.data
     getList()
   })
+}
+
+const resourceMappingDrawerRef = ref<InstanceType<typeof ResourceMappingDrawer>>()
+const openResourceMappingDrawer = (model: any) => {
+  resourceMappingDrawerRef.value?.open('MODEL', model.id)
 }
 
 onMounted(() => {

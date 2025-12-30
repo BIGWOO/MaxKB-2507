@@ -258,6 +258,14 @@
                   </el-dropdown-item
                   >
                   <el-dropdown-item
+                    text
+                    @click.stop="openResourceMappingDrawer(row)"
+                    v-if="permissionPrecise.relate_map()"
+                  >
+                    <AppIcon iconName="app-resource-mapping" class="color-secondary"></AppIcon>
+                    {{ $t('views.system.resourceMapping.title') }}
+                  </el-dropdown-item>
+                  <el-dropdown-item
                     type="danger"
                     @click.stop="deleteKnowledge(row)"
                     v-if="permissionPrecise.delete()"
@@ -279,6 +287,7 @@
       :type="SourceTypeEnum.KNOWLEDGE"
       ref="ResourceAuthorizationDrawerRef"
     />
+    <ResourceMappingDrawer ref="resourceMappingDrawerRef"></ResourceMappingDrawer>
   </div>
 </template>
 
@@ -299,6 +308,7 @@ import {t} from '@/locales'
 import useStore from '@/stores'
 import {hasPermission} from '@/utils/permission'
 import {PermissionConst, RoleConst} from '@/utils/permission/data'
+import ResourceMappingDrawer from "@/components/resource_mapping/index.vue";
 
 const router = useRouter()
 const {user} = useStore()
@@ -475,6 +485,10 @@ function getList() {
   })
 }
 
+const resourceMappingDrawerRef = ref<InstanceType<typeof ResourceMappingDrawer>>()
+const openResourceMappingDrawer = (knowledge: any) => {
+  resourceMappingDrawerRef.value?.open('KNOWLEDGE', knowledge.id)
+}
 onMounted(() => {
   getWorkspaceList()
   getList()

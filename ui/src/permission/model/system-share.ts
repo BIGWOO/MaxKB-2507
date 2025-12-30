@@ -1,6 +1,7 @@
-import { hasPermission } from '@/utils/permission/index'
-import { ComplexPermission } from '@/utils/permission/type'
-import { EditionConst, PermissionConst, RoleConst } from '@/utils/permission/data'
+import {hasPermission} from '@/utils/permission/index'
+import {ComplexPermission} from '@/utils/permission/type'
+import {EditionConst, PermissionConst, RoleConst} from '@/utils/permission/data'
+
 const share = {
   is_share: () => false,
   create: () =>
@@ -11,7 +12,7 @@ const share = {
       ],
       'OR',
     ),
-  modify: () => 
+  modify: () =>
     hasPermission(
       [
         RoleConst.ADMIN,
@@ -19,7 +20,7 @@ const share = {
       ],
       'OR',
     ),
-  paramSetting: () => 
+  paramSetting: () =>
     hasPermission(
       [
         RoleConst.ADMIN,
@@ -27,7 +28,7 @@ const share = {
       ],
       'OR',
     ),
-  delete: () => 
+  delete: () =>
     hasPermission(
       [
         RoleConst.ADMIN,
@@ -36,7 +37,14 @@ const share = {
       'OR',
     ),
   auth: () => false,
-  relate_map: () => false,
+  relate_map: () =>
+    hasPermission(
+      [
+        RoleConst.ADMIN,
+        PermissionConst.SHARED_MODEL_RELATE_RESOURCE_VIEW,
+      ],
+      'OR',
+    ),
   folderRead: () => false,
   folderManage: () => false,
   folderCreate: () => false,
