@@ -189,7 +189,7 @@ class BaseChatNode(IChatNode):
 
         # 处理 MCP 请求
         mcp_result = self._handle_mcp_request(
-            mcp_enable, tool_enable, mcp_source, mcp_servers, mcp_tool_id, mcp_tool_ids, tool_ids, application_enable,
+            mcp_source, mcp_servers, mcp_tool_id, mcp_tool_ids, tool_ids,
             application_ids, mcp_output_enable,
             chat_model, message_list, history_message, question
         )
@@ -209,67 +209,62 @@ class BaseChatNode(IChatNode):
                                'question': question.content}, {},
                               _write_context=write_context)
 
-    def _handle_mcp_request(self, mcp_enable, tool_enable, mcp_source, mcp_servers, mcp_tool_id, mcp_tool_ids, tool_ids,
-                            application_enable, application_ids,
+    def _handle_mcp_request(self, mcp_source, mcp_servers, mcp_tool_id, mcp_tool_ids, tool_ids,
+                            application_ids,
                             mcp_output_enable, chat_model, message_list, history_message, question):
-        if not mcp_enable and not tool_enable and not application_enable:
-            return None
 
         mcp_servers_config = {}
 
         # 迁移过来mcp_source是None
         if mcp_source is None:
             mcp_source = 'custom'
-        if mcp_enable:
-            # 兼容老数据
-            if not mcp_tool_ids:
-                mcp_tool_ids = []
-            if mcp_tool_id:
-                mcp_tool_ids = list(set(mcp_tool_ids + [mcp_tool_id]))
-            if mcp_source == 'custom' and mcp_servers is not None and '"stdio"' not in mcp_servers:
-                mcp_servers_config = json.loads(mcp_servers)
-                mcp_servers_config = self.handle_variables(mcp_servers_config)
-            elif mcp_tool_ids:
-                mcp_tools = QuerySet(Tool).filter(id__in=mcp_tool_ids).values()
-                for mcp_tool in mcp_tools:
-                    if mcp_tool and mcp_tool['is_active']:
-                        mcp_servers_config = {**mcp_servers_config, **json.loads(mcp_tool['code'])}
-                        mcp_servers_config = self.handle_variables(mcp_servers_config)
+        # 兼容老数据
+        if not mcp_tool_ids:
+            mcp_tool_ids = []
+        if mcp_tool_id:
+            mcp_tool_ids = list(set(mcp_tool_ids + [mcp_tool_id]))
+        if mcp_source == 'custom' and mcp_servers is not None and '"stdio"' not in mcp_servers:
+            mcp_servers_config = json.loads(mcp_servers)
+            mcp_servers_config = self.handle_variables(mcp_servers_config)
+        elif mcp_tool_ids:
+            mcp_tools = QuerySet(Tool).filter(id__in=mcp_tool_ids).values()
+            for mcp_tool in mcp_tools:
+                if mcp_tool and mcp_tool['is_active']:
+                    mcp_servers_config = {**mcp_servers_config, **json.loads(mcp_tool['code'])}
+                    mcp_servers_config = self.handle_variables(mcp_servers_config)
 
-        if tool_enable:
-            if tool_ids and len(tool_ids) > 0:  # 如果有工具ID，则将其转换为MCP
-                self.context['tool_ids'] = tool_ids
-                for tool_id in tool_ids:
-                    tool = QuerySet(Tool).filter(id=tool_id).first()
-                    if not tool.is_active:
-                        continue
-                    executor = ToolExecutor()
-                    if tool.init_params is not None:
-                        params = json.loads(rsa_long_decrypt(tool.init_params))
-                    else:
-                        params = {}
-                    tool_config = executor.get_tool_mcp_config(tool.code, params, tool.name, tool.desc)
+        if tool_ids and len(tool_ids) > 0:  # 如果有工具ID，则将其转换为MCP
+            self.context['tool_ids'] = tool_ids
+            for tool_id in tool_ids:
+                tool = QuerySet(Tool).filter(id=tool_id).first()
+                if not tool.is_active:
+                    continue
+                executor = ToolExecutor()
+                if tool.init_params is not None:
+                    params = json.loads(rsa_long_decrypt(tool.init_params))
+                else:
+                    params = {}
+                tool_config = executor.get_tool_mcp_config(tool.code, params, tool.name, tool.desc)
 
-                    mcp_servers_config[str(tool.id)] = tool_config
+                mcp_servers_config[str(tool.id)] = tool_config
 
-        if application_enable:
-            if application_ids and len(application_ids) > 0:
-                self.context['application_ids'] = application_ids
-                for application_id in application_ids:
-                    app = QuerySet(Application).filter(id=application_id, is_publish=True).first()
-                    if app is None:
-                        continue
-                    app_key = QuerySet(ApplicationApiKey).filter(application_id=application_id, is_active=True).first()
-                    if app_key is not None:
-                        api_key = app_key.secret_key
-                    else:
-                        raise AppApiException(
-                            500,
-                            _('Application Key is required for application tool 【{name}】').format(name=app.name)
-                        )
-                    executor = ToolExecutor()
-                    app_config = executor.get_app_mcp_config(api_key)
-                    mcp_servers_config[app.name] = app_config
+        if application_ids and len(application_ids) > 0:
+            self.context['application_ids'] = application_ids
+            for application_id in application_ids:
+                app = QuerySet(Application).filter(id=application_id, is_publish=True).first()
+                if app is None:
+                    continue
+                app_key = QuerySet(ApplicationApiKey).filter(application_id=application_id, is_active=True).first()
+                if app_key is not None:
+                    api_key = app_key.secret_key
+                else:
+                    raise AppApiException(
+                        500,
+                        _('Application Key is required for application tool 【{name}】').format(name=app.name)
+                    )
+                executor = ToolExecutor()
+                app_config = executor.get_app_mcp_config(api_key)
+                mcp_servers_config[app.name] = app_config
 
         if len(mcp_servers_config) > 0:
             r = mcp_response_generator(chat_model, message_list, json.dumps(mcp_servers_config), mcp_output_enable)
