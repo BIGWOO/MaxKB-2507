@@ -146,7 +146,7 @@
         min-width="120"
         show-overflow-tooltip
         :label="$t('views.workspace.title')"
-        v-if="user.isPE() || user.isEE()"
+        v-if="showWorkspace"
       />
       <el-table-column
         prop="username"
@@ -191,6 +191,9 @@ const apiType = computed(() => {
     return 'workspace'
   }
 })
+
+const showWorkspace = computed(() => (user.isPE() || user.isEE()) && route.path.includes('shared')
+)
 
 const currentSourceName = computed(() => {
   if (currentSourceType.value === 'TOOL') {
