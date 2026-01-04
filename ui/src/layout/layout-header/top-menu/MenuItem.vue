@@ -4,7 +4,7 @@
     :class="isActive ? 'active' : ''"
     @click="router.push({ name: menu.name })"
   >
-    <div class="title flex align-center color-secondary">
+    <div class="title flex align-center">
       <AppIcon
         :iconName="isActive ? menu.meta?.iconActive || menu.meta?.icon : menu?.meta?.icon"
         style="font-size: 16px"
