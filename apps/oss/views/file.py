@@ -68,7 +68,7 @@ class FileView(APIView):
 
 
 class GetUrlView(APIView):
-    authentication_classes = [TokenAuth]
+    authentication_classes = [AllTokenAuth]
 
     @extend_schema(
         methods=['GET'],
