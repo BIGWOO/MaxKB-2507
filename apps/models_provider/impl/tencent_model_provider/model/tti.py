@@ -90,3 +90,4 @@ class TencentTextToImageModel(MaxKBBaseModel, BaseTextToImage):
             return file_urls
         except TencentCloudSDKException as err:
             maxkb_logger.error(f"Tencent Text to Image API call failed: {err}")
+            raise Exception(f"Tencent Text to Image API call failed: {err}")
