@@ -234,7 +234,7 @@ class BaseChatStep(IChatStep):
         # 兼容老数据
         if not mcp_tool_ids:
             mcp_tool_ids = []
-        if mcp_source == 'custom' and mcp_servers is not None and '"stdio"' not in mcp_servers:
+        if mcp_source == 'custom' and mcp_servers and '"stdio"' not in mcp_servers:
             mcp_servers_config = json.loads(mcp_servers)
         elif mcp_tool_ids:
             mcp_tools = QuerySet(Tool).filter(id__in=mcp_tool_ids).values()
