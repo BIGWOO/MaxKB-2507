@@ -63,7 +63,7 @@
                 </el-text>
                 <el-text class="color-text-primary" v-else>
                   <el-icon class="is-loading color-primary"><Loading /></el-icon>
-                  {{ $t('common.status.padding') }}
+                  {{ $t('common.status.STARTED') }}
                 </el-text>
               </p>
             </el-col>

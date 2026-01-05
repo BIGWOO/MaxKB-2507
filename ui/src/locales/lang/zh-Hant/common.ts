@@ -75,7 +75,7 @@ export default {
     success: '成功',
     fail: '失敗',
     all: '全部',
-    padding: '執行中',
+    STARTED: '執行中',
     REVOKED: '已取消',
     REVOKE: '取消中',
   },

@@ -27,7 +27,8 @@
         >
           <el-option :label="$t('common.status.success')" value="SUCCESS" />
           <el-option :label="$t('common.status.fail')" value="FAILURE" />
-          <el-option :label="$t('common.status.padding')" value="PADDING" />
+          <el-option :label="$t('common.status.STARTED')" value="STARTED" />
+          <el-option :label="$t('common.status.REVOKED')" value="REVOKED" />
         </el-select>
         <el-input
           v-else
@@ -77,7 +78,7 @@
           </el-text>
           <el-text class="color-text-primary" v-else>
             <el-icon class="is-loading color-primary"><Loading /></el-icon>
-            {{ $t('common.status.padding') }}
+            {{ $t('common.status.STARTED') }}
           </el-text>
         </template>
       </el-table-column>

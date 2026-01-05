@@ -94,9 +94,9 @@
       :row-key="(row: any) => row.id"
       v-loading="loading"
     >
-      <el-table-column prop="name" :label="$t('common.name')" min-width="120" show-overflow-tooltip>
+      <el-table-column prop="name" :label="$t('common.name')" min-width="130" show-overflow-tooltip>
         <template #default="{ row }">
-          <el-button link>
+          <el-button link @click="toSetting(row)">
             <div class="flex align-center">
               <KnowledgeIcon
                 v-if="row.source_type === 'KNOWLEDGE'"
@@ -211,15 +211,15 @@
 </template>
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { loadSharedApi } from '@/utils/dynamics-api/shared-api'
 import { isAppIcon, resetUrl } from '@/utils/common'
 import useStore from '@/stores'
 import { t } from '@/locales'
 import type { Provider } from '@/api/type/model'
 import { loadPermissionApi } from '@/utils/dynamics-api/permission-api.ts'
-
 const route = useRoute()
+const router = useRouter()
 const { model, user } = useStore()
 const searchType = ref<string>('resource_name')
 const query = ref<any>({
@@ -342,6 +342,35 @@ async function getWorkspaceList() {
       label: item.name,
       value: item.id,
     }))
+  }
+}
+
+function toSetting(row: any) {
+  let from = ''
+  if (route.path.includes('resource-management')) {
+    from = 'resource-management'
+  } else if (route.path.includes('shared')) {
+    from = 'shared'
+  } else {
+    from = 'workspace'
+  }
+  if (row.source_type === 'KNOWLEDGE') {
+    const newUrl = router.resolve({
+      path: `/knowledge/${row.source_id}/${from}/${row.type}/document`,
+    }).href
+    window.open(newUrl)
+  } else if (row.source_type === 'APPLICATION') {
+    if (row.type === 'WORK_FLOW') {
+      const newUrl = router.resolve({
+        path: `/application/${from}/${row.source_id}/workflow`,
+      }).href
+      window.open(newUrl)
+    } else {
+      const newUrl = router.resolve({
+        path: `/application/${from}/${row.source_id}/SIMPLE/setting`,
+      }).href
+      window.open(newUrl)
+    }
   }
 }
 
