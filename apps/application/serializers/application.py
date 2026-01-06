@@ -834,6 +834,7 @@ class ApplicationOperateSerializer(serializers.Serializer):
             'file_upload_setting': 'file_upload_setting',
             'mcp_enable': 'mcp_enable', 'mcp_tool_ids': 'mcp_tool_ids', 'mcp_servers': 'mcp_servers',
             'mcp_source': 'mcp_source', 'tool_enable': 'tool_enable', 'tool_ids': 'tool_ids',
+            'application_enable': 'application_enable', 'application_ids': 'application_ids',
             'mcp_output_enable': 'mcp_output_enable',
             'type': 'type'
         }
