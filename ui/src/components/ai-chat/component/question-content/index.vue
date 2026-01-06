@@ -24,7 +24,75 @@
               </template>
             </el-space>
           </div>
-
+          <div class="mb-8" v-if="image_list.length">
+            <el-space wrap>
+              <template v-for="(item, index) in image_list" :key="index">
+                <div class="file cursor border-r-6" v-if="item.url">
+                  <el-image
+                    :src="item.url"
+                    :zoom-rate="1.2"
+                    :max-scale="7"
+                    :min-scale="0.2"
+                    :preview-src-list="getAttrsArray(image_list, 'url')"
+                    :initial-index="index"
+                    alt=""
+                    fit="cover"
+                    style="width: 170px; height: 170px; display: block"
+                    class="border-r-6"
+                  />
+                </div>
+              </template>
+            </el-space>
+          </div>
+          <div class="mb-8" v-if="audio_list.length">
+            <el-space wrap>
+              <template v-for="(item, index) in audio_list" :key="index">
+                <div class="file cursor border-r-6" v-if="item.url">
+                  <audio
+                    :src="item.url"
+                    controls
+                    style="width: 350px; height: 43px"
+                    class="border-r-6"
+                  />
+                </div>
+              </template>
+            </el-space>
+          </div>
+          <div class="mb-8" v-if="video_list.length">
+            <el-space wrap>
+              <template v-for="(item, index) in video_list" :key="index">
+                <div class="file cursor border-r-6" v-if="item.url">
+                  <video
+                    :src="item.url"
+                    style="width: 170px; display: block"
+                    class="border-r-6"
+                    controls
+                    autoplay
+                  />
+                </div>
+              </template>
+            </el-space>
+          </div>
+          <div class="mb-8" v-if="other_list.length">
+            <el-space wrap class="w-full media-file-width">
+              <template v-for="(item, index) in other_list" :key="index">
+                <el-card shadow="never" style="--el-card-padding: 8px" class="download-file cursor">
+                  <div class="download-button flex align-center" @click="downloadFile(item)">
+                    <el-icon class="mr-4">
+                      <Download/>
+                    </el-icon>
+                    {{ $t('chat.download') }}
+                  </div>
+                  <div class="show flex align-center">
+                    <img :src="getImgUrl(item && item?.name)" alt="" width="24"/>
+                    <div class="ml-4 ellipsis-1" :title="item && item?.name">
+                      {{ item && item?.name }}
+                    </div>
+                  </div>
+                </el-card>
+              </template>
+            </el-space>
+          </div>
           <span> {{ chatRecord.problem_text }}</span>
         </div>
       </div>
@@ -122,6 +190,7 @@ import { type chatType } from '@/api/type/application'
 import { getImgUrl, downloadByURL } from '@/utils/common'
 import { useRoute, useRouter } from 'vue-router'
 import { onMounted, computed, ref, nextTick } from 'vue'
+import {getAttrsArray} from '@/utils/array'
 import { copyClick } from '@/utils/clipboard'
 const route = useRoute()
 const {
