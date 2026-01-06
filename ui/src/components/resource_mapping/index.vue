@@ -357,7 +357,7 @@ function toSetting(row: any) {
   }
   if (row.source_type === 'KNOWLEDGE') {
     const newUrl = router.resolve({
-      path: `/knowledge/${row.source_id}/${from}/${row.type}/document`,
+      path: `/knowledge/${row.source_id}/${from === 'workspace' ? row.folder_id : from}/${row.type}/document`,
     }).href
     window.open(newUrl)
   } else if (row.source_type === 'APPLICATION') {

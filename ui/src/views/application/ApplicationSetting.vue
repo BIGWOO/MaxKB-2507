@@ -386,7 +386,7 @@
                             <ToolIcon v-else type="MCP" class="mr-8" :size="20" />
 
                             <div
-                              class="ellipsis"
+                              class="ellipsis-1"
                               :title="relatedObject(mcpToolSelectOptions, item, 'id')?.name"
                             >
                               {{
@@ -486,7 +486,7 @@
                             <ToolIcon v-else class="mr-8" :size="20" />
 
                             <div
-                              class="ellipsis"
+                              class="ellipsis-1"
                               :title="relatedObject(toolSelectOptions, item, 'id')?.name"
                             >
                               {{ relatedObject(toolSelectOptions, item, 'id')?.name }}
@@ -567,7 +567,7 @@
                             <AppIcon v-else class="mr-8" :size="20" />
 
                             <div
-                              class="ellipsis"
+                              class="ellipsis-1"
                               :title="relatedObject(applicationSelectOptions, item, 'id')?.name"
                             >
                               {{ relatedObject(applicationSelectOptions, item, 'id')?.name }}
@@ -800,7 +800,6 @@ import McpServersDialog from '@/views/application/component/McpServersDialog.vue
 import ToolDialog from '@/views/application/component/ToolDialog.vue'
 import ApplicationDialog from '@/views/application/component/ApplicationDialog.vue'
 import useStore from '@/stores'
-import { Agent } from 'http'
 const route = useRoute()
 const router = useRouter()
 const {
