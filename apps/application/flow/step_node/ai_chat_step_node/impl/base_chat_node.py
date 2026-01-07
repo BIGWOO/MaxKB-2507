@@ -20,7 +20,7 @@ from langchain_core.messages import BaseMessage, AIMessage
 from application.flow.i_step_node import NodeResult, INode
 from application.flow.step_node.ai_chat_step_node.i_chat_node import IChatNode
 from application.flow.tools import Reasoning, mcp_response_generator
-from application.models import Application, ApplicationApiKey
+from application.models import Application, ApplicationApiKey, ApplicationAccessToken
 from common.exception.app_exception import AppApiException
 from common.utils.rsa_util import rsa_long_decrypt
 from common.utils.tool_code import ToolExecutor
@@ -255,10 +255,19 @@ class BaseChatNode(IChatNode):
                 app_key = QuerySet(ApplicationApiKey).filter(application_id=application_id, is_active=True).first()
                 if app_key is not None:
                     api_key = app_key.secret_key
+                    application_access_token = QuerySet(ApplicationAccessToken).filter(
+                        application_id=app_key.application_id
+                    ).first()
+                    if application_access_token is not None and application_access_token.authentication:
+                        raise AppApiException(
+                            500,
+                            _('Agent 【{name}】 access token authentication is not supported for agent tool').format(
+                                name=app.name)
+                        )
                 else:
                     raise AppApiException(
                         500,
-                        _('Application Key is required for application tool 【{name}】').format(name=app.name)
+                        _('Agent Key is required for agent tool 【{name}】').format(name=app.name)
                     )
                 executor = ToolExecutor()
                 app_config = executor.get_app_mcp_config(api_key)
