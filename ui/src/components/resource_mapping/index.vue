@@ -28,7 +28,7 @@
         v-else-if="currentSourceType === 'TOOL'"
         class="mr-12"
         :size="24"
-        :type="currentSource.type"
+        :type="currentSource.tool_type"
       />
 
       <span

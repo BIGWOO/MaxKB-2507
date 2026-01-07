@@ -86,7 +86,7 @@ export default {
     initParam: 'Startup Parameters',
     editParam: 'Edit Parameter',
     addParam: 'Add Parameter',
-    exception: 'Exception capture',
+    exception: 'Exception Capture',
   },
   aggregationStrategy: 'Aggregation Strategy',
   inputPlaceholder: 'Please input',
