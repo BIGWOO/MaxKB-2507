@@ -73,8 +73,10 @@ class ToolExecutor:
         allow_subprocess = CONFIG.get("SANDBOX_PYTHON_ALLOW_SUBPROCESS", '0')
         allow_syscall = CONFIG.get("SANDBOX_PYTHON_ALLOW_SYSCALL", '0')
         if banned_hosts:
-            local_ip = socket.gethostbyname(socket.gethostname())
+            hostname = socket.gethostname()
+            local_ip = socket.gethostbyname(hostname)
             banned_hosts = f"{banned_hosts},{local_ip}"
+            banned_hosts = ",".join(s.strip() for s in banned_hosts.split(",") if s.strip() and s.strip().lower() != hostname.lower())
         with open(sandbox_conf_file_path, "w") as f:
             f.write(f"SANDBOX_PYTHON_BANNED_HOSTS={banned_hosts}\n")
             f.write(f"SANDBOX_PYTHON_ALLOW_DL_PATHS={','.join(sorted(set(filter(None, sys.path + _sandbox_python_sys_path + allow_dl_paths.split(',')))))}\n")
