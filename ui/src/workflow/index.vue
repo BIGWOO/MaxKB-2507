@@ -110,11 +110,10 @@ const renderGraphData = (data?: any) => {
       // 清除当前节点下面的子节点的所有缓存
       data.nodeModel.clear_next_node_field(false)
     })
-    if (lf.value.graphModel?.nodes.length > 1) {
-      setTimeout(() => {
-        lf.value?.fitView()
-      }, 500)
-    }
+
+    setTimeout(() => {
+      lf.value?.fitView()
+    }, 500)
   }
 }
 
