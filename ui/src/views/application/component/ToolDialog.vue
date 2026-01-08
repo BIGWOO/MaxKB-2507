@@ -22,8 +22,8 @@
       </div>
     </template>
     <!-- 共享的知识库工作流中，只能查共享的工具，这里不需要展示左边的树，只需展示右边的内容   -->
-    <LayoutContainer class="application-manage">
-      <template #left v-if="apiType !== 'systemShare'">
+    <LayoutContainer class="application-manage" :show-left="apiType !== 'systemShare'">
+      <template #left>
         <folder-tree
           :data="folderList"
           :currentNodeKey="currentFolder?.id"
