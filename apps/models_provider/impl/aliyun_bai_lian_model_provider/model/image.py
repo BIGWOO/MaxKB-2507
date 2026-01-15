@@ -27,7 +27,7 @@ class QwenVLChatModel(MaxKBBaseModel, BaseChatOpenAI):
         chat_tong_yi = QwenVLChatModel(
             model_name=model_name,
             openai_api_key=model_credential.get('api_key'),
-            openai_api_base='https://dashscope.aliyuncs.com/compatible-mode/v1',
+            openai_api_base=model_credential.get('api_base') or 'https://dashscope.aliyuncs.com/compatible-mode/v1',
             # stream_options={"include_usage": True},
             streaming=True,
             stream_usage=True,
@@ -109,7 +109,7 @@ class QwenVLChatModel(MaxKBBaseModel, BaseChatOpenAI):
             stop: Optional[list[str]] = None,
             **kwargs: Any,
     ) -> Iterator[BaseMessageChunk]:
-        url = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
+        url = f"{self.openai_api_base}/chat/completions"
 
         headers = {
             "Authorization": f"Bearer {self.openai_api_key.get_secret_value()}",
