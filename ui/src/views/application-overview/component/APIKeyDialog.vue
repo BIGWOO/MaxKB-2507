@@ -67,7 +67,7 @@
 import { ref, watch, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { copyClick } from '@/utils/clipboard'
-import SettingAPIKeyDialog from './SettingAPIKeyDialog.vue'
+import SettingAPIKeyDialog from './SettingAPIKeyDrawer.vue'
 import { datetimeFormat } from '@/utils/time'
 import { MsgSuccess, MsgConfirm } from '@/utils/message'
 import { t } from '@/locales'

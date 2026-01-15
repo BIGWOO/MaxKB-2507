@@ -2,7 +2,16 @@ import moment from 'moment'
 import 'moment/dist/locale/zh-cn'
 
 moment.locale('zh-cn')
-import {t} from '@/locales'
+import { t } from '@/locales'
+
+export const expiredTimeList = {
+  'never': t('layout.time.neverExpires'),
+  '7': '7 ' + t('layout.time.daysValid'),
+  '30': '30 ' + t('layout.time.daysValid'),
+  '90': '90 ' + t('layout.time.daysValid'),
+  '180': '180 ' + t('layout.time.daysValid'),
+  'custom': t('common.custom'),
+}
 
 // 当天日期 YYYY-MM-DD
 export const nowDate = moment().format('YYYY-MM-DD')
@@ -11,6 +20,18 @@ export const nowDate = moment().format('YYYY-MM-DD')
 export function beforeDay(n: number | string) {
   return moment().subtract(n, 'days').format('YYYY-MM-DD')
 }
+// 当前时间的n天后的时间戳
+export function AfterTimestamp(n: number | string) {
+  return Number(moment().add(parseInt(n as string), 'days').format('x'))
+}
+
+export function formatEndDate(date: any) {
+  return Number(moment(date).endOf('day').format('x'));
+} // date的23点59分
+
+export function formatStartDate(date: any) {
+  return Number(moment(date).startOf('day').format('x'));
+} // date的0点
 
 const getCheckDate = (timestamp: any) => {
   if (!timestamp) return false
@@ -42,7 +63,6 @@ export const dateFormat = (timestamp: any) => {
 
   return `${y}-${m}-${d}`
 }
-
 
 export function fromNowDate(time: any) {
   // 拿到当前时间戳和发布时的时间戳，然后得出时间戳差

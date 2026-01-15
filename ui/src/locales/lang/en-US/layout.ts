@@ -7,6 +7,7 @@ export default {
   apiServiceAddress: 'API Service Address',
   language: 'Language',
   isExpire: 'License not uploaded or expired',
+  crossSettings: 'Cross-Origin Settings',
   about: {
     title: 'About',
     expiredTime: 'Expiration Date',
@@ -32,9 +33,9 @@ export default {
     daysLater: 'days later',
     hoursLater: 'hours later',
     expired: 'expired',
-    expiringSoon: 'expiring soon'
+    expiringSoon: 'expiring soon',
   },
   copyright: 'Copyright © 2014-2026 FIT2CLOUD, All rights reserved.',
   userManualUrl: 'http://docs.maxkb.hk/',
-  forumUrl: 'https://github.com/1Panel-dev/MaxKB/discussions'
+  forumUrl: 'https://github.com/1Panel-dev/MaxKB/discussions',
 }
