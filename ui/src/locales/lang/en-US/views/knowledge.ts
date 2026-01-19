@@ -18,7 +18,8 @@ export default {
     confirmTitle: 'Confirm deletion of knowledge:',
     confirmMessage1: 'This knowledge is related with',
     confirmMessage2: 'agent. Deleting it will be irreversible, please proceed with caution.',
-    resourceCountMessage: 'This knowledge is associated with {count} resources, and will be unavailable after deletion. Please proceed with caution.',
+    resourceCountMessage:
+      'This knowledge is associated with {count} resources, and will be unavailable after deletion. Please proceed with caution.',
   },
   knowledgeType: {
     label: 'Type',
@@ -78,7 +79,8 @@ export default {
       },
       basic: {
         title: 'Basic Template',
-        description: 'Supports basic workflow templates for local files, Lark documents, and web site data sources',
+        description:
+          'Supports basic workflow templates for local files, Lark documents, and web site data sources',
       },
     },
   },
@@ -102,5 +104,15 @@ export default {
     complete: 'Full Sync',
     completeText: 'Delete all documents in the local knowledge and re-fetch web site documents',
     tip: 'Note: All syncs will delete existing data and re-fetch new data. Please proceed with caution.',
+  },
+  transform: {
+    button: 'Convert',
+    Title: 'Convert to Workflow Knowledge Base',
+    message1:
+      "You can now convert your existing knowledge base into a workflow knowledge base—a more open and flexible type that allows you to autonomously orchestrate the entire process from various data sources to knowledge base writing through drag-and-drop node operations, meeting your enterprise's personalized knowledge management needs. You can utilize the data sources and tools available in our suite. ",
+    message2: 'The new processing method will be applied to all documents imported subsequently.',
+    Tip: 'Note: The conversion cannot be undone.',
+    Confirm:
+      'Are you sure you want to convert to the workflow knowledge base? This action cannot be undone. Please proceed with caution.',
   },
 }

@@ -24,15 +24,10 @@
       <el-table-column prop="secret_key" label="API Key">
         <template #default="{ row }">
           <div class="api-key-container">
-            <el-tooltip
-              :content="row.secret_key"
-              placement="top"
-              effect="light"
-              :hide-after="0"
-            >
-        <span class="api-key-text vertical-middle lighter break-all">
-          {{ row.secret_key }}
-        </span>
+            <el-tooltip :content="row.secret_key" placement="top" effect="light" :hide-after="0">
+              <span class="api-key-text vertical-middle lighter break-all">
+                {{ row.secret_key }}
+              </span>
             </el-tooltip>
             <el-button type="primary" text @click="copyClick(row.secret_key)" class="copy-btn">
               <AppIcon iconName="app-copy"></AppIcon>
@@ -44,7 +39,7 @@
         <template #default="{ row }">
           <div v-if="row.is_active" class="flex align-center">
             <el-icon class="color-success mr-8" style="font-size: 16px">
-              <SuccessFilled/>
+              <SuccessFilled />
             </el-icon>
             <span class="color-text-primary">
               {{ $t('common.status.enabled') }}
@@ -71,19 +66,19 @@
 
       <el-table-column :label="$t('layout.about.expiredTime')" width="265">
         <template #default="{ row }">
-    <span v-if="row.is_permanent" class="permanent-status">
-      {{ t('layout.time.neverExpires') }}
-    </span>
+          <span v-if="row.is_permanent" class="permanent-status">
+            {{ t('layout.time.neverExpires') }}
+          </span>
           <span v-else class="expiry-info">
-      <span
-        v-if="fromNowDate(row.expire_time)"
-        :class="getExpiryClass(row.expire_time)"
-        class="relative-time"
-      >
-        ({{ fromNowDate(row.expire_time) }})
-      </span>
-      {{ datetimeFormat(row.expire_time) }}
-    </span>
+            <span
+              v-if="fromNowDate(row.expire_time)"
+              :class="getExpiryClass(row.expire_time)"
+              class="relative-time"
+            >
+              ({{ fromNowDate(row.expire_time) }})
+            </span>
+            {{ datetimeFormat(row.expire_time) }}
+          </span>
         </template>
       </el-table-column>
       <el-table-column :label="$t('common.createDate')" width="170" prop="create_time" sortable>
@@ -94,9 +89,9 @@
       <el-table-column :label="$t('common.operation')" align="left" width="130">
         <template #default="{ row }">
           <span @click.stop>
-            <el-switch size="small" v-model="row.is_active" @change="changeState($event, row)"/>
+            <el-switch size="small" v-model="row.is_active" @change="changeState($event, row)" />
           </span>
-          <el-divider direction="vertical"/>
+          <el-divider direction="vertical" />
           <span class="mr-4">
             <el-tooltip effect="dark" :content="$t('common.setting')" placement="top">
               <el-button type="primary" text @click.stop="settingApiKey(row)">
@@ -112,23 +107,23 @@
         </template>
       </el-table-column>
     </app-table>
-    <SettingAPIKeyDialog ref="SettingAPIKeyDialogRef" @refresh="refresh"/>
+    <SettingAPIKeyDialog ref="SettingAPIKeyDialogRef" @refresh="refresh" />
   </el-dialog>
 </template>
 <script setup lang="ts">
-import {ref, watch, computed, reactive} from 'vue'
-import {useRoute} from 'vue-router'
-import {copyClick} from '@/utils/clipboard'
+import { ref, watch, computed, reactive } from 'vue'
+import { useRoute } from 'vue-router'
+import { copyClick } from '@/utils/clipboard'
 import SettingAPIKeyDialog from './SettingAPIKeyDrawer.vue'
-import {datetimeFormat, fromNowDate} from '@/utils/time'
-import {MsgSuccess, MsgConfirm} from '@/utils/message'
-import {t} from '@/locales'
-import {loadSharedApi} from '@/utils/dynamics-api/shared-api'
+import { datetimeFormat, fromNowDate } from '@/utils/time'
+import { MsgSuccess, MsgConfirm } from '@/utils/message'
+import { t } from '@/locales'
+import { loadSharedApi } from '@/utils/dynamics-api/shared-api'
 
 const orderBy = ref<string>('')
 const route = useRoute()
 const {
-  params: {id},
+  params: { id },
 } = route
 
 const apiType = computed(() => {
@@ -149,7 +144,6 @@ function handleSizeChange() {
   paginationConfig.current_page = 1
   getApiKeyList()
 }
-
 
 const emit = defineEmits(['addData'])
 
@@ -179,15 +173,14 @@ function deleteApiKey(row: any) {
     },
   )
     .then(() => {
-      loadSharedApi({type: 'applicationKey', systemType: apiType.value})
+      loadSharedApi({ type: 'applicationKey', systemType: apiType.value })
         .delAPIKey(id as string, row.id, loading)
         .then(() => {
           MsgSuccess(t('common.deleteSuccess'))
           getApiKeyList()
         })
     })
-    .catch(() => {
-    })
+    .catch(() => {})
 }
 
 async function changeState(row: any) {
@@ -195,7 +188,7 @@ async function changeState(row: any) {
     is_active: !row.is_active,
   }
   const str = obj.is_active ? t('common.status.enabled') : t('common.status.disabled')
-  await loadSharedApi({type: 'applicationKey', systemType: apiType.value})
+  await loadSharedApi({ type: 'applicationKey', systemType: apiType.value })
     .putAPIKey(id as string, row.id, obj, loading)
     .then(() => {
       MsgSuccess(str)
@@ -208,7 +201,7 @@ async function changeState(row: any) {
 }
 
 function createApiKey() {
-  loadSharedApi({type: 'applicationKey', systemType: apiType.value})
+  loadSharedApi({ type: 'applicationKey', systemType: apiType.value })
     .postAPIKey(id as string, loading)
     .then(() => {
       getApiKeyList()
@@ -224,25 +217,31 @@ function getApiKeyList() {
   const param = {
     order_by: orderBy.value,
   }
-  loadSharedApi({type: 'applicationKey', systemType: apiType.value})
-    .getAPIKey(id as string, paginationConfig.current_page, paginationConfig.page_size, param, loading)
+  loadSharedApi({ type: 'applicationKey', systemType: apiType.value })
+    .getAPIKey(
+      id as string,
+      paginationConfig.current_page,
+      paginationConfig.page_size,
+      param,
+      loading,
+    )
     .then((res: any) => {
       apiKey.value = res.data.records
       paginationConfig.total = res.data.total
     })
 }
 
-function handleSortChange({prop, order}: { prop: string; order: string }) {
+function handleSortChange({ prop, order }: { prop: string; order: string }) {
   orderBy.value = order === 'ascending' ? prop : `-${prop}`
   getApiKeyList()
 }
 
 function getExpiryClass(expireTime: any) {
-  const status = fromNowDate(expireTime);
+  const status = fromNowDate(expireTime)
   if (status === t('layout.time.expired')) {
-    return 'expired-status'; // 红色
+    return 'color-danger' // 红色
   } else {
-    return 'expiring-status'; // 橙色
+    return 'color-warning' // 橙色
   }
 }
 
@@ -250,7 +249,7 @@ function refresh() {
   getApiKeyList()
 }
 
-defineExpose({open})
+defineExpose({ open })
 </script>
 <style lang="scss" scoped>
 .api-key-container {
@@ -270,14 +269,5 @@ defineExpose({open})
   .copy-btn {
     flex-shrink: 0; /* 复制按钮不收缩 */
   }
-}
-
-
-.expired-status {
-  color: var(--el-color-danger); // 红色
-}
-
-.expiring-status {
-  color: var(--el-color-warning); // 橙色
 }
 </style>

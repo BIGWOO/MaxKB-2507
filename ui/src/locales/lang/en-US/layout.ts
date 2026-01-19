@@ -32,7 +32,6 @@ export default {
   time: {
     daysLater: 'days later expire',
     hoursLater: 'hours later expire',
-    neverExpires: 'never expires',
     minutesLater: 'minutes later expire',
     expired: 'expired',
     expiringSoon: 'expiring soon',
