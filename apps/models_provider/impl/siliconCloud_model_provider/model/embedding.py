@@ -50,7 +50,6 @@ class SiliconCloudEmbeddingModel(MaxKBBaseModel):
         }
 
         response = requests.post(self.base_url + '/embeddings', json=payload, headers=headers)
-        print(response.text)
         data = response.json()
         if data['data'] is None or 'code' in data:
             raise ValueError(f"Embedding API returned no data: {data}")
