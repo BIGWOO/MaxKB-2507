@@ -3,6 +3,7 @@ from http import HTTPStatus
 from typing import Dict
 
 from dashscope import ImageSynthesis, MultiModalConversation
+from dashscope.aigc.image_generation import ImageGeneration
 from django.utils.translation import gettext
 from langchain_community.chat_models import ChatTongyi
 from langchain_core.messages import HumanMessage
@@ -17,10 +18,12 @@ class QwenTextToImageModel(MaxKBBaseModel, BaseTextToImage):
     api_key: str
     model_name: str
     params: dict
+    api_base: str
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.api_key = kwargs.get('api_key')
+        self.api_base = kwargs.get('api_base')
         self.model_name = kwargs.get('model_name')
         self.params = kwargs.get('params')
 
@@ -37,6 +40,7 @@ class QwenTextToImageModel(MaxKBBaseModel, BaseTextToImage):
         chat_tong_yi = QwenTextToImageModel(
             model_name=model_name,
             api_key=model_credential.get('api_key'),
+            api_base=model_credential.get('api_base'),
             **optional_params,
         )
         return chat_tong_yi
@@ -46,10 +50,39 @@ class QwenTextToImageModel(MaxKBBaseModel, BaseTextToImage):
         chat.invoke([HumanMessage([{"type": "text", "text": gettext('Hello')}])])
 
     def generate_image(self, prompt: str, negative_prompt: str = None):
-        if self.model_name.startswith("wan"):
+        if self.model_name.startswith("wan2.6") or self.model_name.startswith("z"):
+            from dashscope.api_entities.dashscope_response import Message
+            # 以下为北京地域url，各地域的base_url不同
+            message = Message(
+                role="user",
+                content=[
+                    {
+                        'text': prompt
+                    }
+                ]
+            )
+            rsp = ImageGeneration.call(
+                model="z-image-turbo",
+                api_key=self.api_key,
+                base_url=self.api_base,
+                messages=[message],
+                negative_prompt=negative_prompt,
+                **self.params
+            )
+            file_urls = []
+            if rsp.status_code == HTTPStatus.OK:
+                for result in rsp.output.results:
+                    file_urls.append(result.url)
+            else:
+                maxkb_logger.error('sync_call Failed, status_code: %s, code: %s, message: %s' %
+                                   (rsp.status_code, rsp.code, rsp.message))
+                raise Exception('sync_call Failed, status_code: %s, code: %s, message: %s' %
+                                (rsp.status_code, rsp.code, rsp.message))
+            return file_urls
+        elif self.model_name.startswith("wan"):
             rsp = ImageSynthesis.call(api_key=self.api_key,
                                       model=self.model_name,
-                                      base_url='https://dashscope.aliyuncs.com/compatible-mode/v1',
+                                      base_url=self.api_base,
                                       prompt=prompt,
                                       negative_prompt=negative_prompt,
                                       **self.params)
@@ -61,7 +94,7 @@ class QwenTextToImageModel(MaxKBBaseModel, BaseTextToImage):
                 maxkb_logger.error('sync_call Failed, status_code: %s, code: %s, message: %s' %
                                    (rsp.status_code, rsp.code, rsp.message))
                 raise Exception('sync_call Failed, status_code: %s, code: %s, message: %s' %
-                                   (rsp.status_code, rsp.code, rsp.message))
+                                (rsp.status_code, rsp.code, rsp.message))
             return file_urls
         elif self.model_name.startswith("qwen"):
             messages = [
@@ -80,7 +113,7 @@ class QwenTextToImageModel(MaxKBBaseModel, BaseTextToImage):
                 model=self.model_name,
                 messages=messages,
                 result_format='message',
-                base_url='https://dashscope.aliyuncs.com/v1',
+                base_url=self.api_base,
                 stream=False,
                 negative_prompt=negative_prompt,
                 **self.params
@@ -93,5 +126,5 @@ class QwenTextToImageModel(MaxKBBaseModel, BaseTextToImage):
                 maxkb_logger.error('sync_call Failed, status_code: %s, code: %s, message: %s' %
                                    (rsp.status_code, rsp.code, rsp.message))
                 raise Exception('sync_call Failed, status_code: %s, code: %s, message: %s' %
-                                   (rsp.status_code, rsp.code, rsp.message))
+                                (rsp.status_code, rsp.code, rsp.message))
             return file_urls

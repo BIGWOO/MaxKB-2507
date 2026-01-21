@@ -15,6 +15,7 @@ from common import forms
 from common.exception.app_exception import AppApiException
 from common.forms import BaseForm, TooltipLabel
 from common.utils.logger import maxkb_logger
+from community.apps.models_provider.impl.xf_model_provider.xf_model_provider import default_tts_credential
 from models_provider.base_model_provider import BaseModelCredential, ValidCode
 
 
@@ -45,7 +46,7 @@ class TencentVisionModelCredential(BaseForm, BaseModelCredential):
         if not any(list(filter(lambda mt: mt.get('value') == model_type, model_type_list))):
             raise AppApiException(ValidCode.valid_error.value,
                                   gettext('{model_type} Model type is not supported').format(model_type=model_type))
-        for key in ['api_key']:
+        for key in ['api_key', 'api_base']:
             if key not in model_credential:
                 if raise_exception:
                     raise AppApiException(ValidCode.valid_error.value, gettext('{key}  is required').format(key=key))
@@ -72,6 +73,7 @@ class TencentVisionModelCredential(BaseForm, BaseModelCredential):
     def encryption_dict(self, model: Dict[str, object]):
         return {**model, 'api_key': super().encryption(model.get('api_key', ''))}
 
+    api_base = forms.TextInputField('API URL', required=True, default_value='https://api.hunyuan.cloud.tencent.com/v1')
     api_key = forms.PasswordInputField('API Key', required=True)
 
     def get_model_params_setting_form(self, model_name):
