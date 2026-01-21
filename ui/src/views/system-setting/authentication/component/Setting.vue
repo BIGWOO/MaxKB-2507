@@ -61,7 +61,6 @@
                   :max="10"
                   :step="1"
                   controls-position="right"
-                  @change="onMaxAttemptsChange"
                 />
                 <span style="margin-left: 8px; font-size: 13px">
                   {{ $t('views.system.loginFailedMessage') }}

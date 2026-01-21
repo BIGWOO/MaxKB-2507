@@ -38,4 +38,13 @@ export default {
       placeholder: '請給當前內容設定一個標題，以便管理查看',
     },
   },
+  online: '線上使用',
+  apiCall: 'API 呼叫',
+  enterpriseWechat: '企業微信應用',
+  wechatPublicAccount: '微信公眾號',
+  lark: '飛書應用',
+  dingtalk: '釘釘應用',
+  enterpriseWechatRobot: '企業微信機器人',
+  slack: 'Slack 機器人',
+  trigger: '觸發器',
 }

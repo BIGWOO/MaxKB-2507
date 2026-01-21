@@ -37,5 +37,14 @@ export default {
     title: {
       placeholder: '请给当前内容设置一个标题，以便管理查看'
     }
-  }
+  },
+  online: '在线使用',
+  apiCall: 'API 调用',
+  enterpriseWeChat: '企业微信应用',
+  wechatPublicAccount: '微信公众号',
+  lark: '飞书应用',
+  dingtalk: '钉钉应用',
+  enterpriseWeChatRobot: '企业微信机器人',
+  slack: 'Slack 机器人',
+  trigger: '触发器',
 }

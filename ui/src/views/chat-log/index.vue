@@ -169,6 +169,21 @@
             {{ row.asker?.username }}
           </template>
         </el-table-column>
+        <el-table-column
+          prop="ip_address"
+          :label="$t('views.operateLog.table.ip_address')"
+          width="120"
+        >
+          <template #default="{ row }">
+            {{ row.ip_address || '-' }}
+          </template>
+        </el-table-column>
+
+        <el-table-column prop="source" :label="$t('views.tool.form.source.label')">
+          <template #default="{ row }">
+            {{ getSourceTypeName(row.source?.type) }}
+          </template>
+        </el-table-column>
         <el-table-column :label="$t('views.chatLog.table.recenTimes')" width="180">
           <template #default="{ row }">
             {{ datetimeFormat(row.update_time) }}
@@ -307,6 +322,32 @@ const search_form = ref<any>({
 
 const search_type_change = () => {
   search_form.value = {abstract: '', username: ''}
+}
+
+// 定义源类型枚举
+enum SourceType {
+  ONLINE = 'ONLINE',
+  API_CALL = 'API_CALL',
+  ENTERPRISE_WECHAT = 'ENTERPRISE_WECHAT',
+  WECHAT_PUBLIC_ACCOUNT = 'WECHAT_PUBLIC_ACCOUNT',
+  LARK = 'LARK',
+  DINGTALK = 'DINGTALK',
+  ENTERPRISE_WECHAT_ROBOT = 'ENTERPRISE_WECHAT_ROBOT',
+  TRIGGER = 'TRIGGER',
+  SLACK = 'SLACK'
+}
+
+// 创建国际化键值映射
+const SOURCE_TYPE_TRANSLATIONS: Record<SourceType, string> = {
+  [SourceType.ONLINE]: 'views.chatLog.online',
+  [SourceType.API_CALL]: 'views.chatLog.apiCall',
+  [SourceType.ENTERPRISE_WECHAT]: 'views.chatLog.enterpriseWeChat',
+  [SourceType.WECHAT_PUBLIC_ACCOUNT]: 'views.chatLog.wechatPublicAccount',
+  [SourceType.LARK]: 'views.chatLog.lark',
+  [SourceType.DINGTALK]: 'views.chatLog.dingtalk',
+  [SourceType.ENTERPRISE_WECHAT_ROBOT]: 'views.chatLog.enterpriseWeChatRobot',
+  [SourceType.TRIGGER]: 'views.chatLog.trigger',
+  [SourceType.SLACK]: 'views.chatLog.slack'
 }
 
 const dayOptions = [
@@ -595,6 +636,13 @@ const submitForm = async () => {
 function openDocumentDialog() {
   SelectKnowledgeDocumentRef.value?.clearValidate()
   documentDialogVisible.value = true
+}
+
+const getSourceTypeName = (sourceType: SourceType | undefined) => {
+  if (!sourceType) return '-'
+
+  const translationKey = SOURCE_TYPE_TRANSLATIONS[sourceType]
+  return translationKey ? t(translationKey) : '-'
 }
 
 onMounted(() => {

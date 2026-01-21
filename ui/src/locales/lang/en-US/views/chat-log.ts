@@ -38,4 +38,13 @@ export default {
       placeholder: 'Please set a title for the current content for management and viewing',
     },
   },
+  online: 'Online Usage',
+  apiCall: 'API Call',
+  enterpriseWechat: 'Enterprise WeChat Application',
+  wechatPublicAccount: 'WeChat Public Account',
+  lark: 'Lark Application',
+  dingtalk: 'DingTalk Application',
+  enterpriseWechatRobot: 'Enterprise WeChat Bot',
+  slack: 'Slack Bot',
+  trigger: 'Trigger',
 }
