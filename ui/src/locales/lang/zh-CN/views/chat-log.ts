@@ -46,5 +46,4 @@ export default {
   dingtalk: '钉钉应用',
   enterpriseWeChatRobot: '企业微信机器人',
   slack: 'Slack 机器人',
-  trigger: '触发器',
 }

@@ -346,7 +346,7 @@ const SOURCE_TYPE_TRANSLATIONS: Record<SourceType, string> = {
   [SourceType.LARK]: 'views.chatLog.lark',
   [SourceType.DINGTALK]: 'views.chatLog.dingtalk',
   [SourceType.ENTERPRISE_WECHAT_ROBOT]: 'views.chatLog.enterpriseWeChatRobot',
-  [SourceType.TRIGGER]: 'views.chatLog.trigger',
+  [SourceType.TRIGGER]: 'views.trigger.title',
   [SourceType.SLACK]: 'views.chatLog.slack'
 }
 

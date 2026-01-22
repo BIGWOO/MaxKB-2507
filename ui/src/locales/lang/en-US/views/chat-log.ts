@@ -46,5 +46,4 @@ export default {
   dingtalk: 'DingTalk Application',
   enterpriseWechatRobot: 'Enterprise WeChat Bot',
   slack: 'Slack Bot',
-  trigger: 'Trigger',
 }

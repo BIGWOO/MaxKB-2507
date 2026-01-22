@@ -1,6 +1,6 @@
 <template>
   <div class="document p-16-24">
-    <h2 class="mb-16">{{ $t('view.trigger.name', '触发器') }}</h2>
+    <h2 class="mb-16">{{ $t('views.trigger.title') }}</h2>
     <el-card style="--el-card-padding: 0">
       <div class="main-calc-height">
         <div class="p-24">
@@ -10,7 +10,7 @@
                 >{{ $t('common.create') }}
               </el-button>
               <el-button @click="batchChangeState(true)" :disabled="multipleSelection.length === 0"
-                >{{ $t('view.trigger.activate', '启用') }}
+                >{{ $t('views.trigger.activate', '启用') }}
               </el-button>
               <el-button @click="batchChangeState(false)" :disabled="multipleSelection.length === 0"
                 >{{ $t('view.trigger.ban', '禁用') }}
