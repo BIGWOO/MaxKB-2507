@@ -62,7 +62,7 @@ class QwenTextToImageModel(MaxKBBaseModel, BaseTextToImage):
                 ]
             )
             rsp = ImageGeneration.call(
-                model="z-image-turbo",
+                model=self.model_name,
                 api_key=self.api_key,
                 base_url=self.api_base,
                 messages=[message],
@@ -71,8 +71,8 @@ class QwenTextToImageModel(MaxKBBaseModel, BaseTextToImage):
             )
             file_urls = []
             if rsp.status_code == HTTPStatus.OK:
-                for result in rsp.output.results:
-                    file_urls.append(result.url)
+                for result in rsp.output.choices:
+                    file_urls.append(result.message.content[0].get('image'))
             else:
                 maxkb_logger.error('sync_call Failed, status_code: %s, code: %s, message: %s' %
                                    (rsp.status_code, rsp.code, rsp.message))
