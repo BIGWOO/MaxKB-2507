@@ -12,6 +12,7 @@
     <el-tooltip effect="dark" :content="$t('views.trigger.title')" placement="top">
       <el-button
         text
+        @click="router.push({ name: 'trigger' })"
         :class="route.path.includes('trigger') ? 'active' : ''"
       >
         <AppIcon

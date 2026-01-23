@@ -41,7 +41,7 @@
         <el-card
           shadow="never"
           class="mb-16"
-          :class="form.authentication_value?.type === 'password' ? 'active' : ''"
+          :class="form.authentication_value?.type === 'password' ? 'border-active' : ''"
         >
           <el-radio value="password" size="large">
             <p class="mb-4 lighter">
@@ -81,7 +81,7 @@
         <el-card
           shadow="never"
           class="mb-16"
-          :class="form.authentication_value.type === 'login' ? 'active' : ''"
+          :class="form.authentication_value.type === 'login' ? 'border-active' : ''"
         >
           <el-radio value="login" size="large">
             <p class="mb-16 lighter flex align-center">
@@ -151,10 +151,10 @@
               :step="1"
               controls-position="right"
             />
-            <span style="margin-left: 8px; font-size: 13px">
+            <span class="ml-8" style="font-size: 13px">
               {{ $t('views.system.loginFailedMessage') }}
             </span>
-            <span style="margin-left: 8px; color: #909399; font-size: 12px">
+            <span class="ml-8 font-small" style="color: #909399">
               ({{ $t('views.system.display_codeTip') }})
             </span>
           </el-form-item>

@@ -1,5 +1,9 @@
 <template>
-  <el-drawer v-model="drawer" :title="is_edit ? '修改触发器' : '创建触发器'">
+  <el-drawer
+    v-model="drawer"
+    :title="is_edit ? $t('views.trigger.editTrigger') : $t('views.trigger.createTrigger')"
+    size="600"
+  >
     <el-form
       :model="form"
       label-width="auto"
@@ -9,245 +13,351 @@
       class="mb-24"
     >
       <el-form-item
-        label="触发器名称"
+        :label="$t('views.trigger.from.triggerName.label')"
         prop="name"
         :rules="{
-          message: `触发器名称为必填参数`,
+          message: $t('views.trigger.from.triggerName.requiredMessage'),
           trigger: 'blur',
           required: true,
         }"
       >
-        <el-input v-model="form.name" />
+        <el-input
+          v-model="form.name"
+          maxlength="64"
+          :placeholder="$t('views.trigger.from.triggerName.placeholder')"
+          show-word-limit
+          @blur="form.name = form.name?.trim()"
+        />
       </el-form-item>
       <el-form-item
-        label="描述"
+        :label="$t('common.desc')"
         prop="desc"
         :rules="{
-          message: `触发器名称为必填参数`,
+          message: $t('common.inputPlaceholder'),
           trigger: 'blur',
           required: true,
         }"
       >
-        <el-input v-model="form.desc" />
+        <el-input
+          v-model="form.desc"
+          type="textarea"
+          :placeholder="$t('common.inputPlaceholder')"
+          :rows="3"
+          maxlength="256"
+          show-word-limit
+        />
       </el-form-item>
       <el-form-item
-        label="触发器类型"
-        prop="desc"
+        :label="$t('common.type')"
+        prop="trigger_type"
         :rules="{
-          message: `触发器名称为必填参数`,
+          message: $t('common.selectPlaceholder'),
           trigger: 'blur',
           required: true,
         }"
       >
-        <el-radio-group v-model="form.trigger_type" class="card__radio">
-          <el-card
-            shadow="never"
-            class="mb-16"
-            :class="form.trigger_type === 'SCHEDULED' ? 'active' : ''"
-          >
-            <el-radio value="SCHEDULED" size="large">
-              <p class="mb-4">定时触发</p>
-              <el-text type="info"> 每月、每周、每日或间隔时间执行任务</el-text>
-            </el-radio>
-            <el-card
-              v-if="form.trigger_type === 'SCHEDULED'"
-              shadow="never"
-              class="card-never mt-16 w-full"
-              style="margin-left: 30px"
-              ><div>
-                <el-row style="font-size: 14px" class="mb-8 w-full" :gutter="10">
-                  <el-col :span="24" class="w-full">
-                    <span s class="w-full">触发周期</span>
-                  </el-col>
-                </el-row>
-                <el-row style="width: 100%" :gutter="10" class="mb-8">
-                  <el-col :span="24">
-                    <div class="grid-content ep-bg-purple" />
-                    <el-cascader v-model="scheduled" :options="options" @change="handleChange" />
-                  </el-col>
-                </el-row>
-              </div>
-            </el-card>
-          </el-card>
-          <el-card
-            shadow="never"
-            class="mb-16"
-            :class="form.trigger_type === 'EVENT' ? 'active' : ''"
-          >
-            <el-radio value="EVENT" size="large">
-              <p class="mb-4">事件触发</p>
-              <el-text type="info"> 当某个事件发送时执行任务 </el-text>
-            </el-radio>
+        <el-card
+          shadow="never"
+          class="mb-16 w-full cursor"
+          :class="form.trigger_type === 'SCHEDULED' ? 'border-active' : ''"
+          @click="form.trigger_type = 'SCHEDULED'"
+        >
+          <div class="flex align-center line-height-22">
+            <el-avatar shape="square" size="32">
+              <img src="@/assets/trigger/icon_scheduled.svg" style="width: 58%" alt="" />
+            </el-avatar>
+            <div class="ml-12">
+              <h5>{{ $t('views.trigger.type.scheduled') }}</h5>
+              <el-text type="info" class="color-secondary font-small">{{
+                $t('views.trigger.type.scheduledDesc')
+              }}</el-text>
+            </div>
+          </div>
 
-            <el-card
-              v-if="form.trigger_type === 'EVENT'"
-              shadow="never"
-              class="card-never mt-16"
-              style="margin-left: 30px"
-            >
-              <el-form-item label="复制 URL 到你的应用">
-                <el-input v-bind:modelValue="event_url">
-                  <template #append>
-                    <el-button @click="copy" :icon="CopyDocument" />
-                  </template>
-                </el-input>
-              </el-form-item>
-              <el-form-item label="Bearer Token">
-                <el-input v-model="form.trigger_setting.token"> </el-input>
-              </el-form-item>
-              <el-form-item label="请求参数">
-                <template #label>
-                  <div class="flex-between">
-                    {{ $t('dynamicsForm.Select.label') }}
-                    <el-button link type="primary" @click.stop="addParameter()">
-                      <AppIcon iconName="app-add-outlined" class="mr-4"></AppIcon>
-                      {{ $t('common.add') }}
-                    </el-button>
-                  </div>
-                </template>
-                <el-card class="w-full">
-                  <el-row style="width: 100%" :gutter="10">
-                    <el-col :span="5">
-                      <div class="grid-content ep-bg-purple" />
-                      参数名
-                    </el-col>
-                    <el-col :span="5">
-                      <div class="grid-content ep-bg-purple" />
-                      类型
-                    </el-col>
-                    <el-col :span="5">
-                      <div class="grid-content ep-bg-purple" />
-                      描述
-                    </el-col>
-                    <el-col :span="6">
-                      <div class="grid-content ep-bg-purple" />
-                      必填
-                    </el-col>
-                  </el-row>
-                  <el-row
-                    style="width: 100%"
-                    v-for="(option, $index) in form.trigger_setting.body"
-                    :key="$index"
-                    :gutter="10"
-                    class="mb-8"
-                  >
-                    <el-col :span="5">
-                      <div class="grid-content ep-bg-purple" />
-                      <el-input
-                        v-model="form.trigger_setting.body[$index].field"
-                        :placeholder="$t('dynamicsForm.tag.placeholder')"
-                      />
-                    </el-col>
-                    <el-col :span="5">
-                      <div class="grid-content ep-bg-purple" />
-                      <el-select
-                        v-model="form.trigger_setting.body[$index].type"
-                        placeholder="请选择类型"
-                      >
-                        <el-option label="string" value="string" />
-                        <el-option label="int" value="int" />
-                        <el-option label="dict" value="dict" />
-                        <el-option label="array" value="array" />
-                        <el-option label="float" value="float" />
-                        <el-option label="boolean" value="boolean" />
-                      </el-select>
-                    </el-col>
-                    <el-col :span="5">
-                      <div class="grid-content ep-bg-purple" />
-                      <el-input
-                        v-model="form.trigger_setting.body[$index].desc"
-                        :placeholder="$t('dynamicsForm.Select.label')"
-                      />
-                    </el-col>
-                    <el-col :span="6">
-                      <div class="grid-content ep-bg-purple" />
-                      <el-switch
-                        v-model="form.trigger_setting.body[$index].required"
-                        size="small"
-                      />
-                    </el-col>
-                    <el-col :span="1">
-                      <div class="grid-content ep-bg-purple" />
-                      <el-button link class="ml-8" @click.stop="delParameter($index)">
-                        <AppIcon iconName="app-delete"></AppIcon>
-                      </el-button>
-                    </el-col>
-                  </el-row>
-                </el-card>
-              </el-form-item>
-            </el-card>
+          <el-card
+            v-if="form.trigger_type === 'SCHEDULED'"
+            shadow="never"
+            class="card-never mt-16 w-full"
+            ><div>
+              <el-row style="font-size: 14px" class="mb-8 w-full" :gutter="10">
+                <el-col :span="24" class="w-full">
+                  <span class="w-full">触发周期</span>
+                </el-col>
+              </el-row>
+              <el-row style="width: 100%" :gutter="10" class="mb-8">
+                <el-col :span="24">
+                  <el-cascader v-model="scheduled" :options="options" @change="handleChange" />
+                </el-col>
+              </el-row>
+            </div>
           </el-card>
-        </el-radio-group>
+        </el-card>
+        <el-card
+          shadow="never"
+          class="w-full cursor"
+          :class="form.trigger_type === 'EVENT' ? 'border-active' : ''"
+          @click="form.trigger_type = 'EVENT'"
+        >
+          <div class="flex align-center line-height-22">
+            <el-avatar shape="square" class="avatar-orange" size="32">
+              <img src="@/assets/trigger/icon_event.svg" style="width: 58%" alt="" />
+            </el-avatar>
+            <div class="ml-12">
+              <h5>{{ $t('views.trigger.type.event') }}</h5>
+              <el-text type="info" class="color-secondary font-small">{{
+                $t('views.trigger.type.eventDesc')
+              }}</el-text>
+            </div>
+          </div>
+          <el-card v-if="form.trigger_type === 'EVENT'" shadow="never" class="card-never mt-16">
+            <el-form-item label="复制 URL 到你的应用">
+              <div class="complex-input flex align-center w-full" style="background-color: #ffffff">
+                <el-input class="complex-input__left" v-bind:modelValue="event_url"></el-input>
+
+                <el-tooltip :content="$t('common.copy')" placement="top">
+                  <el-button text @click="copy">
+                    <AppIcon iconName="app-copy" class="color-secondary"></AppIcon>
+                  </el-button>
+                </el-tooltip>
+              </div>
+            </el-form-item>
+            <el-form-item label="Bearer Token">
+              <el-input
+                type="password"
+                :placeholder="$t('common.inputPlaceholder')"
+                v-model="form.trigger_setting.token"
+                show-password
+              >
+              </el-input>
+            </el-form-item>
+            <el-form-item>
+              <template #label>
+                <div class="flex-between">
+                  {{ $t('请求参数') }}
+                  <el-button link type="primary" @click.stop="addParameter()">
+                    <AppIcon iconName="app-add-outlined" class="mr-4"></AppIcon>
+                  </el-button>
+                </div>
+              </template>
+              <el-card
+                class="w-full border-none"
+                shadow="never"
+                style="--el-card-padding: 8px 16px 16px"
+              >
+                <el-row style="width: 100%" :gutter="10">
+                  <el-col :span="7">
+                    {{ $t('views.tool.form.paramName.label') }}
+                  </el-col>
+                  <el-col :span="7">
+                    {{ $t('common.type') }}
+                  </el-col>
+                  <el-col :span="7">
+                    {{ $t('common.desc') }}
+                  </el-col>
+                  <el-col :span="3">
+                    {{ $t('common.required') }}
+                  </el-col>
+                </el-row>
+                <el-row
+                  style="width: 99%"
+                  v-for="(option, $index) in form.trigger_setting.body"
+                  :key="$index"
+                  :gutter="8"
+                >
+                  <el-col :span="7" class="mb-8">
+                    <el-input
+                      v-model="form.trigger_setting.body[$index].field"
+                      :placeholder="$t('common.inputPlaceholder')"
+                    />
+                  </el-col>
+                  <el-col :span="7">
+                    <el-select
+                      v-model="form.trigger_setting.body[$index].type"
+                      :placeholder="$t('common.selectPlaceholder')"
+                    >
+                      <el-option label="string" value="string" />
+                      <el-option label="int" value="int" />
+                      <el-option label="dict" value="dict" />
+                      <el-option label="array" value="array" />
+                      <el-option label="float" value="float" />
+                      <el-option label="boolean" value="boolean" />
+                    </el-select>
+                  </el-col>
+                  <el-col :span="7">
+                    <el-input
+                      v-model="form.trigger_setting.body[$index].desc"
+                      :placeholder="$t('common.inputPlaceholder')"
+                    />
+                  </el-col>
+                  <el-col :span="2">
+                    <el-switch v-model="form.trigger_setting.body[$index].required" size="small" />
+                  </el-col>
+                  <el-col :span="1">
+                    <el-button text class="ml-8" @click.stop="delParameter($index)">
+                      <AppIcon iconName="app-delete" class="color-secondary"></AppIcon>
+                    </el-button>
+                  </el-col>
+                </el-row>
+              </el-card>
+            </el-form-item>
+          </el-card>
+        </el-card>
       </el-form-item>
       <el-form-item label="任务执行">
-        <el-card shadow="never" class="card-never mt-16 w-full" style="margin-left: 30px">
-          <el-form-item label="智能体">
-            <template #label>
-              <div class="flex-between">
-                智能体
-                <el-button link type="primary" @click.stop="openApplicationDialog()">
-                  <AppIcon iconName="app-add-outlined" class="mr-4"></AppIcon>
-                  {{ $t('common.add') }}
-                </el-button>
+        <el-card shadow="never" class="card-never w-full" style="--el-card-padding: 8px 12px">
+          <!-- 智能体    -->
+          <div class="flex-between" @click="collapseData.agent = !collapseData.agent">
+            <div class="flex align-center lighter cursor">
+              <el-icon class="mr-8 arrow-icon" :class="collapseData.agent ? 'rotate-90' : ''">
+                <CaretRight />
+              </el-icon>
+              {{ $t('views.application.title') }}
+              <span class="ml-4" v-if="applicationTask?.length">
+                ({{ applicationTask?.length }})</span
+              >
+            </div>
+            <div class="flex">
+              <el-button type="primary" link @click.stop="openApplicationDialog()">
+                <AppIcon iconName="app-add-outlined" class="mr-4"></AppIcon>
+              </el-button>
+            </div>
+          </div>
+          <div class="w-full" v-if="collapseData.agent">
+            <template v-for="(item, index) in applicationTask" :key="index">
+              <div class="border border-r-6 white-bg mt-8" style="padding: 2px 8px">
+                <div class="flex-between">
+                  <div class="flex align-center" style="line-height: 20px">
+                    <el-avatar
+                      v-if="applicationDetailsDict[item.source_id]?.icon"
+                      shape="square"
+                      :size="20"
+                      style="background: none"
+                      class="mr-8"
+                    >
+                      <img :src="resetUrl(applicationDetailsDict[item.source_id]?.icon)" alt="" />
+                    </el-avatar>
+                    <AppIcon v-else class="mr-8" :size="20" />
+
+                    <div class="ellipsis-1" :title="applicationDetailsDict[item.source_id]?.name">
+                      {{ applicationDetailsDict[item.source_id]?.name }}
+                    </div>
+                  </div>
+                  <div style="margin-top: -2px">
+                    <span class="mr-4">
+                      <el-button
+                        text
+                        @click="showTast = showTast === 'agent' + index ? '' : 'agent' + index"
+                      >
+                        <el-icon
+                          class="arrow-icon"
+                          :class="showTast === 'agent' + index ? 'rotate-180' : ''"
+                        >
+                          <ArrowDown />
+                        </el-icon>
+                      </el-button>
+                    </span>
+                    <span class="mr-4">
+                      <el-button text>
+                        <el-icon><Close /></el-icon>
+                      </el-button>
+                    </span>
+                  </div>
+                </div>
+                <ApplicationParameter
+                  class="mt-8 mb-8"
+                  ref="applicationParameterRef"
+                  v-if="showTast === 'agent' + index && applicationDetailsDict[item.source_id]"
+                  :application="applicationDetailsDict[item.source_id]"
+                  :trigger="form"
+                  v-model="item.parameter"
+                ></ApplicationParameter>
               </div>
             </template>
-            <el-card v-for="task in applicationTask" class="w-full">
-              <el-collapse accordion>
-                <el-collapse-item :title="applicationDetailsDict[task.source_id]?.name">
-                  <ApplicationParameter
-                    ref="applicationParameterRef"
-                    v-if="applicationDetailsDict[task.source_id]"
-                    :application="applicationDetailsDict[task.source_id]"
-                    :trigger="form"
-                    v-model="task.parameter"
-                  ></ApplicationParameter>
-                </el-collapse-item>
-              </el-collapse>
-            </el-card>
-          </el-form-item>
+          </div>
+          <!-- 工具    -->
+          <div class="flex-between" @click="collapseData.tool = !collapseData.tool">
+            <div class="flex align-center lighter cursor">
+              <el-icon class="mr-8 arrow-icon" :class="collapseData.tool ? 'rotate-90' : ''">
+                <CaretRight />
+              </el-icon>
+              {{ $t('views.tool.title') }}
+              <span class="ml-4" v-if="toolTask?.length"> ({{ toolTask?.length }})</span>
+            </div>
+            <div class="flex">
+              <el-button type="primary" link @click.stop="openToolDialog()">
+                <AppIcon iconName="app-add-outlined" class="mr-4"></AppIcon>
+              </el-button>
+            </div>
+          </div>
+          <div class="w-full" v-if="collapseData.tool">
+            <template v-for="(item, index) in toolDetailsDict" :key="index">
+              <div class="border border-r-6 white-bg mb-4" style="padding: 2px 8px 5px">
+                <div class="flex-between">
+                  <div class="flex align-center" style="line-height: 20px">
+                    <el-avatar
+                      v-if="toolDetailsDict[item.source_id]?.icon"
+                      shape="square"
+                      :size="20"
+                      style="background: none"
+                      class="mr-8"
+                    >
+                      <img :src="resetUrl(toolDetailsDict[item.source_id]?.icon)" alt="" />
+                    </el-avatar>
+                    <ToolIcon v-else class="mr-8" :size="20" />
+
+                    <div class="ellipsis-1" :title="toolDetailsDict[item.source_id]?.name">
+                      {{ toolDetailsDict[item.source_id]?.name }}
+                    </div>
+                  </div>
+                  <div style="margin-top: -2px">
+                    <span class="mr-4">
+                      <el-button
+                        text
+                        @click="showTast = showTast === 'tool' + index ? '' : 'tool' + index"
+                      >
+                        <el-icon
+                          class="arrow-icon"
+                          :class="showTast === 'tool' + index ? 'rotate-180' : ''"
+                        >
+                          <ArrowDown />
+                        </el-icon>
+                      </el-button>
+                    </span>
+                    <span class="mr-4">
+                      <el-button text>
+                        <el-icon><Close /></el-icon>
+                      </el-button>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <ToolParameter
+                class="mt-8 mb-8"
+                ref="toolParameterRef"
+                v-if="showTast === 'tool' + index && toolDetailsDict[item.source_id]"
+                :tool="toolDetailsDict[item.source_id]"
+                :trigger="form"
+                v-model="item.parameter"
+              ></ToolParameter>
+            </template>
+          </div>
         </el-card>
-        <el-card shadow="never" class="card-never mt-16 w-full" style="margin-left: 30px">
-          <el-form-item label="工具">
-            <template #label>
-              <div class="flex-between">
-                工具
-                <el-button link type="primary" @click.stop="openToolDialog()">
-                  <AppIcon iconName="app-add-outlined" class="mr-4"></AppIcon>
-                  {{ $t('common.add') }}
-                </el-button>
-              </div>
-            </template>
-            <el-card v-for="task in toolTask" class="w-full">
-              <el-collapse accordion>
-                <el-collapse-item :title="toolDetailsDict[task.source_id]?.name">
-                  <ToolParameter
-                    ref="toolParameterRef"
-                    v-if="toolDetailsDict[task.source_id]"
-                    :tool="toolDetailsDict[task.source_id]"
-                    :trigger="form"
-                    v-model="task.parameter"
-                  ></ToolParameter>
-                </el-collapse-item>
-              </el-collapse>
-            </el-card> </el-form-item
-        ></el-card>
       </el-form-item>
     </el-form>
     <ApplicationDialog @refresh="applicationRefresh" ref="applicationDialogRef"></ApplicationDialog>
     <ToolDialog @refresh="toolRefresh" ref="toolDialogRef"></ToolDialog>
     <template #footer>
-      <el-form-item>
-        <el-button type="primary" @click="submit">{{ is_edit ? '修改' : '创建' }}</el-button>
-        <el-button @click="close">取消</el-button>
-      </el-form-item>
+      <el-button @click="close">{{ $t('common.cancel') }}</el-button>
+      <el-button type="primary" @click="submit">{{
+        is_edit ? $t('common.save') : $t('common.create')
+      }}</el-button>
     </template>
   </el-drawer>
 </template>
 <script setup lang="ts">
 import { v4 as uuidv4 } from 'uuid'
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import { CopyDocument } from '@element-plus/icons-vue'
 import { copyClick } from '@/utils/clipboard'
 import ApplicationDialog from '@/views/application/component/ApplicationDialog.vue'
 import ToolDialog from '@/views/application/component/ToolDialog.vue'
@@ -256,8 +366,16 @@ import triggerAPI from '@/api/trigger/trigger'
 import toolAPI from '@/api/tool/tool'
 import ToolParameter from './ToolParameter.vue'
 import ApplicationParameter from './ApplicationParameter.vue'
+import { resetUrl } from '@/utils/common.ts'
 import { type FormInstance } from 'element-plus'
 const emit = defineEmits(['refresh'])
+
+const collapseData = reactive({
+  tool: true,
+  agent: true,
+})
+const showTast = ref<string>('')
+
 const triggerFormRef = ref<FormInstance>()
 const copy = () => {
   copyClick(event_url.value)
@@ -265,7 +383,7 @@ const copy = () => {
 const addParameter = () => {
   form.value.trigger_setting.body.push({ field: '', type: '' })
 }
-const delParameter = (index: number) => {
+const delParameter = (index: number | string) => {
   form.value.trigger_setting.body.splice(index, 1)
 }
 const handleChange = (v: Array<any>) => {

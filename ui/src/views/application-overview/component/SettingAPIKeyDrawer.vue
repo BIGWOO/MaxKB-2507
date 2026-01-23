@@ -9,8 +9,8 @@
   >
     <el-form label-position="top" ref="settingFormRef" :model="form">
       <el-form-item label="API KEY">
-        <div class="complex-search flex align-center w-full">
-          <el-input v-model="form.secret_key" :disabled="true"></el-input>
+        <div class="complex-input flex align-center w-full" style="background-color: var(--el-disabled-bg-color);">
+          <el-input class="complex-input__left" v-model="form.secret_key" :disabled="true"></el-input>
           <el-tooltip :content="$t('common.copy')" placement="top">
             <el-button text>
               <AppIcon iconName="app-copy" class="color-secondary"></AppIcon>

@@ -1,6 +1,6 @@
 <template>
-  <div class="document p-16-24">
-    <h2 class="mb-16">{{ $t('views.trigger.title') }}</h2>
+  <div class="trigger-manage p-16-24">
+    <h2 class="ml-24 mb-16">{{ $t('views.trigger.title') }}</h2>
     <el-card style="--el-card-padding: 0">
       <div class="main-calc-height">
         <div class="p-24">
@@ -10,10 +10,10 @@
                 >{{ $t('common.create') }}
               </el-button>
               <el-button @click="batchChangeState(true)" :disabled="multipleSelection.length === 0"
-                >{{ $t('views.trigger.activate', '启用') }}
+                >{{ $t('common.status.enable') }}
               </el-button>
               <el-button @click="batchChangeState(false)" :disabled="multipleSelection.length === 0"
-                >{{ $t('view.trigger.ban', '禁用') }}
+                >{{ $t('common.status.disable') }}
               </el-button>
               <el-button @click="batchDelete" :disabled="multipleSelection.length === 0"
                 >{{ $t('common.delete') }}
@@ -23,14 +23,14 @@
               <el-select
                 class="complex-search__left"
                 v-model="search_type"
-                style="width: 120px"
+                style="width: 90px"
                 @change="search_type_change"
               >
-                <el-option :label="$t('common.name', '名称')" value="name" />
-                <el-option :label="$t('view.trigger.type', '类型')" value="type" />
-                <el-option :label="$t('view.trigger.task', '任务')" value="task" />
-                <el-option :label="$t('view.trigger.status', '状态')" value="is_active" />
-                <el-option :label="$t('view.trigger.createUser', '创建者')" value="create_user" />
+                <el-option :label="$t('common.name')" value="name" />
+                <el-option :label="$t('common.type')" value="type" />
+                <el-option :label="$t('views.trigger.task')" value="task" />
+                <el-option :label="$t('common.status.label')" value="is_active" />
+                <el-option :label="$t('common.creator')" value="create_user" />
               </el-select>
               <el-input
                 v-if="search_type === 'name'"
@@ -48,8 +48,8 @@
                 clearable
                 style="width: 220px"
               >
-                <el-option :label="$t('view.trigger.scheduled', '定时触发')" value="SCHEDULED" />
-                <el-option :label="$t('view.trigger.event', '事件触发')" value="EVENT" />
+                <el-option :label="$t('views.trigger.type.scheduled')" value="SCHEDULED" />
+                <el-option :label="$t('views.trigger.type.event')" value="EVENT" />
               </el-select>
               <el-select
                 v-else-if="search_type === 'is_active'"
@@ -59,8 +59,8 @@
                 clearable
                 style="width: 220px"
               >
-                <el-option :label="$t('view.trigger.active', '启用')" value="true" />
-                <el-option :label="$t('view.trigger.ban', '禁用')" value="false" />
+                <el-option :label="$t('common.status.enable')" value="true" />
+                <el-option :label="$t('common.status.disable')" value="false" />
               </el-select>
               <el-select
                 v-else-if="search_type === 'create_user'"
@@ -81,7 +81,7 @@
                 v-if="search_type === 'task'"
                 v-model="search_form.task"
                 @change="searchHandle"
-                :placeholder="$t('views.document.tag.requiredMessage3')"
+                :placeholder="$t('common.search')"
                 style="width: 220px"
                 clearable
               />
@@ -100,135 +100,138 @@
             :maxTableHeight="300"
           >
             <el-table-column type="selection" width="55" :reserve-selection="true" />
-            <el-table-column
-              prop="name"
-              :label="$t('views.trigger.table.name', '名称')"
-              min-width="100"
-            >
-            </el-table-column>
-            <el-table-column
-              prop="trigger_type"
-              :label="$t('views.trigger.table.type', '类型')"
-              min-width="80"
-            >
-            </el-table-column>
-            <el-table-column
-              prop="is_active"
-              :label="$t('views.trigger.table.status', '状态')"
-              min-width="80"
-            >
-            </el-table-column>
-            <el-table-column
-              prop="desc"
-              :label="$t('views.trigger.table.desc', '描述')"
-              min-width="150"
-            >
-            </el-table-column>
-            <el-table-column
-              prop="update_time"
-              :label="$t('views.document.table.updateTime')"
-              width="175"
-              sortable
-            >
+            <el-table-column prop="name" :label="$t('common.name')" show-overflow-tooltip>
               <template #default="{ row }">
-                {{ datetimeFormat(row.update_time) }}
+                <div class="flex align-center">
+                  <TriggerIcon :type="row.trigger_type" class="mr-8" :size="24" />
+                  {{ row.name }}
+                </div>
+              </template>
+            </el-table-column>
+            <el-table-column prop="trigger_type" :label="$t('common.type')" min-width="80">
+              <template #default="{ row }">
+                {{ $t(TriggerType[row.trigger_type as keyof typeof TriggerType]) }}
+              </template>
+            </el-table-column>
+            <el-table-column prop="is_active" :label="$t('common.status.label')" min-width="90">
+              <template #default="{ row }">
+                <div v-if="row.is_active" class="flex align-center">
+                  <el-icon class="color-success mr-8" style="font-size: 16px">
+                    <SuccessFilled />
+                  </el-icon>
+                  <span class="color-text-primary">
+                    {{ $t('common.status.enabled') }}
+                  </span>
+                </div>
+                <div v-else class="flex align-center">
+                  <AppIcon iconName="app-disabled" class="color-secondary mr-8"></AppIcon>
+                  <span class="color-text-primary">
+                    {{ $t('common.status.disabled') }}
+                  </span>
+                </div>
               </template>
             </el-table-column>
             <el-table-column
-              prop="trigger_task"
-              :label="$t('views.trigger.table.task', '任务')"
-              width="180"
+              prop="desc"
+              :label="$t('common.desc')"
+              min-width="160"
+              show-overflow-tooltip
             >
+            </el-table-column>
+
+            <el-table-column prop="trigger_task" :label="$t('views.trigger.task')" width="180">
               <template #default="{ row }">
-                <el-popover>
+                <el-popover popper-class="max-w-200">
                   <template #reference>
                     <div class="flex">
-                      <el-check-tag
-                        type="info"
-                        class="mr-8"
+                      <el-tag
+                        class="info-tag mr-8 cursor"
                         v-if="
-                          row.trigger_task.filter((item: any) => item.type === 'APPLICATION')
-                            .length !== 0
+                          row.trigger_task.filter((item: any) => item.type === 'APPLICATION').length
                         "
                       >
-                        智能体
+                        {{ $t('views.application.title') }}
                         {{
                           row.trigger_task.filter((item: any) => item.type === 'APPLICATION').length
                         }}
-                      </el-check-tag>
-                      <el-check-tag
-                        type="info"
-                        v-if="
-                          row.trigger_task.filter((item: any) => item.type === 'TOOL').length !== 0
-                        "
+                      </el-tag>
+                      <el-tag
+                        class="info-tag cursor"
+                        v-if="row.trigger_task.filter((item: any) => item.type === 'TOOL').length"
                       >
-                        工具
+                        {{ $t('views.tool.title') }}
                         {{ row.trigger_task.filter((item: any) => item.type === 'TOOL').length }}
-                      </el-check-tag>
+                      </el-tag>
                     </div>
                   </template>
 
                   <div>
                     <!-- 智能体部分 -->
                     <div
-                      class="color-secondary mb-8"
                       v-if="
-                        row.trigger_task.filter((item: any) => item.type === 'APPLICATION')
-                          .length !== 0
+                        row.trigger_task.filter((item: any) => item.type === 'APPLICATION').length
                       "
                     >
-                      智能体
-                      {{
-                        row.trigger_task.filter((item: any) => item.type === 'APPLICATION').length
-                      }}
-                    </div>
-                    <div
-                      v-for="item in row.trigger_task.filter(
-                        (item: any) => item.type === 'APPLICATION',
-                      )"
-                      :key="item.id"
-                      class="flex align-center mb-8"
-                    >
-                      <el-avatar shape="square" :size="20" style="background: none" class="mr-8">
-                        <img :src="resetUrl(item?.icon, resetUrl('./favicon.ico'))" alt="" />
-                      </el-avatar>
-                      <span>{{ item.name }}</span>
+                      <h5 class="color-input-placeholder">
+                        {{ $t('views.application.title') }}
+                        {{
+                          row.trigger_task.filter((item: any) => item.type === 'APPLICATION').length
+                        }}
+                      </h5>
+                      <div
+                        v-for="item in row.trigger_task.filter(
+                          (item: any) => item.type === 'APPLICATION',
+                        )"
+                        :key="item.id"
+                        class="flex align-center mt-8"
+                      >
+                        <el-avatar shape="square" :size="20" style="background: none" class="mr-8">
+                          <img :src="resetUrl(item?.icon, resetUrl('./favicon.ico'))" alt="" />
+                        </el-avatar>
+                        <span class="ellipsis" :title="item.name">{{ item.name }}</span>
+                      </div>
                     </div>
                     <el-divider
                       class="mt-8 mb-8"
-                      v-if="
-                        row.trigger_task.some((item: any) => item.type === 'APPLICATION') &&
-                        row.trigger_task.some((item: any) => item.type === 'TOOL')
-                      "
+                      v-if="row.trigger_task.filter((item: any) => item.type === 'TOOL').length"
                     />
+
                     <!-- 工具部分 -->
-                    <div
-                      class="color-secondary mb-8"
-                      v-if="
-                        row.trigger_task.filter((item: any) => item.type === 'TOOL').length !== 0
-                      "
-                    >
-                      工具 {{ row.trigger_task.filter((item: any) => item.type === 'TOOL').length }}
-                    </div>
-                    <div
-                      v-for="item in row.trigger_task.filter((item: any) => item.type === 'TOOL')"
-                      :key="item.id"
-                      class="flex align-center mb-8"
-                    >
-                      <el-avatar
-                        v-if="item?.icon"
-                        shape="square"
-                        :size="20"
-                        style="background: none"
-                        class="mr-8"
+                    <div v-if="row.trigger_task.filter((item: any) => item.type === 'TOOL').length">
+                      <h5 class="color-input-placeholder">
+                        {{ $t('views.tool.title') }}
+                        {{ row.trigger_task.filter((item: any) => item.type === 'TOOL').length }}
+                      </h5>
+                      <div
+                        v-for="item in row.trigger_task.filter((item: any) => item.type === 'TOOL')"
+                        :key="item.id"
+                        class="flex align-center mt-8"
                       >
-                        <img :src="resetUrl(item?.icon)" alt="" />
-                      </el-avatar>
-                      <ToolIcon v-else :size="20" :type="item?.tool_type" class="mr-8" />
-                      <span>{{ item.name }}</span>
+                        <el-avatar
+                          v-if="item?.icon"
+                          shape="square"
+                          :size="20"
+                          style="background: none"
+                          class="mr-8"
+                        >
+                          <img :src="resetUrl(item?.icon)" alt="" />
+                        </el-avatar>
+                        <ToolIcon v-else :size="20" :type="item?.tool_type" class="mr-8" />
+                        <span>{{ item.name }}</span>
+                      </div>
                     </div>
                   </div>
                 </el-popover>
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="create_time"
+              :label="$t('common.createTime')"
+              width="175"
+              sortable
+            >
+              <template #default="{ row }">
+                {{ datetimeFormat(row.create_time) }}
               </template>
             </el-table-column>
             <el-table-column align="left" width="160" fixed="right" :label="$t('common.operation')">
@@ -245,14 +248,21 @@
                 <el-tooltip effect="dark" :content="$t('common.edit')" placement="top">
                   <span class="mr-4">
                     <el-button type="primary" text @click="openEditTriggerDrawer(row)">
-                      <AppIcon iconName="app-edit" class="color-secondary"></AppIcon>
+                      <AppIcon iconName="app-edit"></AppIcon>
+                    </el-button>
+                  </span>
+                </el-tooltip>
+                <el-tooltip effect="dark" :content="$t('workflow.ExecutionRecord')" placement="top">
+                  <span class="mr-4">
+                    <el-button type="primary" text @click="openExecutionRecordDrawer(row)">
+                      <AppIcon iconName="app-schedule-report"></AppIcon>
                     </el-button>
                   </span>
                 </el-tooltip>
                 <el-tooltip effect="dark" :content="$t('common.delete')" placement="top">
                   <span class="mr-4">
                     <el-button type="primary" text @click="deleteTrigger(row)">
-                      <AppIcon iconName="app-delete" class="color-secondary"></AppIcon>
+                      <AppIcon iconName="app-delete"></AppIcon>
                     </el-button>
                   </span>
                 </el-tooltip>
@@ -266,24 +276,23 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
-import { useRouter, useRoute, onBeforeRouteLeave, onBeforeRouteUpdate } from 'vue-router'
+import { ref, onMounted,  computed } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import type { ElTable } from 'element-plus'
 import { MsgSuccess, MsgConfirm, MsgError } from '@/utils/message'
 import useStore from '@/stores'
 import triggerAPI from '@/api/trigger/trigger'
-import { TaskType, State } from '@/utils/status'
+import { TriggerType } from '@/enums/trigger'
 import { t } from '@/locales'
 import permissionMap from '@/permission'
 import { datetimeFormat } from '@/utils/time'
 import WorkspaceApi from '@/api/workspace/workspace'
 import { resetUrl } from '@/utils/common'
-
 import { loadSharedApi } from '@/utils/dynamics-api/shared-api'
 import type { TriggerData } from '@/api/type/trigger'
-
 import TriggerDrawer from '@/views/trigger/component/TriggerDrawer.vue'
 
+const { user } = useStore()
 const triggerDrawerRef = ref<InstanceType<typeof TriggerDrawer>>()
 const openCreateTriggerDrawer = () => {
   triggerDrawerRef.value?.open()
@@ -291,16 +300,15 @@ const openCreateTriggerDrawer = () => {
 const openEditTriggerDrawer = (trigger: any) => {
   triggerDrawerRef.value?.open(trigger.id)
 }
-const route = useRoute()
-const router = useRouter()
-const {
-  params: { id, folderId, type }, // id为knowledgeID
-} = route as any
-const { user } = useStore()
+
+const openExecutionRecordDrawer = (trigger: any) => {
+
+}
+
 const loading = ref(false)
 const paginationConfig = ref({
   current_page: 1,
-  page_size: 10,
+  page_size: 20,
   total: 0,
 })
 
@@ -417,7 +425,6 @@ const multipleSelection = ref<any[]>([])
 const multipleTableRef = ref<InstanceType<typeof ElTable>>()
 
 const triggerData = ref<any[]>([])
-const elUploadRef = ref()
 
 function handleSizeChange() {
   paginationConfig.value.current_page = 1
@@ -444,24 +451,4 @@ onMounted(() => {
   })
 })
 </script>
-<style lang="scss" scoped>
-.document {
-  .mul-operation {
-    position: fixed;
-    margin-left: var(--sidebar-width);
-    bottom: 0;
-    right: 24px;
-    width: calc(100% - var(--sidebar-width) - 48px);
-    padding: 16px 24px;
-    box-sizing: border-box;
-    background: #ffffff;
-    z-index: 22;
-    box-shadow: 0px -2px 4px 0px rgba(31, 35, 41, 0.08);
-  }
-  .document-table {
-    :deep(.el-table__row) {
-      cursor: pointer;
-    }
-  }
-}
-</style>
+<style lang="scss" scoped></style>

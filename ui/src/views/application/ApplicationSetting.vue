@@ -315,7 +315,7 @@
                     </div>
                   </div>
                 </el-card>
-
+                <!-- 技能 -->
                 <div class="mb-8 mt-12 flex-between">
                   <span class="mr-4 lighter">
                     {{ $t('views.application.skill') }}
@@ -1329,5 +1329,4 @@ onMounted(() => {
 .prologue-md-editor {
   height: 150px;
 }
-
 </style>
