@@ -193,6 +193,26 @@
           </template>
         </el-table-column>
       </el-table>
+
+      <!-- 触发器 -->
+      <div class="flex-between">
+        <h4 class="title-decoration-1 mb-16">
+          {{ $t('views.trigger.title') }}
+          <el-text type="info" class="color-secondary">
+            {{ $t('views.trigger.tip') }}
+          </el-text>
+        </h4>
+        <el-button link type="primary" @click="openCreateTriggerDrawer()">
+          <AppIcon iconName="app-add-outlined" class="mr-4"></AppIcon>
+          {{ $t('common.add') }}
+        </el-button>
+      </div>
+      <el-card shadow="never" class="card-never" style="--el-card-padding: 12px">
+        <div class="w-full">
+          <!-- TO DO -->
+        </div>
+      </el-card>
+
       <h4 class="title-decoration-1 mb-16">
         {{ $t('views.tool.form.param.code') }}
         <span class="color-danger" style="margin-left: -10px">*</span>
@@ -258,6 +278,7 @@ import { isAppIcon } from '@/utils/common'
 import { useRoute } from 'vue-router'
 import useStore from '@/stores'
 import permissionMap from '@/permission'
+import TriggerDrawer from '@/views/trigger/component/TriggerDrawer.vue'
 import { loadSharedApi } from '@/utils/dynamics-api/shared-api'
 
 const route = useRoute()
@@ -332,6 +353,20 @@ const rules = reactive({
     },
   ],
 })
+
+
+const triggerDrawerRef = ref<InstanceType<typeof TriggerDrawer>>()
+
+const openCreateTriggerDrawer = () => {
+  triggerDrawerRef.value?.open()
+}
+const openEditTriggerDrawer = (trigger: any) => {
+  triggerDrawerRef.value?.open(trigger.id)
+}
+
+function refreshTrigger() {
+  // do nothing, just to refresh the trigger list in the drawer
+}
 
 function submitCodemirrorEditor(val: string) {
   form.value.code = val

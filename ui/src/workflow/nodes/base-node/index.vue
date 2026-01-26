@@ -49,9 +49,7 @@
         <template #label>
           <div class="flex-between">
             <div class="flex align-center">
-              <span class="mr-4">{{
-                $t('workflow.nodes.baseNode.fileUpload.label')
-              }}</span>
+              <span class="mr-4">{{ $t('workflow.nodes.baseNode.fileUpload.label') }}</span>
               <el-tooltip
                 effect="dark"
                 :content="$t('workflow.nodes.baseNode.fileUpload.tooltip')"
@@ -156,6 +154,30 @@
           </el-button>
         </div>
       </el-form-item>
+
+      <!-- 触发器 -->
+
+      <el-form-item>
+        <template #label>
+          <div class="flex-between">
+            <div class="flex align-center">
+              <span class="mr-4">{{ $t('views.trigger.title') }} </span>
+              <el-tooltip effect="dark" :content="$t('views.trigger.tip')" placement="right">
+                <AppIcon iconName="app-warning" class="app-warning-icon"></AppIcon>
+              </el-tooltip>
+            </div>
+
+            <el-button type="primary" link @click="openCreateTriggerDrawer">
+              <AppIcon iconName="app-add-outlined" class="mr-4"></AppIcon>
+            </el-button>
+          </div>
+        </template>
+        <el-card shadow="never" class="card-never" style="--el-card-padding: 12px">
+          <div class="w-full">
+            <!-- TO DO -->
+          </div>
+        </el-card>
+      </el-form-item>
     </el-form>
     <TTSModeParamSettingDialog ref="TTSModeParamSettingDialogRef" @refresh="refreshTTSForm" />
     <FileUploadSettingDialog
@@ -163,6 +185,7 @@
       :node-model="nodeModel"
       @refresh="refreshFileUploadForm"
     />
+    <TriggerDrawer @refresh="refreshTrigger" ref="triggerDrawerRef"></TriggerDrawer>
   </NodeContainer>
 </template>
 <script setup lang="ts">
@@ -177,6 +200,7 @@ import ApiInputFieldTable from './component/ApiInputFieldTable.vue'
 import UserInputFieldTable from './component/UserInputFieldTable.vue'
 import FileUploadSettingDialog from '@/workflow/nodes/base-node/component/FileUploadSettingDialog.vue'
 import ChatFieldTable from './component/ChatFieldTable.vue'
+import TriggerDrawer from '@/views/trigger/component/TriggerDrawer.vue'
 import { useRoute } from 'vue-router'
 import { loadSharedApi } from '@/utils/dynamics-api/shared-api'
 const getResourceDetail = inject('getResourceDetail') as any
@@ -262,6 +286,19 @@ const validate = () => {
 }
 
 const resource = getResourceDetail()
+
+const triggerDrawerRef = ref<InstanceType<typeof TriggerDrawer>>()
+
+const openCreateTriggerDrawer = () => {
+  triggerDrawerRef.value?.open()
+}
+const openEditTriggerDrawer = (trigger: any) => {
+  triggerDrawerRef.value?.open(trigger.id)
+}
+
+function refreshTrigger() {
+  // do nothing, just to refresh the trigger list in the drawer
+}
 function getSTTModel() {
   const obj =
     apiType.value === 'systemManage'
@@ -367,5 +404,4 @@ onMounted(() => {
   getSTTModel()
 })
 </script>
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>

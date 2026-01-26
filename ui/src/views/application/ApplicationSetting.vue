@@ -738,10 +738,40 @@
                     </el-button>
                   </div>
                 </el-form-item>
+
+                <!-- 触发器 -->
+
+                <el-form-item>
+                  <template #label>
+                    <div class="flex-between">
+                      <div class="flex align-center">
+                        <span class="mr-4">{{ $t('views.trigger.title') }} </span>
+                        <el-tooltip
+                          effect="dark"
+                          :content="$t('views.trigger.tip')"
+                          placement="right"
+                        >
+                          <AppIcon iconName="app-warning" class="app-warning-icon"></AppIcon>
+                        </el-tooltip>
+                      </div>
+
+                      <el-button type="primary" link @click="openCreateTriggerDrawer">
+                        <AppIcon iconName="app-add-outlined" class="mr-4"></AppIcon>
+                      </el-button>
+                    </div>
+                  </template>
+                  <el-card shadow="never" class="card-never" style="--el-card-padding: 12px">
+                    <div class="w-full">
+                      <!-- TO DO -->
+                    </div>
+                  </el-card>
+                </el-form-item>
               </el-form>
             </el-scrollbar>
           </div>
         </el-col>
+
+        <!-- 预览 -->
         <el-col :span="14" class="p-24 border-l">
           <h4 class="title-decoration-1 mb-16">
             {{ $t('views.application.appTest') }}
@@ -773,6 +803,7 @@
     <McpServersDialog ref="mcpServersDialogRef" @refresh="submitMcpServersDialog" />
     <ToolDialog ref="toolDialogRef" @refresh="submitToolDialog" />
     <ApplicationDialog ref="applicationDialogRef" @refresh="submitApplicationDialog" />
+    <TriggerDrawer @refresh="refreshTrigger" ref="triggerDrawerRef"></TriggerDrawer>
   </div>
 </template>
 <script setup lang="ts">
@@ -799,6 +830,7 @@ import { resetUrl } from '@/utils/common.ts'
 import McpServersDialog from '@/views/application/component/McpServersDialog.vue'
 import ToolDialog from '@/views/application/component/ToolDialog.vue'
 import ApplicationDialog from '@/views/application/component/ApplicationDialog.vue'
+import TriggerDrawer from '@/views/trigger/component/TriggerDrawer.vue'
 import useStore from '@/stores'
 const route = useRoute()
 const router = useRouter()
@@ -911,6 +943,19 @@ const modelOptions = ref<any>(null)
 const knowledgeList = ref<Array<any>>([])
 const sttModelOptions = ref<any>(null)
 const ttsModelOptions = ref<any>(null)
+
+const triggerDrawerRef = ref<InstanceType<typeof TriggerDrawer>>()
+
+const openCreateTriggerDrawer = () => {
+  triggerDrawerRef.value?.open()
+}
+const openEditTriggerDrawer = (trigger: any) => {
+  triggerDrawerRef.value?.open(trigger.id)
+}
+
+function refreshTrigger() {
+  // do nothing, just to refresh the trigger list in the drawer
+}
 
 function submitPrologueDialog(val: string) {
   applicationForm.value.prologue = val

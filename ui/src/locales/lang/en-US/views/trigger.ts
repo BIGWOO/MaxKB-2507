@@ -1,5 +1,6 @@
 export default {
   title: 'Trigger',
+  tip: 'When triggered, the system will automatically call task execution based on the input parameters settings',
   task: 'Task',
   type: {
     scheduled: 'Scheduled Trigger',

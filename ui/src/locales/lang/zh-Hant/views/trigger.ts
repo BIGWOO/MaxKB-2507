@@ -1,5 +1,6 @@
 export default {
   title: '觸發器',
+  tip: '觸發時系統將會根據入參設置自動調用任務執行',
   task: '任務',
   type: {
     scheduled: '定時觸發',
