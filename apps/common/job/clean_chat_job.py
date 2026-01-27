@@ -65,7 +65,7 @@ def clean_method(query_conditions, clean_log=True):
             files_to_delete = []
             for record in chat_records:
                 max_create_time = next(
-                    (item['max_create_time'] for item in max_create_times if item['chat_id'] == record.chat_id), None)
+                    (item['max_create_time'] for item in max_create_times if str(item['chat_id']) == str(record.chat_id)), None)
                 if max_create_time:
                     files_to_delete.extend(
                         File.objects.filter(source_id=str(record.chat_id), create_time__lt=max_create_time)
