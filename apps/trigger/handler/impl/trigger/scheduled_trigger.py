@@ -2,7 +2,6 @@
 
 from django.db.models import QuerySet
 
-from common.utils.lock import RedisLock
 from common.utils.logger import maxkb_logger
 from ops import celery_app
 from trigger.handler.base_trigger import BaseTrigger
@@ -236,26 +235,9 @@ class ScheduledTrigger(BaseTrigger):
             self.undeploy(trigger, **kwargs)
             return
 
-        rlock = RedisLock()
-        lock_key = f"scheduled_trigger_deploy:{trigger_id}"
-        if not rlock.try_lock(lock_key, 30):
-            return
-
-        try:
-            maxkb_logger.debug(f"get lock {lock_key}")
-            deploy_scheduled_trigger.delay(trigger, trigger_tasks, setting, schedule_type)
-        finally:
-            rlock.un_lock(lock_key)
+        deploy_scheduled_trigger.delay(trigger, trigger_tasks, setting, schedule_type)
 
     def undeploy(self, trigger, **kwargs):
         trigger_id = str(trigger["id"])
 
-        rlock = RedisLock()
-        lock_key = f"scheduled_trigger_deploy:{trigger_id}"
-        if not rlock.try_lock(lock_key, 30):
-            return
-
-        try:
-            _remove_trigger_jobs.delay(trigger_id)
-        finally:
-            rlock.un_lock(lock_key)
+        _remove_trigger_jobs.delay(trigger_id)
