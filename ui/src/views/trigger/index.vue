@@ -98,6 +98,9 @@
             v-loading="loading"
             :row-key="(row: any) => row.id"
             :maxTableHeight="300"
+            :tooltip-options="{
+              popperClass: 'max-w-350',
+            }"
           >
             <el-table-column type="selection" width="55" :reserve-selection="true" />
             <el-table-column prop="name" :label="$t('common.name')" show-overflow-tooltip>

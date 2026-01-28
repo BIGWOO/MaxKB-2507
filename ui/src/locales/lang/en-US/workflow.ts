@@ -532,6 +532,8 @@ You are a master of problem optimization, adept at accurately inferring user int
     len_gt: 'Length greater than',
     len_le: 'Length less than or equal to',
     len_lt: 'Length less than',
+    is_true: 'Is true',
+    is_not_true: 'Is not true',
   },
   SystemPromptPlaceholder: 'System Prompt, can reference variables in the system, such as',
   UserPromptPlaceholder: 'User Prompt, can reference variables in the system, such as',

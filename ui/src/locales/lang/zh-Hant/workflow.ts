@@ -517,6 +517,8 @@ export default {
     len_gt: '長度大於',
     len_le: '長度小於等於',
     len_lt: '長度小於',
+    is_true: '為真',
+    is_not_true: '不為真',
   },
   SystemPromptPlaceholder: '系統提示詞，可以引用系統中的變量：如',
   UserPromptPlaceholder: '用戶提示詞，可以引用系統中的變量：如',
