@@ -539,5 +539,5 @@ You are a master of problem optimization, adept at accurately inferring user int
   UserPromptPlaceholder: 'User Prompt, can reference variables in the system, such as',
   ExecutionRecord: 'Execution Record',
   initiator: 'Iniiator',
-  debug: {},
+  abnormalInformation: 'Abnormal Information',
 }

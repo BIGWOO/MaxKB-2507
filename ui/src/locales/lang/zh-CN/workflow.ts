@@ -530,5 +530,6 @@ export default {
   UserPromptPlaceholder: '用户提示词，可以引用系统中的变量：如',
   ExecutionRecord: '执行记录',
   initiator: '发起人',
-  debug: {},
+  abnormalInformation: '异常信息'
+
 }

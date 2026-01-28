@@ -5,6 +5,7 @@ export default {
   testSuccess: 'Successful',
   testFailed: 'Test connection failed',
   password: 'Password',
+  defaultPassword: 'Default Password',
   authentication: {
     title: 'Login Authentication',
     ldap: {

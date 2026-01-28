@@ -524,5 +524,5 @@ export default {
   UserPromptPlaceholder: '用戶提示詞，可以引用系統中的變量：如',
   ExecutionRecord: '執行記錄',
   initiator: '發起人',
-  debug: {},
+   abnormalInformation: '異常信息'
 }
