@@ -43,4 +43,5 @@ export default {
     dingtalk: 'DingTalk',
   },
   settingRole: 'Set Role',
+  defaultPassword: 'Default Password',
 }
