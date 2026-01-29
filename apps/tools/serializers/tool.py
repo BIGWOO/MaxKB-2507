@@ -886,7 +886,7 @@ class ToolSerializer(serializers.Serializer):
             return ToolModelSerializer(tool).data
 
     class ToolRecord(serializers.Serializer):
-        workspace_id = serializers.CharField(required=True, label=_('workspace id'))
+        workspace_id = serializers.CharField(required=False, allow_null=True, label=_('workspace id'))
         tool_id = serializers.UUIDField(required=True, label=_('tool id'))
         record_id = serializers.UUIDField(required=False, allow_null=True, label=_('record id'))
         source_name = serializers.CharField(required=False, allow_null=True, allow_blank=True, label=_('source name'))
@@ -910,7 +910,6 @@ class ToolSerializer(serializers.Serializer):
 
             query_set = QuerySet(ToolRecord)
             query_set = query_set.filter(
-                workspace_id=self.data.get('workspace_id'),
                 tool_id=self.data.get('tool_id')
             ).annotate(
                 source_name=Case(
@@ -931,6 +930,8 @@ class ToolSerializer(serializers.Serializer):
                 query_set = query_set.filter(Q(source_name__icontains=self.data.get('source_name', '')))
             if self.data.get('record_id'):
                 query_set = query_set.filter(Q(id=self.data.get('record_id')))
+            if self.data.get('workspace_id'):
+                query_set = query_set.filter(Q(workspace_id=self.data.get('workspace_id')))
             query_set = query_set.order_by('-create_time')
 
             return page_search(
