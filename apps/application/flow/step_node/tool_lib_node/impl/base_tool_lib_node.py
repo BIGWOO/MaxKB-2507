@@ -172,6 +172,7 @@ def bytes_to_uploaded_file(file_bytes, file_name="unknown"):
     )
     return uploaded_file
 
+
 def _get_result_detail(result):
     if isinstance(result, dict):
         result_dict = {k: (str(v)[:500] if len(str(v)) > 500 else v) for k, v in result.items()}
@@ -240,18 +241,19 @@ class BaseToolLibNodeNode(IToolLibNode):
             else:
                 result = function_executor.exec_code(tool_lib.code, all_params)
         else:
-            result = self.tool_exec_record(tool_lib_id, tool_lib.code, all_params)
+            result = self.tool_exec_record(tool_lib, all_params)
         return NodeResult({'result': result},
                           (self.workflow_manage.params.get('knowledge_base') or {}) if self.node.properties.get(
                               'kind') == 'data-source' else {}, _write_context=write_context)
 
-    def tool_exec_record(self, tool_lib_id, code, all_params):
+    def tool_exec_record(self, tool_lib, all_params):
         task_record_id = uuid.uuid7()
         start_time = time.time()
         try:
             ToolRecord(
                 id=task_record_id,
-                tool_id=tool_lib_id,
+                workflow_id=tool_lib.workspace_id,
+                tool_id=tool_lib.id,
                 source_type=ToolTaskTypeChoices.KNOWLEDGE.value if self.workflow_manage.params.get(
                     'knowledge_id') else ToolTaskTypeChoices.APPLICATION.value,
                 source_id=self.workflow_manage.params.get('knowledge_id') or self.workflow_manage.params.get(
@@ -260,7 +262,7 @@ class BaseToolLibNodeNode(IToolLibNode):
                 state=State.STARTED
             ).save()
 
-            result = function_executor.exec_code(code, all_params)
+            result = function_executor.exec_code(tool_lib.code, all_params)
             result_dict = _get_result_detail(result)
             QuerySet(ToolRecord).filter(id=task_record_id).update(
                 state=State.SUCCESS,
