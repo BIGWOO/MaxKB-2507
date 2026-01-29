@@ -17,6 +17,7 @@ from rest_framework.views import APIView
 from common import result
 from common.auth import WebhookAuth
 from common.exception.app_exception import AppApiException, AppAuthenticationFailed
+from common.log.log import _get_ip_address
 from common.result import Result
 from trigger.handler.base_trigger import BaseTrigger
 from trigger.models import TriggerTask, Trigger
@@ -60,6 +61,8 @@ def get_parameters(body_setting, request: Request):
         _type = body.get('type')
         valid_parameter_type(value, _type, body.get("desc"))
         parameters[body.get('field')] = value
+    ip_address = _get_ip_address(request)
+    parameters['ip_address'] = ip_address or '-'
     return parameters
 
 
