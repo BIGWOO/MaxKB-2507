@@ -229,6 +229,10 @@ class ScheduledTrigger(BaseTrigger):
             self.undeploy(trigger, **kwargs)
             return
 
+        if trigger.get("trigger_type") != "SCHEDULED":
+            self.undeploy(trigger, **kwargs)
+            return
+
         trigger_tasks = _get_active_trigger_tasks(trigger["id"])
         if not trigger_tasks:
             maxkb_logger.warning(f"no active trigger_tasks, trigger_id={trigger_id}")
