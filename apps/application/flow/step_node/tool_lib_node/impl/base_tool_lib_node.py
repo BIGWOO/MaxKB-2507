@@ -252,7 +252,7 @@ class BaseToolLibNodeNode(IToolLibNode):
         try:
             ToolRecord(
                 id=task_record_id,
-                workflow_id=tool_lib.workspace_id,
+                workspace_id=tool_lib.workspace_id,
                 tool_id=tool_lib.id,
                 source_type=ToolTaskTypeChoices.KNOWLEDGE.value if self.workflow_manage.params.get(
                     'knowledge_id') else ToolTaskTypeChoices.APPLICATION.value,
