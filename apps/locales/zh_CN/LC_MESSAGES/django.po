@@ -8629,7 +8629,7 @@ msgstr "API KEY"
 msgid "Download"
 msgstr "下载"
 
-msgid "USER"
+msgid "User"
 msgstr "用户"
 
 msgid "Delete personal system API_KEY"

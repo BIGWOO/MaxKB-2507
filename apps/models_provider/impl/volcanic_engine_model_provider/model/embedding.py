@@ -48,13 +48,13 @@ class VolcanicEngineEmbeddingModel(MaxKBBaseModel):
             resp = self.client.multimodal_embeddings.create(
                 model=self.model_name,
                 input=multimodal_inputs,
-                **self.params
+                **(self.params or {})
             )
             return [resp.data.get('embedding')]
         else:
             resp = self.client.embeddings.create(
                 model=self.model_name,
                 input=texts,
-                **self.params
+                **(self.params or {})
             )
             return [e.embedding for e in resp.data]

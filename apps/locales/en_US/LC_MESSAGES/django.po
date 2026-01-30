@@ -8509,9 +8509,6 @@ msgstr ""
 msgid "Download"
 msgstr ""
 
-msgid "USER"
-msgstr ""
-
 msgid "Delete personal system API_KEY"
 msgstr ""
 

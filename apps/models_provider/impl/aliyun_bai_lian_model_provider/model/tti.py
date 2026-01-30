@@ -4,10 +4,6 @@ from typing import Dict
 
 from dashscope import ImageSynthesis, MultiModalConversation
 from dashscope.aigc.image_generation import ImageGeneration
-from django.utils.translation import gettext
-from langchain_community.chat_models import ChatTongyi
-from langchain_core.messages import HumanMessage
-import logging
 
 from common.utils.logger import maxkb_logger
 from models_provider.base_model_provider import MaxKBBaseModel
