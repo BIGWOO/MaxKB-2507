@@ -533,6 +533,7 @@ class ToolSerializer(serializers.Serializer):
                     is_active=instance.get('is_active'))
             return self.one()
 
+        @transaction.atomic
         def delete(self):
             self.is_valid(raise_exception=True)
             tool = QuerySet(Tool).filter(id=self.data.get('id')).first()
@@ -541,6 +542,7 @@ class ToolSerializer(serializers.Serializer):
             QuerySet(WorkspaceUserResourcePermission).filter(target=tool.id).delete()
             QuerySet(Tool).filter(id=self.data.get('id')).delete()
             ResourceMapping.objects.filter(target_id=self.data.get('id')).delete()
+            QuerySet(ToolRecord).filter(tool_id=self.data.get('id')).delete()
 
         def one(self):
             self.is_one_valid(raise_exception=True)
