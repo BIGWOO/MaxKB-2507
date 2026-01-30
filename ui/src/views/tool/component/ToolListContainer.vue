@@ -314,7 +314,7 @@
                           <el-dropdown-item
                             text
                             @click.stop="openToolRecordDrawer(item)"
-                            v-if="apiType === 'workspace' && item.tool_type === 'CUSTOM'"
+                            v-if="item.tool_type === 'CUSTOM'"
                           >
                             <AppIcon
                               iconName="app-schedule-report"
