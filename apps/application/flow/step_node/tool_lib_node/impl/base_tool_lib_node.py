@@ -27,7 +27,8 @@ from common.exception.app_exception import AppApiException
 from common.utils.logger import maxkb_logger
 from common.utils.rsa_util import rsa_long_decrypt
 from common.utils.tool_code import ToolExecutor
-from knowledge.models import FileSourceType, State
+from knowledge.models import FileSourceType
+from knowledge.models.knowledge_action import State
 from oss.serializers.file import FileSerializer
 from tools.models import Tool, ToolRecord, ToolTaskTypeChoices
 
@@ -265,16 +266,18 @@ class BaseToolLibNodeNode(IToolLibNode):
             result = function_executor.exec_code(tool_lib.code, all_params)
             result_dict = _get_result_detail(result)
             QuerySet(ToolRecord).filter(id=task_record_id).update(
-                state=State.SUCCESS.value,
+                state=State.SUCCESS,
                 run_time=time.time() - start_time,
                 meta={'input': all_params, 'output': result_dict}
             )
+
+            print(result)
 
             return result
         except Exception as e:
             maxkb_logger.error(f"Tool execution error: {traceback.format_exc()}")
             QuerySet(ToolRecord).filter(id=task_record_id).update(
-                state=State.FAILURE.value,
+                state=State.FAILURE,
                 run_time=time.time() - start_time,
                 meta={'input': all_params, 'output': 'Error: ' + str(e)}
             )
