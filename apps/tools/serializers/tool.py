@@ -907,6 +907,7 @@ class ToolSerializer(serializers.Serializer):
             application_subquery = Application.objects.filter(id=OuterRef('source_id')).values('name')[:1]
             knowledge_subquery = Knowledge.objects.filter(id=OuterRef('source_id')).values('name')[:1]
             trigger_subquery = Trigger.objects.filter(id=OuterRef('source_id')).values('name')[:1]
+            trigger_type_subquery = Trigger.objects.filter(id=OuterRef('source_id')).values('trigger_type')[:1]
 
             query_set = QuerySet(ToolRecord)
             query_set = query_set.filter(
@@ -916,6 +917,12 @@ class ToolSerializer(serializers.Serializer):
                     When(source_type='APPLICATION', then=Subquery(application_subquery)),
                     When(source_type='KNOWLEDGE', then=Subquery(knowledge_subquery)),
                     When(source_type='TRIGGER', then=Subquery(trigger_subquery)),
+                    default=Value(''),
+                    output_field=CharField()
+                )
+            ).annotate(
+                trigger_type=Case(
+                    When(source_type='TRIGGER', then=Subquery(trigger_type_subquery)),
                     default=Value(''),
                     output_field=CharField()
                 )
@@ -947,6 +954,7 @@ class ToolSerializer(serializers.Serializer):
                     'source_name': record.source_name,
                     'tool_name': record.tool_name,
                     'tool_icon': record.tool_icon,
+                    'trigger_type': record.trigger_type,
                 }
             )
 

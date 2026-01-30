@@ -128,7 +128,7 @@
               <el-icon class="color-success" :size="16" v-if="detail?.state === 'SUCCESS'">
                 <CircleCheck />
               </el-icon>
-              <el-icon class="is-loading" :size="16" v-if="detail?.state === 'STARTED'">
+              <el-icon class="is-loading" :size="16" v-else-if="detail?.state === 'STARTED'">
                 <Loading />
               </el-icon>
               <el-icon class="color-danger" :size="16" v-else>
