@@ -34,7 +34,6 @@ from common.utils.rsa_util import rsa_long_decrypt, rsa_long_encrypt
 from common.utils.tool_code import ToolExecutor
 from knowledge.models import File, FileSourceType, Knowledge
 from maxkb.const import PROJECT_DIR
-from role_setting.models import Workspace
 from system_manage.models import AuthTargetType, WorkspaceUserResourcePermission
 from system_manage.models.resource_mapping import ResourceMapping
 from system_manage.serializers.resource_mapping_serializers import ResourceMappingSerializer
@@ -908,7 +907,6 @@ class ToolSerializer(serializers.Serializer):
             application_subquery = Application.objects.filter(id=OuterRef('source_id')).values('name')[:1]
             knowledge_subquery = Knowledge.objects.filter(id=OuterRef('source_id')).values('name')[:1]
             trigger_subquery = Trigger.objects.filter(id=OuterRef('source_id')).values('name')[:1]
-            workspace_subquery = Workspace.objects.filter(id=OuterRef('workspace_id')).values('name')[:1]
 
             query_set = QuerySet(ToolRecord)
             query_set = query_set.filter(
@@ -921,8 +919,6 @@ class ToolSerializer(serializers.Serializer):
                     default=Value(''),
                     output_field=CharField()
                 )
-            ).annotate(
-                workspace_name=Subquery(workspace_subquery)
             )
             if self.data.get('source_type'):
                 query_set = query_set.filter(Q(source_type=self.data.get('source_type', '')))
