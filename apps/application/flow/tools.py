@@ -323,9 +323,9 @@ async def _yield_mcp_response(chat_model, message_list, mcp_servers, mcp_output_
         response = agent.astream({"messages": message_list}, config={"recursion_limit": recursion_limit},
                                  stream_mode='messages')
 
-        # 用于存储工具调用信息（按 tool_id）以及按 index 聚合分片
-        tool_calls_info = {}
-        _tool_fragments = {}  # index -> {'id':..., 'name':..., 'arguments':...}
+        # 用于存储工具调用信息
+        tool_calls_info = {}  # tool_id -> {'name': ..., 'input': ...}
+        _tool_fragments = {}  # index -> {'id': ..., 'name': ..., 'arguments': ...}
 
         async for chunk in response:
             if isinstance(chunk[0], AIMessageChunk):
@@ -334,21 +334,21 @@ async def _yield_mcp_response(chat_model, message_list, mcp_servers, mcp_output_
                     idx = tool_call.get('index')
                     if idx is None:
                         continue
+
                     entry = _tool_fragments.setdefault(idx, {'id': '', 'name': '', 'arguments': ''})
 
-                    # 更新 id 与 name（如果有）
+                    # 更新 id
                     if tool_call.get('id'):
                         entry['id'] = tool_call.get('id')
 
+                    # 更新 name 和 arguments
                     func = tool_call.get('function', {})
-                    # arguments 可能在 function.arguments 或顶层 arguments
-                    part_args = ''
-                    if isinstance(func, dict) and 'arguments' in func:
-                        part_args = func.get('arguments') or ''
+                    if isinstance(func, dict):
                         if func.get('name'):
                             entry['name'] = func.get('name')
+                        part_args = func.get('arguments', '')
                     else:
-                        part_args = tool_call.get('arguments', '') or ''
+                        part_args = tool_call.get('arguments', '')
 
                     # 统一为字符串
                     if not isinstance(part_args, str):
@@ -359,27 +359,27 @@ async def _yield_mcp_response(chat_model, message_list, mcp_servers, mcp_output_
 
                     entry['arguments'] += part_args
 
-                    # 若 arguments 为空字符串，替换为 '{}'
-                    if entry['arguments'] == '':
-                        entry['arguments'] = '{}'
-
-                    # 尝试判断 JSON 是否完整（若 arguments 是 JSON），完整则提交到 tool_calls_info
-                    try:
-                        json.loads(entry['arguments'])
-                        if entry['id']:
+                    # 尝试解析 JSON,判断是否完整
+                    if entry['id'] and entry['arguments']:
+                        try:
+                            json.loads(entry['arguments'])
+                            # JSON 完整,保存到 tool_calls_info
                             tool_calls_info[entry['id']] = {
-                                'name': entry.get('name', ''),
+                                'name': entry['name'],
                                 'input': entry['arguments']
                             }
-                            _tool_fragments.pop(idx, None)
-                    except Exception:
-                        # 如果不是完整 JSON，继续等待后续片段
-                        pass
+                            # 从 fragments 中移除
+                            del _tool_fragments[idx]
+                        except (json.JSONDecodeError, ValueError):
+                            # JSON 不完整,继续等待
+                            pass
 
                 yield chunk[0]
 
             if mcp_output_enable and isinstance(chunk[0], ToolMessage):
-                tool_id = _extract_tool_id(chunk[0].tool_call_id)
+                # 直接使用 tool_call_id,不进行提取
+                tool_id = chunk[0].tool_call_id
+
                 if tool_id in tool_calls_info:
                     tool_info = tool_calls_info[tool_id]
                     content = generate_tool_message_complete(
@@ -388,10 +388,14 @@ async def _yield_mcp_response(chat_model, message_list, mcp_servers, mcp_output_
                         chunk[0].content
                     )
                     chunk[0].content = content
+                else:
+                    # 如果找不到对应的工具信息,记录日志
+                    maxkb_logger.warning(
+                        f"Tool ID {tool_id} not found in tool_calls_info. Available IDs: {list(tool_calls_info.keys())}")
+
                 yield chunk[0]
 
     except ExceptionGroup as eg:
-
         def get_real_error(exc):
             if isinstance(exc, ExceptionGroup):
                 return get_real_error(exc.exceptions[0])
