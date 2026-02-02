@@ -83,7 +83,7 @@
         <template #default="{ row }">
           <div class="flex align-center">
             <KnowledgeIcon :size="22" v-if="row.source_type === 'KNOWLEDGE'" :type="4" />
-            <TriggerIcon v-if="row.source_type === 'TRIGGER'" :type="row.trigger_type" :size="22" />
+            <TriggerIcon v-else-if="row.source_type === 'TRIGGER'" :type="row.trigger_type" :size="22" />
             <el-avatar shape="square" :size="22" style="background: none" v-else>
               <img :src="resetUrl(row?.source_icon, resetUrl('./favicon.ico'))" alt="" />
             </el-avatar>

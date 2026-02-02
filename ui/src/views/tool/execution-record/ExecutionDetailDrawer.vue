@@ -35,7 +35,7 @@
                   :type="4"
                 />
                 <TriggerIcon
-                  v-if="props.currentContent?.source_type === 'TRIGGER'"
+                  v-else-if="props.currentContent?.source_type === 'TRIGGER'"
                   :type="props.currentContent?.trigger_type"
                   :size="22"
                 />
