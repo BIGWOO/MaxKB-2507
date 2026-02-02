@@ -107,7 +107,7 @@ class TriggerTaskRecordOperateSerializer(serializers.Serializer):
                     'run_time': tool_record.run_time,
                     'details': {
                         'tool_call': {
-                            'index': 0,
+                            'index': 1,
                             'result': tool_record.meta.get('output'),
                             'params': tool_record.meta.get('input'),
                             'status': 500 if tool_record.state == State.FAILURE else 200 if tool_record.state == State.SUCCESS else 201,
