@@ -230,7 +230,7 @@ class BaseChatNode(IChatNode):
                 if mcp_tool and mcp_tool['is_active']:
                     mcp_servers_config = {**mcp_servers_config, **json.loads(mcp_tool['code'])}
                     mcp_servers_config = self.handle_variables(mcp_servers_config)
-
+        tool_init_params = {}
         if tool_ids and len(tool_ids) > 0:  # 如果有工具ID，则将其转换为MCP
             self.context['tool_ids'] = tool_ids
             for tool_id in tool_ids:
@@ -240,6 +240,7 @@ class BaseChatNode(IChatNode):
                 executor = ToolExecutor()
                 if tool.init_params is not None:
                     params = json.loads(rsa_long_decrypt(tool.init_params))
+                    tool_init_params = json.loads(rsa_long_decrypt(tool.init_params))
                 else:
                     params = {}
                 tool_config = executor.get_tool_mcp_config(tool.code, params, tool.name, tool.desc)
@@ -274,7 +275,7 @@ class BaseChatNode(IChatNode):
                 mcp_servers_config[app.name] = app_config
 
         if len(mcp_servers_config) > 0:
-            r = mcp_response_generator(chat_model, message_list, json.dumps(mcp_servers_config), mcp_output_enable)
+            r = mcp_response_generator(chat_model, message_list, json.dumps(mcp_servers_config), mcp_output_enable, tool_init_params)
             return NodeResult(
                 {'result': r, 'chat_model': chat_model, 'message_list': message_list,
                  'history_message': [{'content': message.content, 'role': message.type} for message in

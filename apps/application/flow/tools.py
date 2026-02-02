@@ -13,14 +13,16 @@ import re
 import threading
 from functools import reduce
 from typing import Iterator
-from maxkb.const import CONFIG
+
 from django.http import StreamingHttpResponse
 from langchain_core.messages import BaseMessageChunk, BaseMessage, ToolMessage, AIMessageChunk
 from langchain_mcp_adapters.client import MultiServerMCPClient
 from langgraph.prebuilt import create_react_agent
+
 from application.flow.i_step_node import WorkFlowPostHandler
 from common.result import result
 from common.utils.logger import maxkb_logger
+from maxkb.const import CONFIG
 
 
 class Reasoning:
@@ -104,7 +106,7 @@ class Reasoning:
                 if reasoning_content_end_tag_index > -1:
                     reasoning_content_chunk = self.reasoning_content_chunk[0:reasoning_content_end_tag_index]
                     content_chunk = self.reasoning_content_chunk[
-                                    reasoning_content_end_tag_index + self.reasoning_content_end_tag_len:]
+                        reasoning_content_end_tag_index + self.reasoning_content_end_tag_len:]
                     self.reasoning_content += reasoning_content_chunk
                     self.content += content_chunk
                     self.reasoning_content_chunk = ""
@@ -314,7 +316,7 @@ def _extract_tool_id(raw_id):
     return tool_id or raw_id
 
 
-async def _yield_mcp_response(chat_model, message_list, mcp_servers, mcp_output_enable=True):
+async def _yield_mcp_response(chat_model, message_list, mcp_servers, mcp_output_enable=True, tool_init_params={}):
     try:
         client = MultiServerMCPClient(json.loads(mcp_servers))
         tools = await client.get_tools()
@@ -362,11 +364,20 @@ async def _yield_mcp_response(chat_model, message_list, mcp_servers, mcp_output_
                     # 尝试解析 JSON,判断是否完整
                     if entry['id'] and entry['arguments']:
                         try:
-                            json.loads(entry['arguments'])
+                            parsed_args = json.loads(entry['arguments'])
+                            # 过滤掉 tool_init_params 中的参数
+                            if tool_init_params:
+                                filtered_args = {
+                                    k: v for k, v in parsed_args.items()
+                                    if k not in tool_init_params
+                                }
+                            else:
+                                filtered_args = parsed_args
+
                             # JSON 完整,保存到 tool_calls_info
                             tool_calls_info[entry['id']] = {
                                 'name': entry['name'],
-                                'input': entry['arguments']
+                                'input': json.dumps(filtered_args, ensure_ascii=False)
                             }
                             # 从 fragments 中移除
                             del _tool_fragments[idx]
@@ -410,14 +421,14 @@ async def _yield_mcp_response(chat_model, message_list, mcp_servers, mcp_output_
         raise RuntimeError(error_msg) from None
 
 
-def mcp_response_generator(chat_model, message_list, mcp_servers, mcp_output_enable=True):
+def mcp_response_generator(chat_model, message_list, mcp_servers, mcp_output_enable=True, tool_init_params={}):
     """使用全局事件循环，不创建新实例"""
     result_queue = queue.Queue()
     loop = get_global_loop()  # 使用共享循环
 
     async def _run():
         try:
-            async_gen = _yield_mcp_response(chat_model, message_list, mcp_servers, mcp_output_enable)
+            async_gen = _yield_mcp_response(chat_model, message_list, mcp_servers, mcp_output_enable, tool_init_params)
             async for chunk in async_gen:
                 result_queue.put(('data', chunk))
         except Exception as e:

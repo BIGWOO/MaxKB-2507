@@ -245,6 +245,7 @@ class BaseChatStep(IChatStep):
                 if mcp_tool and mcp_tool['is_active']:
                     mcp_servers_config = {**mcp_servers_config, **json.loads(mcp_tool['code'])}
 
+        tool_init_params = {}
         if tool_ids and len(tool_ids) > 0:  # 如果有工具ID，则将其转换为MCP
             self.context['tool_ids'] = tool_ids
             for tool_id in tool_ids:
@@ -254,6 +255,7 @@ class BaseChatStep(IChatStep):
                 executor = ToolExecutor()
                 if tool.init_params is not None:
                     params = json.loads(rsa_long_decrypt(tool.init_params))
+                    tool_init_params = json.loads(rsa_long_decrypt(tool.init_params))
                 else:
                     params = {}
                 tool_config = executor.get_tool_mcp_config(tool.code, params, tool.name, tool.desc)
@@ -288,7 +290,7 @@ class BaseChatStep(IChatStep):
                 mcp_servers_config[app.name] = app_config
 
         if len(mcp_servers_config) > 0:
-            return mcp_response_generator(chat_model, message_list, json.dumps(mcp_servers_config), mcp_output_enable)
+            return mcp_response_generator(chat_model, message_list, json.dumps(mcp_servers_config), mcp_output_enable, tool_init_params)
 
         return None
 
