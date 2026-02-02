@@ -33,10 +33,14 @@ class QwenTextToImageModel(MaxKBBaseModel, BaseTextToImage):
         for key, value in model_kwargs.items():
             if key not in ['model_id', 'use_local', 'streaming']:
                 optional_params['params'][key] = value
+        api_base = model_credential.get('api_base')
+        if api_base is None:
+            api_base = 'https://dashscope.aliyuncs.com/api/v1'
+
         chat_tong_yi = QwenTextToImageModel(
             model_name=model_name,
             api_key=model_credential.get('api_key'),
-            api_base=model_credential.get('api_base'),
+            api_base=api_base,
             **optional_params,
         )
         return chat_tong_yi

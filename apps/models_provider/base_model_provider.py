@@ -67,16 +67,8 @@ class IModelProvider(ABC):
         if model_type == 'TTI' and model_name.startswith(('qwen', 'wan2.6', 'wan')):
             if hasattr(model_credential, 'api_base'):
                 api_base = model_credential.api_base
-                if hasattr(api_base, 'default_value'):
-                    default_value_map = {
-                        'qwen': "https://dashscope.aliyuncs.com/v1",
-                        'wan2.6': "https://dashscope.aliyuncs.com/api/v1",
-                        'wan': "https://dashscope.aliyuncs.com/compatible-mode/v1"
-                    }
-                    prefix = next((k for k in default_value_map if model_name.startswith(k)), None)
-                    if prefix:
-                        api_base.default_value = default_value_map[prefix]
-
+                if hasattr(api_base, 'default_value') and not api_base.default_value:
+                    api_base.default_value = 'https://dashscope.aliyuncs.com/api/v1'
         return model_credential
 
     def get_model_params(self, model_type, model_name):
