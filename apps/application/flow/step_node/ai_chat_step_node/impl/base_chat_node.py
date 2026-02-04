@@ -243,7 +243,7 @@ class BaseChatNode(IChatNode):
                     tool_init_params = json.loads(rsa_long_decrypt(tool.init_params))
                 else:
                     params = {}
-                tool_config = executor.get_tool_mcp_config(tool.code, params, tool.name, tool.desc)
+                tool_config = executor.get_tool_mcp_config(tool, params)
 
                 mcp_servers_config[str(tool.id)] = tool_config
 
@@ -275,7 +275,17 @@ class BaseChatNode(IChatNode):
                 mcp_servers_config[app.name] = app_config
 
         if len(mcp_servers_config) > 0:
-            r = mcp_response_generator(chat_model, message_list, json.dumps(mcp_servers_config), mcp_output_enable, tool_init_params)
+            # 安全获取 application
+            application_id = None
+            if (self.workflow_manage and
+                    self.workflow_manage.work_flow_post_handler and
+                    self.workflow_manage.work_flow_post_handler.chat_info):
+                application_id = self.workflow_manage.work_flow_post_handler.chat_info.application.id
+            knowledge_id = self.workflow_params.get('knowledge_id')
+            source_id = application_id or knowledge_id
+            source_type = 'APPLICATION' if application_id else 'KNOWLEDGE'
+            r = mcp_response_generator(chat_model, message_list, json.dumps(mcp_servers_config), mcp_output_enable,
+                                       tool_init_params, source_id, source_type)
             return NodeResult(
                 {'result': r, 'chat_model': chat_model, 'message_list': message_list,
                  'history_message': [{'content': message.content, 'role': message.type} for message in

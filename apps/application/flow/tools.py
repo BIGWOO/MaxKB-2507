@@ -14,6 +14,9 @@ import threading
 from functools import reduce
 from typing import Iterator
 
+import uuid_utils.compat as uuid
+from asgiref.sync import sync_to_async
+from django.db.models import QuerySet
 from django.http import StreamingHttpResponse
 from langchain_core.messages import BaseMessageChunk, BaseMessage, ToolMessage, AIMessageChunk
 from langchain_mcp_adapters.client import MultiServerMCPClient
@@ -22,7 +25,9 @@ from langgraph.prebuilt import create_react_agent
 from application.flow.i_step_node import WorkFlowPostHandler
 from common.result import result
 from common.utils.logger import maxkb_logger
+from knowledge.models.knowledge_action import State
 from maxkb.const import CONFIG
+from tools.models import ToolRecord, Tool
 
 
 class Reasoning:
@@ -316,7 +321,8 @@ def _extract_tool_id(raw_id):
     return tool_id or raw_id
 
 
-async def _yield_mcp_response(chat_model, message_list, mcp_servers, mcp_output_enable=True, tool_init_params={}):
+async def _yield_mcp_response(chat_model, message_list, mcp_servers, mcp_output_enable=True, tool_init_params={},
+                              source_id=None, source_type=None):
     try:
         client = MultiServerMCPClient(json.loads(mcp_servers))
         tools = await client.get_tools()
@@ -393,10 +399,14 @@ async def _yield_mcp_response(chat_model, message_list, mcp_servers, mcp_output_
 
                 if tool_id in tool_calls_info:
                     tool_info = tool_calls_info[tool_id]
+                    tool_result = json.loads(chunk[0].content)
+                    tool_id = tool_result.pop('tool_id')
+                    if tool_id:
+                        await save_tool_record(tool_id, tool_info, tool_result, source_id, source_type)
                     content = generate_tool_message_complete(
                         tool_info['name'],
                         tool_info['input'],
-                        chunk[0].content
+                        json.dumps(tool_result),
                     )
                     chunk[0].content = content
                 else:
@@ -421,14 +431,30 @@ async def _yield_mcp_response(chat_model, message_list, mcp_servers, mcp_output_
         raise RuntimeError(error_msg) from None
 
 
-def mcp_response_generator(chat_model, message_list, mcp_servers, mcp_output_enable=True, tool_init_params={}):
+async def save_tool_record(tool_id, tool_info, tool_result, source_id, source_type):
+    tool = await sync_to_async(lambda: QuerySet(Tool).filter(id=tool_id).first())()
+    tool_record = ToolRecord(
+        id=uuid.uuid7(),
+        workspace_id=tool.workspace_id,
+        tool_id=tool_id,
+        source_type=source_type,
+        source_id=source_id,
+        meta={'input': tool_info['input'], 'output': tool_result},
+        state=State.SUCCESS
+    )
+    await sync_to_async(tool_record.save)()
+
+
+def mcp_response_generator(chat_model, message_list, mcp_servers, mcp_output_enable=True, tool_init_params={},
+                           source_id=None, source_type=None):
     """使用全局事件循环，不创建新实例"""
     result_queue = queue.Queue()
     loop = get_global_loop()  # 使用共享循环
 
     async def _run():
         try:
-            async_gen = _yield_mcp_response(chat_model, message_list, mcp_servers, mcp_output_enable, tool_init_params)
+            async_gen = _yield_mcp_response(chat_model, message_list, mcp_servers, mcp_output_enable, tool_init_params,
+                                            source_id, source_type)
             async for chunk in async_gen:
                 result_queue.put(('data', chunk))
         except Exception as e:

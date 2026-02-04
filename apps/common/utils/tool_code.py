@@ -137,8 +137,8 @@ sys.stdout.flush()
             return result.get('data')
         raise Exception(result.get('msg') + (f'\n{subprocess_result.stderr}' if subprocess_result.stderr else ''))
 
-    def _generate_mcp_server_code(self, _code, params, name=None, description=None):
-        # 解析代码，提取导入语句和函数定义
+    def _generate_mcp_server_code(self, _code, params, name=None, description=None, tool_id=None):
+        # 解析代码,提取导入语句和函数定义
         try:
             tree = ast.parse(_code)
         except SyntaxError:
@@ -155,7 +155,7 @@ sys.stdout.flush()
                     continue
                 # 修改函数参数以包含 params 中的默认值
                 arg_names = [arg.arg for arg in node.args.args]
-                # 为参数添加默认值，确保参数顺序正确
+                # 为参数添加默认值,确保参数顺序正确
                 defaults = []
                 num_defaults = 0
                 # 从后往前检查哪些参数有默认值
@@ -178,26 +178,72 @@ sys.stdout.flush()
                             else:
                                 defaults.append(ast.Constant(value=str(default_value)))
                         else:
-                            # 如果某个参数没有默认值，需要添加 None 占位
+                            # 如果某个参数没有默认值,需要添加 None 占位
                             defaults.append(ast.Constant(value=None))
                     node.args.defaults = defaults
+
+                # 修改返回类型注解为 Result
+                node.returns = ast.Name(id='Result', ctx=ast.Load())
+
+                # 修改 return 语句为 return Result(result=..., tool_id=...)
+                class ReturnTransformer(ast.NodeTransformer):
+                    def __init__(self, func_name):
+                        self.func_name = func_name
+
+                    def visit_Return(self, node):
+                        if node.value is None:
+                            # return 语句没有返回值
+                            new_return = ast.Return(
+                                value=ast.Call(
+                                    func=ast.Name(id='Result', ctx=ast.Load()),
+                                    args=[],
+                                    keywords=[
+                                        ast.keyword(arg='result', value=ast.Constant(value=None)),
+                                        ast.keyword(arg='tool_id', value=ast.Constant(value=tool_id))
+                                    ]
+                                )
+                            )
+                        else:
+                            # return 语句有返回值
+                            new_return = ast.Return(
+                                value=ast.Call(
+                                    func=ast.Name(id='Result', ctx=ast.Load()),
+                                    args=[],
+                                    keywords=[
+                                        ast.keyword(arg='result', value=node.value),
+                                        ast.keyword(arg='tool_id', value=ast.Constant(value=tool_id))
+                                    ]
+                                )
+                            )
+                        return ast.copy_location(new_return, node)
+
+                transformer = ReturnTransformer(node.name)
+                node = transformer.visit(node)
+                ast.fix_missing_locations(node)
+
                 func_code = ast.unparse(node)
-                # 有些模型不支持name是中文，例如: deepseek, 其他模型未知
+                # 有些模型不支持name是中文,例如: deepseek, 其他模型未知
                 escaped_desc = (name + ' ' + description).replace('\n', ' ').replace("'", " ")
                 functions.append(f"@mcp.tool(description='{escaped_desc}')\n{func_code}\n")
             else:
                 other_code.append(ast.unparse(node))
+
         # 构建完整的 MCP 服务器代码
         code_parts = ["from mcp.server.fastmcp import FastMCP"]
         code_parts.extend(imports)
+        code_parts.append(f"\nfrom pydantic import BaseModel")
+        code_parts.append(f"\nfrom typing import Any")
+        code_parts.append(f"\nclass Result(BaseModel):")
+        code_parts.append(f"\n\tresult: Any")
+        code_parts.append(f"\n\ttool_id: str\n")
         code_parts.append(f"\nmcp = FastMCP(\"{uuid.uuid7()}\")\n")
         code_parts.extend(other_code)
         code_parts.extend(functions)
         code_parts.append("\nmcp.run(transport=\"stdio\")\n")
         return "\n".join(code_parts)
 
-    def generate_mcp_server_code(self, code_str, params, name, description):
-        code = self._generate_mcp_server_code(code_str, params, name, description)
+    def generate_mcp_server_code(self, code_str, params, name, description, tool_id):
+        code = self._generate_mcp_server_code(code_str, params, name, description, tool_id)
         set_run_user = f'os.setgid({pwd.getpwnam(_run_user).pw_gid});os.setuid({pwd.getpwnam(_run_user).pw_uid});' if _enable_sandbox else ''
         return f"""
 import os, sys, logging
@@ -212,8 +258,8 @@ os.environ.clear()
 exec({dedent(code)!a})
 """
 
-    def get_tool_mcp_config(self, code, params, name, description):
-        _code = self.generate_mcp_server_code(code, params, name, description)
+    def get_tool_mcp_config(self, tool, params):
+        _code = self.generate_mcp_server_code(tool.code, params, tool.name, tool.desc, str(tool.id))
         maxkb_logger.debug(f"Python code of mcp tool: {_code}")
         compressed_and_base64_encoded_code_str = base64.b64encode(gzip.compress(_code.encode())).decode()
         tool_config = {
