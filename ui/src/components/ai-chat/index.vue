@@ -645,10 +645,8 @@ const handleScroll = () => {
   if (props.type !== 'log' && scrollDiv.value) {
     // 内部高度小于外部高度 就需要出滚动条
     if (scrollDiv.value.wrapRef.offsetHeight < dialogScrollbar.value.scrollHeight) {
-      // 如果当前滚动条距离最下面的距离在 规定距离 滚动条就跟随
-      if (scorll.value) {
-        scrollDiv.value.setScrollTop(getMaxHeight())
-      }
+      // 滚动到底部
+      scrollDiv.value.setScrollTop(dialogScrollbar.value.scrollHeight);
     }
   }
 }
@@ -759,9 +757,11 @@ function setScrollBottom() {
 watch(
   chatList,
   () => {
-    handleScroll()
+    nextTick(() => {
+      handleScroll(); // 确保 DOM 更新后再滚动
+    });
   },
-  { deep: true, immediate: true },
+  {deep: true, immediate: true},
 )
 
 defineExpose({
