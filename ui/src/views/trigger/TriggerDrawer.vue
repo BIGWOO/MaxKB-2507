@@ -57,7 +57,7 @@
           shadow="never"
           class="mb-16 w-full cursor"
           :class="form.trigger_type === 'SCHEDULED' ? 'border-active' : ''"
-          @click="form.trigger_type = 'SCHEDULED'"
+          @click="changeTriggerType('SCHEDULED')"
         >
           <div class="flex align-center line-height-22">
             <el-avatar shape="square" :size="32">
@@ -81,7 +81,7 @@
             <el-cascader
               v-model="scheduled"
               :options="triggerCycleOptions"
-              @change="handleChange"
+              @change="handleChangeScheduled"
               style="width: 100%"
             />
           </el-card>
@@ -90,7 +90,7 @@
           shadow="never"
           class="w-full cursor"
           :class="form.trigger_type === 'EVENT' ? 'border-active' : ''"
-          @click="form.trigger_type = 'EVENT'"
+          @click="changeTriggerType('EVENT')"
         >
           <div class="flex align-center line-height-22">
             <el-avatar shape="square" class="avatar-orange" :size="32">
@@ -353,7 +353,7 @@
           </div>
           <div class="w-full" v-if="collapseData.agent">
             <template v-for="(item, index) in applicationTask" :key="index">
-              <div class="border border-r-6 white-bg" style="padding: 2px 8px">
+              <div class="border border-r-6 white-bg mb-4" style="padding: 2px 8px">
                 <div class="flex-between">
                   <div class="flex align-center" style="line-height: 20px">
                     <el-avatar
@@ -557,14 +557,38 @@ const editPermission = computed(() => {
 
 const triggerFormRef = ref<FormInstance>()
 
+const getDefaultValue = () => {
+  return {
+    id: uuidv4(),
+    name: '',
+    desc: '',
+    trigger_task: [],
+    trigger_type: 'SCHEDULED',
+    trigger_setting: {
+      token: uuidv4().replace(/-/g, ''),
+      body: [],
+    },
+  }
+}
+
+const form = ref<any>(getDefaultValue())
+const is_edit = ref<boolean>(false)
+const event_url = computed(() => {
+  return `${window.origin}${window.MaxKB.prefix}/api/trigger/v1/webhook/${form.value.id}`
+})
+
 const addParameter = () => {
   form.value.trigger_setting.body.push({ field: '', type: '' })
 }
 const delParameter = (index: number | string) => {
   form.value.trigger_setting.body.splice(index, 1)
 }
-const handleChange = (v: Array<any>) => {
+const handleChangeScheduled = (v: Array<any>) => {
   scheduled.value = v
+}
+
+const changeTriggerType = (type: string) => {
+  form.value.trigger_type = type
 }
 const applicationDetailsDict = ref<any>({})
 const toolDetailsDict = ref<any>({})
@@ -692,25 +716,6 @@ const scheduled = computed({
       }
     }
   },
-})
-const getDefaultValue = () => {
-  return {
-    id: uuidv4(),
-    name: '',
-    desc: '',
-    trigger_task: [],
-    trigger_type: 'SCHEDULED',
-    trigger_setting: {
-      token: uuidv4().replace(/-/g, ''),
-      body: [],
-    },
-  }
-}
-
-const form = ref<any>(getDefaultValue())
-const is_edit = ref<boolean>(false)
-const event_url = computed(() => {
-  return `${window.origin}${window.MaxKB.prefix}/api/trigger/v1/webhook/${form.value.id}`
 })
 
 const init = (trigger_id: string) => {
