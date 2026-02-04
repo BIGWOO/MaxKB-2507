@@ -400,7 +400,7 @@ async def _yield_mcp_response(chat_model, message_list, mcp_servers, mcp_output_
                 if tool_id in tool_calls_info:
                     tool_info = tool_calls_info[tool_id]
                     tool_result = json.loads(chunk[0].content)
-                    tool_lib_id = tool_result.get('tool_id')
+                    tool_lib_id = tool_result.pop('tool_id') if 'tool_id' in tool_result else None
                     if tool_lib_id:
                         await save_tool_record(tool_lib_id, tool_info, tool_result, source_id, source_type)
                     content = generate_tool_message_complete(
