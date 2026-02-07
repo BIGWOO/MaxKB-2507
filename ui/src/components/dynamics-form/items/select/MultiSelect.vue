@@ -6,6 +6,9 @@
     allow-create
     clearable
     default-first-option
+    collapse-tags
+    collapse-tags-tooltip
+    :max-collapse-tags="3"
     :reserve-keyword="false"
     v-bind="$attrs"
     v-model="_modelValue"
