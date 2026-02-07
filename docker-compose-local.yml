@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  maxkb:
+    build:
+      context: .
+      dockerfile: installer/Dockerfile
+    container_name: maxkb-v2
+    ports:
+      - "8080:8080"
+    volumes:
+      - maxkb-data:/var/lib/postgresql/17/main
+      - maxkb-model:/opt/maxkb-app/model
+    environment:
+      - MAXKB_DB_HOST=127.0.0.1
+      - MAXKB_REDIS_HOST=127.0.0.1
+    restart: unless-stopped
+
+volumes:
+  maxkb-data:
+  maxkb-model:
